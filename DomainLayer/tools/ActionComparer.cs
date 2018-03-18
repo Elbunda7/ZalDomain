@@ -1,0 +1,20 @@
+﻿using ZalDomain.ActiveRecords;
+using System.Collections.Generic;
+
+
+namespace ZalDomain.tools
+{
+    public class ActionComparer : Comparer<ActionEvent>
+    {
+        public override int Compare(ActionEvent x, ActionEvent y) {
+            int comparison = Comparer<long>.Default.Compare(x.DateFrom.Ticks, y.DateFrom.Ticks);
+            if (comparison == 0) {
+                comparison = Comparer<int>.Default.Compare(x.DayCount, y.DayCount);
+            }
+            if (comparison == 0) {
+                comparison = Comparer<int>.Default.Compare(x.Id, y.Id);
+            }
+            return comparison;
+        }
+    }
+}

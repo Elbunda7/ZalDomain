@@ -33,14 +33,16 @@ namespace ZalDomain.ItemSets
             Synchronize();
         }
 
-        private void CheckForChanges() {
-            string changes = ActionEvent.CheckForChanges(Zal.Me, LastCheck);//nepozná když se záznam vymaže natvrdo
+        private async void CheckForChanges() {
+            Data.Clear();
+            Data.AddAll(await ActionEvent.GetUpcoming(Zal.Me));
+            /*string changes = ActionEvent.Synchronize(Zal.Me, LastCheck);//nepozná když se záznam vymaže natvrdo
             if (changes.Equals(CONST.CHANGES.MAJOR)) {
                 Data.Clear();
                 Data.AddAll(ActionEvent.GetUpcoming(Zal.Me));
             }
             else if (changes.Equals(CONST.CHANGES.MINOR)) {
-                List<int> changedItems = ActionEvent.GetChanged(Zal.Me, LastCheck);
+                List<int> changedItems = ActionEvent.SynchronizeAll(Zal.Me, LastCheck);
                 foreach (int id in changedItems) {
                     if (id < 0) {
                         Data.RemoveById(-id);
@@ -50,14 +52,14 @@ namespace ZalDomain.ItemSets
                         Data.Add(ActionEvent.Get(id));
                     }
                 }
-            }
+            }*/
         }
 
-        public void InsertNewAction(string jmeno, string typ, DateTime od, int pocetDni, int odHodnosti, bool jeOficialni) {
-            Data.Add(new ActionEvent(jmeno, typ, od, pocetDni, odHodnosti, jeOficialni));
+        public void InsertNewAction(string name, string type, DateTime start, DateTime end, int fromRank, bool isOfficial) {
+            Data.Add(new ActionEvent(name, type, start, end, fromRank, isOfficial));
         }
 
-        public ActionEvent GetById(int value) {
+        /*public ActionEvent GetById(int value) {
             foreach (ActionEvent a in Data) {
                 if (a.Has(CONST.AKCE.ID, value)) {
                     return a;
@@ -98,14 +100,6 @@ namespace ZalDomain.ItemSets
             return tmp;
         }
 
-        internal XElement GetXml(string elementName) {
-            XElement element = new XElement(elementName);
-            foreach (ActionEvent a in Data) {
-                element.Add(a.GetXml("Action"));
-            }
-            return element;
-        }
-
         public Collection<ActionEvent> GetBy(int key, DateTime value) {
             Collection<ActionEvent> tmp = new Collection<ActionEvent>();
             foreach (ActionEvent a in Data) {
@@ -114,6 +108,14 @@ namespace ZalDomain.ItemSets
                 }
             }
             return tmp;
+        }*/
+
+        internal XElement GetXml(string elementName) {
+            XElement element = new XElement(elementName);
+            foreach (ActionEvent a in Data) {
+                element.Add(a.GetXml("Action"));
+            }
+            return element;
         }
 
         internal void LoadFromXml(XElement element) {
@@ -128,9 +130,10 @@ namespace ZalDomain.ItemSets
             return Data;
         }
 
-        public void Delete(ActionEvent akce) {
-            ActionEvent.Delete(akce);
-            Data.Remove(akce);
+        public async void Delete(ActionEvent akce) {
+            if (await akce.DeleteAsync()) {
+                Data.Remove(akce);
+            }
         }
 
         /*internal Collection<Akce> getAll() {

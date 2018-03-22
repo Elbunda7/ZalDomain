@@ -9,10 +9,15 @@ using ZalApiGateway.Models;
 
 namespace ZalApiGateway.ApiTools
 {
-    public static class JsonFormator
-    {
+    internal class JsonFormator {
 
-        public static string CreateApiRequestString(string endpoint, string operation, object content = null, string userToken = null) {
+        private string endpoint;
+
+        internal JsonFormator(string endpoint) {
+            this.endpoint = endpoint;
+        }
+
+        internal string CreateApiRequestString(string operation, object content = null, string userToken = null) {
             JObject requestObject = new JObject {
                 { "endpoint", endpoint },
                 { "operation", operation }

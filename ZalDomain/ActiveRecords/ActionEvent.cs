@@ -8,160 +8,167 @@ using DAL.tableStructures;
 using DAL.Gateway;
 using System.Xml.Linq;
 using ZalDomain.tools;
+using ZalApiGateway.Models;
+using ZalApiGateway;
+using System.Threading.Tasks;
 
 namespace ZalDomain.ActiveRecords
 {
     public class ActionEvent : IActiveRecord
     {
-        private AkceTable Data;
-        private User garant;
+        private ActionModel Model;
+        //private AkceTable 
+        private Collection<User> garants;
         private Collection<User> participants;
         private InfoAction info;
         private RecordAction record;
 
-        public int Id { get { return Data.Id; } }
-        public string Type { get { return Data.Typ; } }
-        public string Name { get { return Data.Jmeno; } }
-        public int DayCount { get { return Data.Pocet_dni; } }
-        public int RankLeast { get { return Data.Od_hodnosti; } }
-        public DateTime DateFrom { get { return Data.Datum_od; } }
-        public User Garant { get { return GarantLazyLoad(); } set { SetGarant(value); } }
+        public int Id => Model.Id;
+        public string Type => Model.EventType;
+        public string Name => Model.Name;
+        public int Days => GetDays();
+        //public int RankLeast => Model.Od_hodnosti;
+        public DateTime DateFrom => Model.Date_start;
         public InfoAction Info { get { return InfoLazyLoad(); } private set { info = value; } }
         public RecordAction Record { get { return RecordLazyLoad(); } private set { record = value; } }
+        public Collection<User> Garants { get { return GarantsLazyLoad(); } set { SetGarants(value); } }
         public Collection<User> Participants { get { return ParticipantsLazyLoad(); } private set { participants = value; } }
-        public int ParticipantsCount { get { return Participants.Count; } }//Data.NumOfParticipants
+        public int ParticipantsCount => Participants.Count; //Model.NumOfParticipants
         //public bool Je_oficialni { get; set; }
         //účastním se?
 
 
+        private int GetDays() {
+            TimeSpan ts = Model.Date_end - Model.Date_start;
+            return (int)ts.TotalDays;
+        }
 
         private InfoAction InfoLazyLoad() {
             if (info == null) {
-                info = Zal.Actualities.GetInfoForAction(Data.Id);
+                info = Zal.Actualities.GetInfoForAction(Model.Id);
             }
             return info;
         }
 
         private RecordAction RecordLazyLoad() {
             if (record == null) {
-                record = Zal.Actualities.GetZapisForAction(Data.Id);
+                record = Zal.Actualities.GetZapisForAction(Model.Id);
             }
             return record;
         }
 
 
-        private static AkceGateway gateway;
-        private static AkceGateway Gateway {
-            get {
-                if (gateway == null) {
-                    gateway = AkceGateway.GetInstance();
-                }
-                return gateway;
-            }
-        }
+        private static ActionGateway gateway;
+        private static ActionGateway Gateway => gateway ?? (gateway = new ActionGateway());
 
-        public ActionEvent(string jmeno, string typ, DateTime od, int pocetDni, int odHodnosti, bool jeOficialni) {
-            Data = new AkceTable {
+        public ActionEvent(string name, string type, DateTime start, DateTime end, int odHodnosti, bool isOfficial) {
+            Model = new ActionModel {
                 Id = -1,
-                Jmeno = jmeno,
-                Typ = typ,
-                Datum_od = od,
-                Pocet_dni = pocetDni,
-                Email_vedouci = null,
-                Od_hodnosti = odHodnosti,
-                Je_oficialni = jeOficialni,
+                Name = name,
+                EventType = type,
+                Date_start = start,
+                Date_end = end,
+                //Email_vedouci = null,
+                //Od_hodnosti = odHodnosti,
+                IsOfficial = isOfficial,
             };
-            Gateway.Insert(Data);
+            PostModel();
         }
 
-        public ActionEvent(AkceTable data) {
-            Data = data;
+        public async void PostModel() {
+            await Gateway.AddAsync(Model);
         }
 
-        private User GarantLazyLoad() {
-            if (garant == null) {
-                if (Data.Email_vedouci != null) {
-                    garant = Zal.Users.GetByEmail(Data.Email_vedouci);
+        public ActionEvent(ActionModel model) {
+            Model = model;
+        }
+
+        private Collection<User> GarantsLazyLoad() {
+            /*if (garants == null) {
+                if (Model.Email_vedouci != null) {
+                    garants = Zal.Users.GetByEmail(Model.Email_vedouci);
                 }
                 else {
-                    garant = User.Empty();
+                    garants = User.Empty();
                 }               
             }
-            return garant;
+            return garants;*/
+            throw new NotImplementedException();
         }
 
         private Collection<User> ParticipantsLazyLoad() {
             if (participants == null) {//obnovit?
-                List<string> list = gateway.GetParticipatingAt(Data.Id);
+                List<string> list = gateway.GetParticipatingUsers(Model.Id);
                 participants = Zal.Users.GetByEmailList(list);
             }
             return participants;
         }
 
-        public bool Has(int key, int value) {
+        /*public bool Has(int key, int value) {
             switch (key) {
-                case CONST.AKCE.ID: return Data.Id == value;
-                case CONST.AKCE.POCET_DNI: return Data.Pocet_dni == value;
-                case CONST.AKCE.OD_HODNOSTI: return Data.Od_hodnosti == value;
+                case CONST.AKCE.ID: return Model.Id == value;
+                case CONST.AKCE.POCET_DNI: return Model.Pocet_dni == value;
+                case CONST.AKCE.OD_HODNOSTI: return Model.Od_hodnosti == value;
                 default: return false;
             }
         }
 
         public bool Has(int key, String value) {
             switch (key) {
-                case CONST.AKCE.JMENO: return value.Equals(Data.Jmeno);
-                case CONST.AKCE.TYP: return value.Equals(Data.Typ);
-                case CONST.AKCE.EMAIL_VEDOUCI: return value.Equals(Data.Email_vedouci);
+                case CONST.AKCE.JMENO: return value.Equals(Model.Jmeno);
+                case CONST.AKCE.TYP: return value.Equals(Model.Typ);
+                case CONST.AKCE.EMAIL_VEDOUCI: return value.Equals(Model.Email_vedouci);
                 default: return false;
             }
         }
 
         public bool Has(int key, bool value) {
             switch (key) {
-                case CONST.AKCE.JE_OFICIALNI: return Data.Je_oficialni == value;
+                case CONST.AKCE.JE_OFICIALNI: return Model.Je_oficialni == value;
                 default: return false;
             }
         }
 
         public bool Has(int key, DateTime value) {
             switch (key) {
-                case CONST.AKCE.DATUM: return Data.Datum_od.Date == value.Date;
-                case CONST.AKCE.DATUM_DO: return Data.Datum_od.Date <= value.Date;
-                case CONST.AKCE.DATUM_OD: return Data.Datum_od.Date >= value.Date;
+                case CONST.AKCE.DATUM: return Model.Datum_od.Date == value.Date;
+                case CONST.AKCE.DATUM_DO: return Model.Datum_od.Date <= value.Date;
+                case CONST.AKCE.DATUM_OD: return Model.Datum_od.Date >= value.Date;
                 default: return false;
             }
-        }
+        }*/
 
-        public bool SetGarant(User uzivatel) {
-            IntegrityCondition.UserIsLeader();
-            if (Gateway.JoinLeaderToAction(uzivatel.Email, Data.Id)) {
-                Garant = uzivatel;
+        public bool SetGarants(Collection<User> garants) {
+            /*IntegrityCondition.UserIsLeader();
+            if (Gateway.JoinLeaderToAction(garants.Email, Model.Id)) {
+                Garants = garants;
                 return true;
             }
-            return false;
+            return false;*/
+            throw new NotImplementedException();
         }
 
-        public void Aktualize(String jmeno, String typ, DateTime? od, int? pocetDni, int? odHodnosti, bool? jeOficialni) {
+        public async void Aktualize(String name, String type, DateTime? start, DateTime? end, int? fromRank, bool? isOfficial) {
             IntegrityCondition.UserIsLeader();
-            if (jmeno != null) {
-                Data.Jmeno = jmeno;
+            if (name != null) {
+                Model.Name = name;
             }
-            if (typ != null) {
-                Data.Typ = typ;
+            if (type != null) {
+                Model.EventType = type;
             }
-            if (od != null) {
-                Data.Datum_od = (DateTime)od;
+            if (start != null) {
+                Model.Date_start = start.Value;
             }
-            if (pocetDni != null) {
-                Data.Pocet_dni = (int)pocetDni;
+            if (end != null) {
+                Model.Date_end = end.Value;
             }
-            if (odHodnosti != null) {
-                Data.Od_hodnosti = (int)odHodnosti;
+            if (fromRank != null) {
+                //Model.Od_hodnosti = (int)fromRank;
             }
-            if (jeOficialni != null) {
-                Data.Je_oficialni = (bool)jeOficialni;
+            if (isOfficial != null) {
+                Model.IsOfficial = (bool)isOfficial;
             }
-            Gateway.Update(Data);
+            await Gateway.UpdateAsync(Model);
         }
 
         public int GetNumberOfMembers() {
@@ -170,54 +177,52 @@ namespace ZalDomain.ActiveRecords
         }
 
         public void Participate(User user, bool isGoing) {
-            Gateway.Participate(user.Email, isGoing, Data.Id);
+            //Gateway.JoinAsync(user.Id, Model.Id);
         }
 
         public override string ToString() {
-            return Data.Jmeno;
+            return Model.Name;
         }
 
-        public static string CheckForChanges(User user, DateTime lastCheck) {
-            return Gateway.CheckForChanges(user.RankLevel, lastCheck);
+        public async void Synchronize(DateTime lastCheck) {
+            Model = await Gateway.GetChangedAsync(Id, lastCheck);
         }
 
-        public static Collection<ActionEvent> GetUpcoming(User user) {
-            Collection<ActionEvent> upcomingActions = new Collection<ActionEvent>();
-            bool onlyOfficial = user.RankLevel >= ZAL.RANK.VEDOUCI ? false : true;
-            Collection<AkceTable> actions = Gateway.GetUpcoming(user.RankLevel, onlyOfficial);
-            foreach (AkceTable a in actions) {
-                upcomingActions.Add(new ActionEvent(a));
-            }
-            return upcomingActions;
+        public async static Task<IEnumerable<ActionEvent>> GetUpcoming(User user) {
+            bool onlyOfficial = user.RankLevel < ZAL.RANK.VEDOUCI ? true : false;
+            var models = await Gateway.GetUpcomingAsync(user.RankLevel, onlyOfficial);
+            var actions = models.Select(model => new ActionEvent(model));
+            return actions;
         }
 
-        public static List<int> GetChanged(User user, DateTime lastCheck) {
-            return Gateway.GetChanged(user.RankLevel, lastCheck);
+        public async static Task<List<int>> SynchronizeAll(User user, DateTime lastCheck) {
+            return await Gateway.GetAllChangedAsync(user.RankLevel, lastCheck);
         }
 
-        public static ActionEvent Get(int id) {
-            return new ActionEvent(Gateway.Get(id));
+        public async static Task<ActionEvent> Get(int id) {
+            return new ActionEvent(await Gateway.GetAsync(id));
         }
 
-        public static bool Delete(ActionEvent akce) {
-            return 1 <= Gateway.Delete(akce.Data.Id);
+        public async Task<bool> DeleteAsync() {
+            return await Gateway.DeleteAsync(Model.Id);
         }
 
         public XElement GetXml(string elementName) {
-            XElement element = new XElement(elementName,
-                new XElement("Id", Data.Id),
-                new XElement("DateOfAction", Data.Datum_od.Ticks),
-                new XElement("Name", Data.Jmeno),
-                new XElement("Type", Data.Typ),
-                new XElement("IsOfficial", Data.Je_oficialni),
-                new XElement("FromRank", Data.Od_hodnosti),
-                new XElement("Days", Data.Pocet_dni),
-                new XElement("GarantEmail",Data.Email_vedouci));
-            return element;
+            /*XElement element = new XElement(elementName,
+                new XElement("Id", Model.Id),
+                new XElement("DateOfAction", Model.Datum_od.Ticks),
+                new XElement("Name", Model.Jmeno),
+                new XElement("Type", Model.Typ),
+                new XElement("IsOfficial", Model.Je_oficialni),
+                new XElement("FromRank", Model.Od_hodnosti),
+                new XElement("Days", Model.Pocet_dni),
+                new XElement("GarantEmail",Model.Email_vedouci));
+            return element;*/
+            throw new NotImplementedException();
         }
 
         public static ActionEvent LoadFromXml(XElement element) {
-            AkceTable data = new AkceTable {
+            /*AkceTable data = new AkceTable {
                 Id = Int32.Parse(element.Element("Id").Value),
                 Datum_od = new DateTime(long.Parse(element.Element("DateOfAction").Value)),
                 Jmeno = element.Element("Name").Value,
@@ -229,7 +234,8 @@ namespace ZalDomain.ActiveRecords
             if (!element.Element("GarantEmail").IsEmpty) {
                 data.Email_vedouci = element.Element("GarantEmail").Value;
             }
-            return new ActionEvent(data);
+            return new ActionEvent(data);*/
+            throw new NotImplementedException();
         }
     }
 }

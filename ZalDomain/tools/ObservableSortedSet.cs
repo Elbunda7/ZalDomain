@@ -25,7 +25,7 @@ namespace ZalDomain.tools
             RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item));
         }
 
-        public void AddAll(ICollection<T> items) {
+        public void AddAll(IEnumerable<T> items) {
             foreach(T item in items) {
                 InnerCollection.Add(item);
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item));

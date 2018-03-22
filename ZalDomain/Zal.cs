@@ -94,7 +94,7 @@ namespace ZalDomain
         public static bool Connect() {
             IsConnected = Database.Connect(CONNECTION_STRING);
             if (IsConnected) {//???
-                Synchronize();
+                StartSynchronizing();
             }
             return IsConnected;
         }
@@ -108,11 +108,11 @@ namespace ZalDomain
             }
         }
 
-        public static void Synchronize() {
-            Documents.Synchronize();
-            Badgets.Synchronize();
-            Users.Synchronize();
-            Actualities.Synchronize();
+        public static void StartSynchronizing() {
+            //Documents.Synchronize();
+            //Badgets.Synchronize();
+            //Users.Synchronize();
+            //Actualities.Synchronize();
             Actions.Synchronize();
         }
 

@@ -25,7 +25,7 @@ namespace ZalDomain.ActiveRecords
         public string Type => Model.EventType;
         public string Name => Model.Name;
         public int Days => GetDays();
-        //public int RankLeast => Model.Od_hodnosti;
+        public int FromRank => Model.FromRank;
         public DateTime DateFrom => Model.Date_start;
         public Article Info { get { return InfoLazyLoad(); } private set { info = value; } }
         public Article Report { get { return ReportLazyLoad(); } private set { report = value; } }
@@ -100,6 +100,26 @@ namespace ZalDomain.ActiveRecords
             }
             return garants;*/
             throw new NotImplementedException();
+        }
+
+        public async Task<Article> CreateNewInfo(string title, string text) {
+            return await CreateNewInfo(Zal.Session.CurrentUser, title, text);
+        }
+
+        public async Task<Article> CreateNewInfo(User author, string title, string text) {
+            info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
+            //update info Id
+            return info;
+        }
+
+        public async Task<Article> CreateNewReport(string title, string text) {
+            return await CreateNewReport(Zal.Session.CurrentUser, title, text);
+        }
+
+        public async Task<Article> CreateNewReport(User author, string title, string text) {
+            info = await Zal.Actualities.CreateNewArticle(author, title, text, ZAL.RANK.LISKA);
+            //update zapis id
+            return info;
         }
 
         private async Task<Collection<User>> ParticipantsLazyLoad() {
@@ -182,8 +202,12 @@ namespace ZalDomain.ActiveRecords
             //return Gateway.getNumOfUsers(this);
         }
 
-        public void Participate(User user, bool isGoing) {
-            //Gateway.JoinAsync(user.Id, Model.Id);
+        public async Task<bool> Participate(bool isGoing) {
+            return await ParticipateAsync(Zal.Session.CurrentUser, isGoing);
+        }
+
+        public async Task<bool> ParticipateAsync(User user, bool isGoing) {
+            return await Gateway.JoinAsync(user.Id, Model.Id);
         }
 
         public override string ToString() {

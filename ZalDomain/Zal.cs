@@ -13,21 +13,14 @@ namespace ZalDomain
 {
     public delegate void OfflineCommandDelegate(XDocument commands);
 
-    public static class Zal {
-
+    public static class Zal
+    {
         public static event OfflineCommandDelegate CommandExecutedOffline;
-
-        private const string CONNECTION_STRING = 
-            "server=dbsys.cs.vsb.cz\\STUDENT;database=bre0118;user=bre0118;password=BCQSpQY5YQ;";
-        //"Data Source = Kluci-PC\\SQLEXPRESS;Initial Catalog = master; Integrated Security = True";
-
-
 
 
         public static bool IsConnected { get; private set; } = false;
-        public static bool UserIsLogged => Session.CurrentUser != null;
-
-        //public static User Me { get; set; } = User.Empty();
+        public static bool UserIsLogged => Session.IsLogged;
+        
         public static Session Session { get; set; }
 
         public static DocumentSet Documents { get; private set; } = new DocumentSet();
@@ -98,7 +91,7 @@ namespace ZalDomain
                 CommandExecutedOffline.Invoke(command);
             }
             else {
-                throw new Exception("Commant is executed when offline, but no-one is listening this event");
+                throw new Exception("Command is executed when offline, but no-one is listening this event");
             }
         }
 

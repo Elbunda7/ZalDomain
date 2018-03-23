@@ -95,22 +95,6 @@
       <Field Name="Data" />
     </ShowAsCollectionAssociation>
   </Class>
-  <Class Name="DAL.Gateway.UzivatelGateway" Collapsed="true">
-    <Position X="10" Y="16.75" Width="1.5" />
-    <TypeIdentifier />
-  </Class>
-  <Class Name="DAL.Gateway.OdborkyGateway" Collapsed="true">
-    <Position X="12.25" Y="16.75" Width="1.5" />
-    <TypeIdentifier />
-  </Class>
-  <Class Name="DAL.Gateway.AktualityGateway" Collapsed="true">
-    <Position X="3.25" Y="16.75" Width="1.5" />
-    <TypeIdentifier />
-  </Class>
-  <Class Name="DAL.Gateway.AkceGateway" Collapsed="true">
-    <Position X="7.5" Y="16.75" Width="1.5" />
-    <TypeIdentifier />
-  </Class>
   <Class Name="ZalDomain.ActiveRecords.ActionEvent">
     <Position X="7.5" Y="7" Width="1.5" />
     <Members>
@@ -121,7 +105,7 @@
       <Method Name="ReportLazyLoad" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEAGAEAgEIAAQABsAIAAIAQAIEEAIABIYQgAAECEBYA=</HashCode>
+      <HashCode>AEAGAEAgEIAAQABsAIAAIAQAIEEAoABIYQgAAECEBYA=</HashCode>
       <FileName>ActiveRecords\ActionEvent.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
@@ -152,10 +136,6 @@
       <FileName>ActiveRecords\Document.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="DAL.Gateway.DokumentyGateway" Collapsed="true">
-    <Position X="14.75" Y="16.75" Width="1.5" />
-    <TypeIdentifier />
   </Class>
   <Class Name="ZalDomain.Zal" Collapsed="true">
     <Position X="7.25" Y="2" Width="1.5" />
@@ -194,21 +174,16 @@
       </Path>
     </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AgAAICAAoEBAAQBoAAgAAYIEBAgRAAACAAAAAQAAAAA=</HashCode>
+      <HashCode>AgAAICAAoABAAQBoAAgAAQIEBAgBAAACAAAAAQAAAAA=</HashCode>
       <FileName>Zal.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Property Name="Database" />
       <Property Name="Documents" />
       <Property Name="Badges" />
       <Property Name="Users" />
       <Property Name="Actualities" />
       <Property Name="Actions" />
     </ShowAsAssociation>
-  </Class>
-  <Class Name="DAL.Database" Collapsed="true">
-    <Position X="8.75" Y="1" Width="1.5" />
-    <TypeIdentifier />
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

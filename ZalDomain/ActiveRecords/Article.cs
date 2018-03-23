@@ -42,12 +42,24 @@ namespace ZalDomain.ActiveRecords
 
 
 
-        public Article(User author, string title, string text) {
-            model = new ArticleModel {
-                Id_Author = author.Id, 
+        //public Article(User author, string title, string text) {
+        //    model = new ArticleModel {
+        //        Id_Author = author.Id, 
+        //        Title = title,
+        //        Text = text
+        //    };
+        //}
+
+        public static async Task<Article> AddAsync(User author, string title, string text) {
+            ArticleModel model = new ArticleModel {
+                Id_Author = author.Id,
                 Title = title,
                 Text = text
             };
+            if (await Gateway.AddAsync(model)) {
+                return new Article(model);
+            }
+            return null;
         }
 
         public Article(ArticleModel model) {

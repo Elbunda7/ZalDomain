@@ -21,12 +21,17 @@ namespace ZalDomain.ItemSets
             LastCheck = ZAL.DATE_OF_ORIGIN;
         }
 
-        //public void AddNewArticle(string title, string text, int fromRank, int? forGroup = null) {
-        //    Data.Add(Article.MakeArticle(title, text, fromRank, forGroup));
-        //}
+        public async Task<Article> CreateNewArticle(string title, string text, int fromRank, int? forGroup = null) {
+            return await CreateNewArticle(Zal.Session.CurrentUser, title, text, fromRank, forGroup);
+        }
 
-        public void AddNewArticle(User author, string title, string text, int fromRank, int? forGroup = null) {
-            Data.Add(new Article(author, title, text));//, fromRank, forGroup));
+        public async Task<Article> CreateNewArticle(User author, string title, string text, int fromRank, int? forGroup = null) {
+            Article article = await Article.AddAsync(author, title, text);//, fromRank, forGroup));
+            if (article != null) {
+                Data.Add(article);
+                return article;
+            }
+            return null;
         }
 
         public async void Remove(Article item) {

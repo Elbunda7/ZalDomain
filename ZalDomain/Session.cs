@@ -11,12 +11,11 @@ namespace ZalDomain
     {
         public User CurrentUser { get; set; }
         public string Token { get; set; }
-        public bool IsLogged { get; set; }
+        public bool IsLogged => CurrentUser != null;
 
         internal void Stop() {
             CurrentUser = null;
             Token = null;
-            IsLogged = false;
         }
     }
 }

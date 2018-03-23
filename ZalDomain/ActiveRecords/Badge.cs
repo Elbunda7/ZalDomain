@@ -1,62 +1,51 @@
-﻿using DAL.Gateway;
-using DAL.tableStructures;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZalApiGateway;
+using ZalApiGateway.Models;
 
 namespace ZalDomain.ActiveRecords
 {
     public class Badge : IActiveRecord, ISimpleItem
     {
-        private OdborkyTable Data;
+        private BadgeModel model;
 
-        public int Id { get { return Data.Id; } }
-        public string Title { get { return Data.Jmeno; } }
-        public string Text { get { return Data.Popis; } }
+        public int Id => model.Id;
+        public string Title => model.Name;
+        public string Text => model.Text;
+        public string Image => model.Image;
 
+        private static BadgeGateway gateway;
+        private static BadgeGateway Gateway => gateway ?? (gateway = new BadgeGateway());
 
-        private static OdborkyGateway gateway;
-        private static OdborkyGateway Gateway {
-            get {
-                if (gateway == null) {
-                    gateway = OdborkyGateway.GetInstance();
-                }
-                return gateway;
-            }
+        public static async Task<IEnumerable<Badge>> GetAllAsync() {
+            IEnumerable<BadgeModel> rawModels = await Gateway.GetAllAsync();
+            IEnumerable<Badge> badges = rawModels.Select(model => new Badge(model));
+            return badges;
         }
 
-        public static Collection<Badge> GetAll() {
-            Collection<OdborkyTable> rawData = Gateway.GetAll();
-            return InitializeForAll(rawData);
+        private Badge(BadgeModel model) {
+            this.model = model;
         }
 
-        private static Collection<Badge> InitializeForAll(Collection<OdborkyTable> items) {
-            Collection<Badge> odborky = new Collection<Badge>();
-            foreach(OdborkyTable o in items) {
-                odborky.Add(new Badge(o));
-            }
-            return odborky;
+        public static async Task<IEnumerable<Badge>> GetAcquiredAsync(User uzivatel) {
+            IEnumerable<BadgeModel> rawModels = await Gateway.GetBadgesOwnedByUserAsync(uzivatel.Email, true);
+            IEnumerable<Badge> badges = rawModels.Select(model => new Badge(model));
+            return badges;
         }
 
-        private Badge(OdborkyTable data) {
-            Data = data;
-        }
-
-        public static Collection<Badge> GetAcquired(User uzivatel) {
-            Collection<OdborkyTable> rawData = Gateway.UserOwns(uzivatel.Email, true);
-            return InitializeForAll(rawData);
-        }
-
-        public static Collection<Badge> GetNotAcquired(User uzivatel) {
-            Collection<OdborkyTable> rawData = Gateway.UserOwns(uzivatel.Email, false);
-            return InitializeForAll(rawData);
+        public static async Task<IEnumerable<Badge>> GetNotAcquired(User uzivatel) {
+            IEnumerable<BadgeModel> rawModels = await Gateway.GetBadgesOwnedByUserAsync(uzivatel.Email, false);
+            IEnumerable<Badge> badges = rawModels.Select(model => new Badge(model));
+            return badges;
         }
 
         public override string ToString() {
-            return Data.Jmeno;
+            return model.Name;
         }
     }
 }

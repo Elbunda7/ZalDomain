@@ -1,26 +1,29 @@
-﻿using System;
+﻿using RestSharp.Portable;
+using RestSharp.Portable.HttpClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-
 
 namespace ZalApiGateway.ApiTools
 {
     internal class ApiClient
     {
-        public static async Task<string> Post(string jsonContent) {
-            var values = new Dictionary<string, string> {
-                { "x", jsonContent.Encrypt() }
-            };
-            HttpContent content = new FormUrlEncodedContent(values);
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.PostAsync("http://zalesak.hlucin.com/api/endpoint.php", content);
-            string str = await response.Content.ReadAsStringAsync();
-            if (response.StatusCode == HttpStatusCode.InternalServerError) {
-                throw new Exception($"Internal Server Error: \"{str}\"");
+        static Uri BaseUri = new Uri("http://zalesak.hlucin.com");
+        static Uri ResourceUri = new Uri("http://zalesak.hlucin.com/api/endpoint.php");
+
+        public static async Task<string> PostRequest(string jsonContent) {
+            string str = jsonContent.Encrypt();
+            using (RestClient client = new RestClient(BaseUri)) {
+                RestRequest request = new RestRequest(ResourceUri, Method.POST);
+                request.AddParameter("x", str);
+                var result = await client.Execute<string>(request);
+                str = result.Content;
+                if (result.StatusCode == HttpStatusCode.InternalServerError) {
+                    throw new Exception($"Internal Server Error: \"{str}\"");
+                }
             }
             return str.Decrypt();
         }

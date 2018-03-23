@@ -1,84 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
-using DAL.tableStructures;
-using DAL.Gateway;
+using System.Text;
+using System.Xml.Linq;
+using ZalDomain.tools;
 using ZalDomain.consts;
+using ZalApiGateway.Models;
+using ZalApiGateway;
+using System.Threading.Tasks;
 
 namespace ZalDomain.ActiveRecords
 {
-    public class Article:IActualityItem
-    {
-        internal ClanekTable Data;
-        private User author;
+    public class Article : IActiveRecord, ISimpleItem {
 
-        public int Id { get { return Data.Id; } }
-        public User Author { get { return AuthorLazyLoad(); } private set { author = value; } }
-        public string Title {get {return Data.Nazev;}}
-        public string Text { get { return Data.Text; } }
-        public string Type {get {return ZAL.ACTUALITY_TYPE.ARTICLE;}}
+        private ArticleModel model;
+        //private string type;
+
+        private static ArticleGateway gateway;
+        private static ArticleGateway Gateway => gateway ?? (gateway = new ArticleGateway());
+
+        internal int Id { get { return model.Id; } }
+        internal DateTime DateOfCreation { get { return model.Date_Creation; } }
+
+        public string Title => model.Title;
+        public string Text => model.Text;
+        //public string ShortText { get { return model.ShortText; } }
+        //public string Type { get { return GetItemType(); } }        //zrušit 3x null-ids, zařídit typ+id
+
+
+        /*public User Author { get { return AuthorLazyLoad(); } private set { author = value; } }
         public int RankLeast { get { return Data.Od_hodnosti; } }
-        public int? ForGroup { get { return Data.Pro_druzinu; } }
+        public int? ForGroup { get { return Data.Pro_druzinu; } }*/
 
-
-        private static AktualityGateway gateway;
-        private static AktualityGateway Gateway {
-            get {
-                if (gateway == null) {
-                    gateway = AktualityGateway.GetInstance();
-                }
-                return gateway;
-            }
-        }
+        //private User AuthorLazyLoad() {
+        //    if (author == null) {
+        //        author = Zal.Users.GetByEmail(Data.AuthorEmail);
+        //    }
+        //    return author;
+        //}
 
 
 
-        private User AuthorLazyLoad() {
-            if (author == null) {
-                author = Zal.Users.GetByEmail(Data.AuthorEmail);
-            }
-            return author;
-        }
-
-
-        internal Article(ClanekTable item) {
-            Data = item;
-        }
-
-        internal Article(User author, string title, string text, int fromRank, int? forGroup = null) {
-            Author = author;
-            Data = new ClanekTable {
-                Id = -1,
-                Id_aktuality = -1,
-                AuthorEmail = author.Email,
-                Nazev = title,
-                Text = text,
-                Od_hodnosti = fromRank,
-                Pro_druzinu = forGroup
+        public Article(User author, string title, string text) {
+            model = new ArticleModel {
+                Id_Author = author.Id, 
+                Title = title,
+                Text = text
             };
         }
 
-        public void Aktualize(String title, String text, int? odHodnosti) {
-            Aktualize(title, text, odHodnosti, Data.Pro_druzinu);
+        public Article(ArticleModel model) {
+            this.model = model;
         }
 
-        public void Aktualize(String title, String text, int? odHodnosti, int? proDruzinu) {
-            if (title != null) {
-                Data.Nazev = title;
-            }
-            if (text != null) {
-                Data.Text = text;
-            }
-            if (odHodnosti != null) {
-                Data.Od_hodnosti = (int)odHodnosti;
-            }
-            Data.Pro_druzinu = proDruzinu;
-            Gateway.Update(Data);
+        public void Synchronize() {
+            //ItemLazyLoad();
         }
 
-        public string GetShortText(int length) {
-            return Data.Text;
+        public static async Task<string> CheckForChanges(User user, DateTime lastCheck) {
+            return await Gateway.CheckForChanges(user.Email, lastCheck);
+        }
+
+        public static async Task<Collection<Article>> GetAllFor(User user) {
+            /* Collection<AktualityTable> actualityValues = Gateway.SelectAllGeneralFor(user.Email);
+             Collection<Actuality> actualities = new Collection<Actuality>();
+             foreach (AktualityTable a in actualityValues) {
+                 actualities.Add(new Actuality(a));
+             }
+             return actualities;*/
+            throw new NotImplementedException();
+        }
+
+        public static async Task<List<int>> GetChanged(User user, DateTime lastCheck) {
+            return await Gateway.GetChanged(user.Email, lastCheck);
+        }
+
+        public static Article Get(int id) {
+            return new Article(Gateway.SelectGeneral(id));
+        }
+
+        public static async Task<bool> Delete(Article actuality) {
+            IntegrityCondition.UserIsLeader();
+            return await Gateway.DeleteAsync(actuality.model.Id);
+        }
+
+        public XElement GetXml(string elementName) {
+            /*XElement element = new XElement(elementName,
+                new XElement("Id", model.Id),
+                new XElement("DateOfCreation", model.DateOfCreation.Ticks),
+                new XElement("Title", model.Title),
+                new XElement("ShortText", model.ShortText),
+                new XElement("Id_info", model.Id_info),
+                new XElement("Id_zapis", model.Id_zapis),
+                new XElement("Id_clanek", model.Id_clanek));
+            return element;*/
+
+            throw new NotImplementedException();
+        }
+
+        public static Article LoadFromXml(XElement element) {
+            /*AktualityTable data = new AktualityTable {
+                Id = Int32.Parse(element.Element("Id").Value),
+                DateOfCreation = new DateTime(long.Parse(element.Element("DateOfCreation").Value)),
+                Title = element.Element("Title").Value,
+                ShortText = element.Element("ShortText").Value
+            };
+            if (!element.Element("Id_info").IsEmpty) {
+                data.Id_info = Int32.Parse(element.Element("Id_info").Value);
+            }
+            else if (!element.Element("Id_zapis").IsEmpty) {
+                data.Id_zapis = Int32.Parse(element.Element("Id_zapis").Value);
+            }
+            else if (!element.Element("Id_clanek").IsEmpty) {
+                data.Id_clanek = Int32.Parse(element.Element("Id_clanek").Value);
+            }
+            return new Actuality(data);*/
+
+            throw new NotImplementedException();
         }
     }
 }

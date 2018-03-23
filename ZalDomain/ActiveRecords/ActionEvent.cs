@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
 using ZalDomain.consts;
-using DAL.tableStructures;
-using DAL.Gateway;
 using System.Xml.Linq;
 using ZalDomain.tools;
 using ZalApiGateway.Models;
@@ -20,8 +18,8 @@ namespace ZalDomain.ActiveRecords
         //private AkceTable 
         private Collection<User> garants;
         private Collection<User> participants;
-        private InfoAction info;
-        private RecordAction record;
+        private Article info;
+        private Article report;
 
         public int Id => Model.Id;
         public string Type => Model.EventType;
@@ -29,13 +27,17 @@ namespace ZalDomain.ActiveRecords
         public int Days => GetDays();
         //public int RankLeast => Model.Od_hodnosti;
         public DateTime DateFrom => Model.Date_start;
-        public InfoAction Info { get { return InfoLazyLoad(); } private set { info = value; } }
-        public RecordAction Record { get { return RecordLazyLoad(); } private set { record = value; } }
+        public Article Info { get { return InfoLazyLoad(); } private set { info = value; } }
+        public Article Report { get { return ReportLazyLoad(); } private set { report = value; } }
         public Collection<User> Garants { get { return GarantsLazyLoad(); } set { SetGarants(value); } }
-        public Collection<User> Participants { get { return ParticipantsLazyLoad(); } private set { participants = value; } }
-        public int ParticipantsCount => Participants.Count; //Model.NumOfParticipants
-        //public bool Je_oficialni { get; set; }
-        //účastním se?
+        //public Collection<User> Participants { get { return ParticipantsLazyLoad(); } private set { participants = value; } }
+        //public int ParticipantsCount => Participants.Count; //Model.NumOfParticipants
+                                                            //public bool Je_oficialni { get; set; }
+                                                            //účastním se?
+
+        //public int Price { get { return Data.Price; } }
+        //public decimal GPS_lon { get { return Data.GPS_lon; } }
+        //public decimal GPS_lat { get { return Data.GPS_lat; } }
 
 
         private int GetDays() {
@@ -43,23 +45,31 @@ namespace ZalDomain.ActiveRecords
             return (int)ts.TotalDays;
         }
 
-        private InfoAction InfoLazyLoad() {
+        private Article InfoLazyLoad() {
             if (info == null) {
-                info = Zal.Actualities.GetInfoForAction(Model.Id);
+                if (Model.Id_Info.HasValue) {
+                    info = Zal.Actualities.GetArticle(Model.Id_Info.Value);
+                }
             }
             return info;
         }
 
-        private RecordAction RecordLazyLoad() {
-            if (record == null) {
-                record = Zal.Actualities.GetZapisForAction(Model.Id);
+        private Article ReportLazyLoad() {
+            if (report == null) {
+                if (Model.Id_Report.HasValue) {
+                    report = Zal.Actualities.GetArticle(Model.Id_Report.Value);
+                }
             }
-            return record;
+            return report;
         }
 
 
         private static ActionGateway gateway;
         private static ActionGateway Gateway => gateway ?? (gateway = new ActionGateway());
+
+        public ActionEvent(ActionModel model) {
+            Model = model;
+        }
 
         public ActionEvent(string name, string type, DateTime start, DateTime end, int odHodnosti, bool isOfficial) {
             Model = new ActionModel {
@@ -79,10 +89,6 @@ namespace ZalDomain.ActiveRecords
             await Gateway.AddAsync(Model);
         }
 
-        public ActionEvent(ActionModel model) {
-            Model = model;
-        }
-
         private Collection<User> GarantsLazyLoad() {
             /*if (garants == null) {
                 if (Model.Email_vedouci != null) {
@@ -96,10 +102,10 @@ namespace ZalDomain.ActiveRecords
             throw new NotImplementedException();
         }
 
-        private Collection<User> ParticipantsLazyLoad() {
+        private async Task<Collection<User>> ParticipantsLazyLoad() {
             if (participants == null) {//obnovit?
-                List<string> list = gateway.GetParticipatingUsers(Model.Id);
-                participants = Zal.Users.GetByEmailList(list);
+                List<int> list = await gateway.GetParticipatingUsersAsync(Model.Id);
+                participants = await Zal.Users.Get(list) as Collection<User>;
             }
             return participants;
         }

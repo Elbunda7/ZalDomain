@@ -4,134 +4,94 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DAL.Gateway;
-using DAL.tableStructures;
+using ZalApiGateway;
+using ZalApiGateway.Models;
 using ZalDomain.consts;
 
 namespace ZalDomain.ActiveRecords
 {
     public class User : IActiveRecord {
-        private UzivatelMainTable MainData;
-        private UzivatelDetailTable otherData;
-        private UzivatelDetailTable OtherData { get { return OtherDataLazyLoad(); } set { otherData = value; } }
-        private Collection<Badge> budgets;
 
-        public string Email { get { return MainData.Email; } }
-        public string ShortName { get { return MainData.ShortName; } }
-        public int RankLevel { get { return MainData.Hodnost; } }
-        public int GroupNumber { get { return MainData.Id_druzina; } }
-        public string Rank { get { return ZAL.RANK_NAME[MainData.Hodnost]; } }
-        public string Group { get { return ZAL.GROUP_NAME_SING[MainData.Id_druzina]; } }
-        public string Name { get { return OtherData.Jmeno; } }
-        public string Surname { get { return OtherData.Prijmeni; } }
-        public string Nick { get { return OtherData.Prezdivka; } } //nick == shortName ?
-        public string Phone { get { return OtherData.Kontakt; } }
-        public string Role { get { return OtherData.Role; } }
-        public int Points { get { return OtherData.Body; } }
-        public DateTime DateOfBirth { get { return OtherData.Datum_narozeni; } }
-        public bool PaidForMembership { get { return OtherData.Zaplatil_prispevek; } }
-        public Collection<Badge> Budgets { get { return BudgetsLazyLoad(); } private set { budgets = value; } }
+        private UserModel model;
+        //private UzivatelMainTable model;
+        //private UzivatelDetailTable otherData;
+        //private UzivatelDetailTable model { get { return OtherDataLazyLoad(); } set { otherData = value; } }
+        private Collection<Badge> budges;
+
+        public int Id => model.Id;
+        public string Email => model.Email;
+        public string Nick => model.NickName;
+        public int RankLevel => model.Id_Rank;
+        public int GroupNumber => model.Id_Group;
+        //public string Rank { get { return ZAL.RANK_NAME[model.Hodnost]; } }
+        //public string Group { get { return ZAL.GROUP_NAME_SING[model.Id_druzina]; } }
+        public string Name => model.Name;
+        public string Surname => model.Surname;
+        public string Phone => model.Phone;
+        //public string Role { get { return model.Role; } }
+        //public int Points { get { return model.Body; } }
+        public DateTime DateOfBirth { get { return model.BirthDate; } }
+        //public bool PaidForMembership { get { return model.Zaplatil_prispevek; } }
+        //public Collection<Badge> Budges { get { return BudgesLazyLoad(); } private set { budgets = value; } }
 
 
         internal static User AddNewEmptyUser(string name, string surname, int group) {
-            User user = new User("", name, surname, "", group);
-            UzivatelTable data = new UzivatelTable(user.MainData, user.OtherData);
-            if (Gateway.InsertEmptyMember(data)) {
-                return user;
+            UserModel model = new UserModel {
+                Name = name,
+                Surname = surname,
+                Id_Group = group
+            }; 
+            if (Gateway.InsertEmptyMember(model)) {
+                return new User(model);
             }
             return null;
         }
 
         private bool IsChanged { get; set; }
 
-        private static UzivatelGateway gateway;
-        private static UzivatelGateway Gateway {
-            get {
-                if (gateway == null) {
-                    gateway = UzivatelGateway.GetInstance();
-                }
-                return gateway;
+        private static UserGateway gateway;
+        private static UserGateway Gateway => gateway ?? (gateway = new UserGateway());
+
+
+        private async Task<Collection<Badge>> BudgesLazyLoad() {
+            if (budges == null) {
+                budges = await Zal.Badges.GetAcquired(this) as Collection<Badge>;
             }
+            return budges;
         }
 
-
-        private UzivatelDetailTable OtherDataLazyLoad() {
-            if (otherData == null) {
-                otherData = Gateway.SelectDetail(MainData.Email);
-            }
-            return otherData;
+        public User(UserModel model) {
+            this.model = model;
         }
 
-        private Collection<Badge> BudgetsLazyLoad() {
-            if (budgets == null) {
-                budgets = Zal.Badgets.GetAcquired();
-            }
-            return budgets;
-        }
-
-
-
-        public User(UzivatelMainTable item) {
-            MainData = item;
-        }
-
-        internal User(UzivatelTable item) {
-            MainData = item.Main;
-            OtherData = item.Minor;
-        }
-
-        private User(string email, string jmeno, string prijmeni, string kontakt, int group = ZAL.GROUP.NON) {
-            MainData = new UzivatelMainTable {
-                Email = email,
-                Hodnost = 1,
-                Id_druzina = group,
-            };
-            OtherData = new UzivatelDetailTable {
-                Jmeno = jmeno,
-                Prijmeni = prijmeni,
-                Kontakt = kontakt,
-                Prezdivka = null,
-                Role = ZAL.MEMBERSHIP.NECLEN,
-                Body = 0,
-                Zaplatil_prispevek = false,
-                //Datum_narozeni, Pres_facebook
-            };
-            SetShortName();
-        }
-
-        public static User Login(string email, string password) {
-            User user = null;
-            if (gateway.Login(email, password)) {
-                user = new User(gateway.SelectFull(email));
-            }
+        public static async Task<User> Login(string email, string password) {
+            User user = new User(await Gateway.Login(email, password));
             return user;
         }
 
-        public static User Empty() {
-            return new User("", "", "", "");
-        }
+        //public static User Empty() {
+        //    return new User("", "", "", "");
+        //}
 
 
-        public bool Has(int key, int value) {
+        /*public bool Has(int key, int value) {
             switch (key) {
-                case CONST.USER.DRUZINA: return MainData.Id_druzina == value;
+                case CONST.USER.DRUZINA: return model.Id_druzina == value;
                 default: return false;
             }
         }
 
         public bool Has(int key, String value) {
             switch (key) {
-                case CONST.USER.EMAIL: return value.Equals(MainData.Email);
-                case CONST.USER.JMENO: return value.Equals(MainData.ShortName);
+                case CONST.USER.EMAIL: return value.Equals(model.Email);
+                case CONST.USER.JMENO: return value.Equals(model.ShortName);
                 default: return false;
             }
-        }
+        }*/
 
-        public static Collection<User> GetAllMembers() {
-            Collection<User> users = new Collection<User>();
-            foreach (UzivatelMainTable u in Gateway.GetAllMembers()) {
-                users.Add(new User(u));
-            }
+        public static async Task<IEnumerable<User>> GetAllMembers() {
+            IEnumerable<UserModel> rawModels = await Gateway.GetAllMembersAsync();
+            IEnumerable<User> users = rawModels.Select(model => new User(model));
             return users;
         }
 
@@ -139,34 +99,44 @@ namespace ZalDomain.ActiveRecords
             return Gateway.CheckForChanges(userCount, lastCheck);
         }
 
-        public static User Select(string email) {
-            return new User(Gateway.SelectFull(email));
+        public static async Task<User> GetAsync(int id) {
+            return new User(await Gateway.GetAsync(id));
         }
 
         public static bool Contains(string email) {
             return Gateway.Contains(email);
         }
 
-        public static User RegisterNew(string email, string jmeno, string prijmeni, string kontakt, string password) {
-            User user = new User(email, jmeno, prijmeni, kontakt);
-            UzivatelTable data = new UzivatelTable(user.MainData, user.OtherData);
-            if (Gateway.Insert(data, password)) {
-                return user;
+        public static async Task<User> RegisterNewAsync(string email, string name, string surname, string phone, string password) {
+            UserModel model = new UserModel {
+                Name = name,
+                Surname = surname, 
+                Phone = phone,
+                Email = email,
+            };
+            if (await Gateway.Register(model, password)) {
+                return new User(model);
             }
             return null;
         }
 
-        public void BecomeMember(DateTime dateOfBirthDay, string prezdivka = null) {
-            if (OtherData.Role == ZAL.MEMBERSHIP.NECLEN) {
-                OtherData.Datum_narozeni = dateOfBirthDay;
-                OtherData.Prezdivka = prezdivka;
-                OtherData.Role = ZAL.MEMBERSHIP.CLEN;
-                MainData.Id_druzina = ZAL.GROUP.BOBRI;
-                Gateway.BecomeMember(new UzivatelTable(MainData, OtherData));
-            }
-            else {
-                throw new Exception("user already is a member");
-            }
+        internal static async Task<IEnumerable<User>> GetAsync(IEnumerable<int> ids) {
+            IEnumerable<UserModel> rawModels = await Gateway.GetAsync(ids);
+            IEnumerable<User> users = rawModels.Select(model => new User(model));
+            return users;
+        }
+
+        public void BecomeMember(DateTime dateOfBirthDay, int group, string prezdivka = null) {
+            //if (model.Role == ZAL.MEMBERSHIP.NECLEN) {
+                model.BirthDate = dateOfBirthDay;
+            if (prezdivka != null) model.NickName = prezdivka;
+                //model.Role = ZAL.MEMBERSHIP.CLEN;
+                model.Id_Group = group;
+                Gateway.BecomeMember(model);
+            //}
+            //else {
+            //    throw new Exception("user already is a member");
+            //}
         }
 
         /*public static bool Has(int key, int value) {
@@ -187,9 +157,9 @@ namespace ZalDomain.ActiveRecords
             }
         }*/
 
-        public void ConfirmChanges() {
+        /*public void ConfirmChanges() {
             if (IsChanged) {
-                Gateway.Update(new UzivatelTable(MainData, OtherData));
+                Gateway.Update(new UzivatelTable(model, model));
                 IsChanged = false;
             }
         }
@@ -220,39 +190,39 @@ namespace ZalDomain.ActiveRecords
         }
 
         private void ChangeIsPaid(bool value) {
-            if (OtherData.Zaplatil_prispevek != value) {
-                OtherData.Zaplatil_prispevek = value;
-                Gateway.Update(MainData.Email, value);
+            if (model.Zaplatil_prispevek != value) {
+                model.Zaplatil_prispevek = value;
+                Gateway.Update(model.Email, value);
             }
         }
 
         private void ChangeName(string value) {
-            if (OtherData.Jmeno != value) {
-                OtherData.Jmeno = value;
+            if (model.Jmeno != value) {
+                model.Jmeno = value;
                 SetShortName();
                 IsChanged = true;
             }
         }
 
         private void ChangeSurname(string value) {
-            if (OtherData.Prijmeni != value) {
-                OtherData.Prijmeni = value;
+            if (model.Prijmeni != value) {
+                model.Prijmeni = value;
                 SetShortName();
                 IsChanged = true;
             }
         }
 
         private void ChangeNick(string value) {
-            if (OtherData.Prezdivka != value) {
-                OtherData.Prezdivka = value;
+            if (model.Prezdivka != value) {
+                model.Prezdivka = value;
                 SetShortName();
                 IsChanged = true;
             }
         }
 
         private void ChangePhone(string value) {
-            if (OtherData.Kontakt != value) {
-                OtherData.Kontakt = value;
+            if (model.Kontakt != value) {
+                model.Kontakt = value;
                 IsChanged = true;
             }
         }
@@ -266,33 +236,33 @@ namespace ZalDomain.ActiveRecords
         }
 
         private void ChangeRole(string value) {
-            if (OtherData.Role != value) {
+            if (model.Role != value) {
                 if (value == ZAL.MEMBERSHIP.CLEN) {
-                    if (OtherData.Datum_narozeni == DateTime.MinValue) {
+                    if (model.Datum_narozeni == DateTime.MinValue) {
                         return;
                     }
                 }
-                OtherData.Role = value;
+                model.Role = value;
                 IsChanged = true;
             }
         }
 
         private void ChangeGroup(int druzina) {
-            if (druzina != MainData.Id_druzina) {
+            if (druzina != model.Id_druzina) {
                 if (druzina == ZAL.GROUP.LISKY) {
-                    MainData.Id_druzina = druzina;
-                    MainData.Hodnost = ZAL.RANK.LISKA;
+                    model.Id_druzina = druzina;
+                    model.Hodnost = ZAL.RANK.LISKA;
                 }
                 else if (druzina == ZAL.GROUP.TROSKY) {
-                    MainData.Id_druzina = druzina;
-                    if (MainData.Hodnost < ZAL.RANK.VEDOUCI) {
-                        MainData.Hodnost = ZAL.RANK.VEDOUCI;
+                    model.Id_druzina = druzina;
+                    if (model.Hodnost < ZAL.RANK.VEDOUCI) {
+                        model.Hodnost = ZAL.RANK.VEDOUCI;
                     }
                 }
                 else {
-                    MainData.Id_druzina = druzina;
-                    if (MainData.Hodnost < ZAL.RANK.NOVACEK || MainData.Hodnost > ZAL.RANK.RADCE) {
-                        MainData.Hodnost = ZAL.RANK.NOVACEK;
+                    model.Id_druzina = druzina;
+                    if (model.Hodnost < ZAL.RANK.NOVACEK || model.Hodnost > ZAL.RANK.RADCE) {
+                        model.Hodnost = ZAL.RANK.NOVACEK;
                     }
                 }
                 IsChanged = true;
@@ -300,19 +270,19 @@ namespace ZalDomain.ActiveRecords
         }
 
         private void ChangeRank(int hodnost) {
-            if (hodnost != MainData.Hodnost) {
+            if (hodnost != model.Hodnost) {
                 if (hodnost == ZAL.RANK.LISKA) {
-                    MainData.Id_druzina = ZAL.GROUP.LISKY;
-                    MainData.Hodnost = hodnost;
+                    model.Id_druzina = ZAL.GROUP.LISKY;
+                    model.Hodnost = hodnost;
                 }
                 else if (hodnost >= ZAL.RANK.VEDOUCI) {
-                    MainData.Id_druzina = ZAL.GROUP.TROSKY;
-                    MainData.Hodnost = hodnost;
+                    model.Id_druzina = ZAL.GROUP.TROSKY;
+                    model.Hodnost = hodnost;
                 }
                 else {
-                    MainData.Hodnost = hodnost;
-                    if (MainData.Id_druzina == ZAL.GROUP.LISKY || MainData.Id_druzina == ZAL.GROUP.TROSKY) {
-                        MainData.Id_druzina = ZAL.GROUP.BOBRI;
+                    model.Hodnost = hodnost;
+                    if (model.Id_druzina == ZAL.GROUP.LISKY || model.Id_druzina == ZAL.GROUP.TROSKY) {
+                        model.Id_druzina = ZAL.GROUP.BOBRI;
                     }
                 }
                 IsChanged = true;
@@ -320,38 +290,37 @@ namespace ZalDomain.ActiveRecords
         }
 
         private void SetShortName() {
-            if (OtherData.Prezdivka != null) {
-                MainData.ShortName = OtherData.Prezdivka;
+            if (model.Prezdivka != null) {
+                model.ShortName = model.Prezdivka;
             }
             else {
-                if (OtherData.Prijmeni.Length == 0) {
-                    MainData.ShortName = OtherData.Jmeno;
+                if (model.Prijmeni.Length == 0) {
+                    model.ShortName = model.Jmeno;
                 }
                 else {
-                    MainData.ShortName = OtherData.Jmeno + OtherData.Prijmeni[0] + '.';
+                    model.ShortName = model.Jmeno + model.Prijmeni[0] + '.';
                 }
             }
         }
 
         public bool ChangePassword(string userEmail, string oldPass, string newPass) {
             return Gateway.UpdatePassword(userEmail, oldPass, newPass);
-        }
-
-        public void AddBudget(Badge budget) {
-            Budgets.Add(budget);
-            Gateway.InsertBadget(Email, budget.Id);
-        }
-
-        /*public static User GetUser(string email) {
-            return Gateway.Select(email);
         }*/
+
+        public async Task<bool> AddBudget(Badge budget) {
+            if (await Gateway.InsertBadget(Email, budget.Id)) {
+                budges.Add(budget);
+                return true;
+            }
+            return false;
+        }
 
         public static bool Exists(string email) {
             return Gateway.Contains(email);
         }
 
         public override string ToString() {
-            return ShortName;
+            return Nick;
         }
 
         public bool IsLeader() {

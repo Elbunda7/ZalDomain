@@ -1,69 +1,39 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="ZalDomain.ActiveRecords.Actuality" BaseTypeListCollapsed="true">
+  <Class Name="ZalDomain.ActiveRecords.Article" BaseTypeListCollapsed="true">
     <Position X="0.5" Y="8.5" Width="1.5" />
-    <Members>
-      <Method Name="GetItemType" Hidden="true" />
-      <Method Name="InitContent" Hidden="true" />
-      <Method Name="LoadFromDatabase" Hidden="true" />
-    </Members>
     <TypeIdentifier>
-      <HashCode>AIACAAAIAAQEAEBggAQAIQAlAAEBBBAIIQAAAAEAEQA=</HashCode>
-      <FileName>ActiveRecords\Actuality.cs</FileName>
+      <HashCode>AAACAAAIAAAAAEBgAAAAIQAAAAEABAAIIAAACAAIEQA=</HashCode>
+      <FileName>ActiveRecords\Article.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Field Name="item" />
-      <Property Name="Gateway" />
-    </ShowAsAssociation>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="ZalDomain.ActiveRecords.Badge" BaseTypeListCollapsed="true">
     <Position X="12.5" Y="8.75" Width="1.5" />
     <Members>
       <Method Name="Badge" Hidden="true" />
-      <Method Name="InitializeForAll" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAACAAAAAAAAAEAmAAgAIAQAAAAAABAAAgAACAAAAAA=</HashCode>
+      <HashCode>AAECAAAEAAAAAEAkAAAAIAQAAAAAABAAAAAACAAIAAA=</HashCode>
       <FileName>ActiveRecords\Badge.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Gateway" />
-    </ShowAsAssociation>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="ZalDomain.ActiveRecords.User" BaseTypeListCollapsed="true">
     <Position X="10" Y="8.25" Width="1.5" />
     <Members>
-      <Field Name="budgets" Hidden="true" />
-      <Method Name="BudgetsLazyLoad" Hidden="true" />
+      <Field Name="budges" Hidden="true" />
+      <Method Name="BudgesLazyLoad" Hidden="true" />
       <Field Name="gateway" Hidden="true" />
-      <Method Name="ChangeEmail" Hidden="true" />
-      <Method Name="ChangeGroup" Hidden="true" />
-      <Method Name="ChangeIsPaid" Hidden="true" />
-      <Method Name="ChangeName" Hidden="true" />
-      <Method Name="ChangeNick" Hidden="true" />
-      <Method Name="ChangePhone" Hidden="true" />
-      <Method Name="ChangePoints" Hidden="true" />
-      <Method Name="ChangeRank" Hidden="true" />
-      <Method Name="ChangeRole" Hidden="true" />
-      <Method Name="ChangeSurname" Hidden="true" />
       <Property Name="IsChanged" Hidden="true" />
-      <Property Name="OtherData" Hidden="true" />
-      <Method Name="OtherDataLazyLoad" Hidden="true" />
-      <Method Name="SetShortName" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>UAxBoEAYIaCCgAEtEAKCKAQABBgQAKABEgAQYFEQIAQ=</HashCode>
+      <HashCode>AABCIIAIACAAAAAkAAACIAQABBgRACABAgCQIAEYAAA=</HashCode>
       <FileName>ActiveRecords\User.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Field Name="budgets" />
-      <Property Name="Gateway" />
+      <Field Name="budges" />
     </ShowAsAssociation>
-    <ShowAsCollectionAssociation>
-      <Property Name="Budgets" />
-    </ShowAsCollectionAssociation>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="ZalDomain.ItemSets.ActionSet">
@@ -92,12 +62,9 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAYAQAAEABAAAAQBAAEAAAAABBIIgQAAAAAAYA=</HashCode>
+      <HashCode>AAAAAAAIAQAAAAAAAAAQBAAEAAAAABAIMgAAAAAAAQA=</HashCode>
       <FileName>ItemSets\ActualitySet.cs</FileName>
     </TypeIdentifier>
-    <ShowAsCollectionAssociation>
-      <Property Name="Data" />
-    </ShowAsCollectionAssociation>
   </Class>
   <Class Name="ZalDomain.ItemSets.BadgeSet">
     <Position X="12.5" Y="3.25" Width="1.5" />
@@ -115,17 +82,17 @@
   <Class Name="ZalDomain.ItemSets.UserSet">
     <Position X="10.5" Y="3.5" Width="1.5" />
     <Members>
-      <Method Name="Select" Hidden="true" />
+      <Method Name="Get" Hidden="true" />
     </Members>
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAQACAAAAAAAAAAAAASAAAEBACIAAQAIgAQQAAQAQA=</HashCode>
+      <HashCode>AgAAAAAAAAAAAABAAAASAAAEAAAAABYAIgAAAAAQAAA=</HashCode>
       <FileName>ItemSets\UserSet.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
-      <Field Name="Users" />
+      <Field Name="Data" />
     </ShowAsCollectionAssociation>
   </Class>
   <Class Name="DAL.Gateway.UzivatelGateway" Collapsed="true">
@@ -151,68 +118,15 @@
       <Field Name="gateway" Hidden="true" />
       <Method Name="InfoLazyLoad" Hidden="true" />
       <Method Name="ParticipantsLazyLoad" Hidden="true" />
-      <Method Name="RecordLazyLoad" Hidden="true" />
+      <Method Name="ReportLazyLoad" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEAGAEAgEIAAQABsAIAAIAQAIEEAIABIYSgAAGCEBYA=</HashCode>
+      <HashCode>AEAGAEAgEIAAQABsAIAAIAQAIEEAIABIYQgAAECEBYA=</HashCode>
       <FileName>ActiveRecords\ActionEvent.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Field Name="info" />
-      <Field Name="record" />
-    </ShowAsAssociation>
     <ShowAsCollectionAssociation>
       <Field Name="participants" />
     </ShowAsCollectionAssociation>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="ZalDomain.ActiveRecords.InfoAction">
-    <Position X="2.25" Y="10.5" Width="1.5" />
-    <Compartments>
-      <Compartment Name="Methods" Collapsed="true" />
-    </Compartments>
-    <TypeIdentifier>
-      <HashCode>AAACAAAAAYAAAEAkAAAAIAAAAABAABEAAQAACAAAAAA=</HashCode>
-      <FileName>ActiveRecords\InfoAction.cs</FileName>
-    </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Gateway" />
-    </ShowAsAssociation>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="ZalDomain.ActiveRecords.RecordAction">
-    <Position X="4" Y="11" Width="1.5" />
-    <Members>
-      <Field Name="gateway" Hidden="true" />
-    </Members>
-    <Compartments>
-      <Compartment Name="Methods" Collapsed="true" />
-    </Compartments>
-    <TypeIdentifier>
-      <HashCode>AAACAAAAAIAAAEAkAAAAIAAAAAAAABAAAQAACAAAAAA=</HashCode>
-      <FileName>ActiveRecords\RecordAction.cs</FileName>
-    </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Gateway" />
-    </ShowAsAssociation>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="ZalDomain.ActiveRecords.Article">
-    <Position X="5.75" Y="11.25" Width="1.5" />
-    <Members>
-      <Field Name="gateway" Hidden="true" />
-    </Members>
-    <Compartments>
-      <Compartment Name="Methods" Collapsed="true" />
-    </Compartments>
-    <TypeIdentifier>
-      <HashCode>AAACEgAAAIAAAEAkgAAAIIAAAAAAABAAAQAACAAAAAA=</HashCode>
-      <FileName>ActiveRecords\Article.cs</FileName>
-    </TypeIdentifier>
-    <ShowAsAssociation>
-      <Field Name="author" />
-      <Property Name="Gateway" />
-    </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="ZalDomain.ItemSets.DocumentSet">
@@ -232,15 +146,11 @@
     <Position X="14.5" Y="8.75" Width="1.5" />
     <Members>
       <Field Name="gateway" Hidden="true" />
-      <Method Name="InitializeForAll" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAACAAAAAAAAAEAkAAgAIAAAAAAAABAAAgAACAAAAAA=</HashCode>
+      <HashCode>AAACAAAAAAAAAEAkAAAAIAAAAAAAAAAAAgAACAAIAAA=</HashCode>
       <FileName>ActiveRecords\Document.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Gateway" />
-    </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="DAL.Gateway.DokumentyGateway" Collapsed="true">
@@ -255,20 +165,6 @@
       <Compartment Name="Methods" Collapsed="true" />
       <Compartment Name="Events" Collapsed="true" />
     </Compartments>
-    <AssociationLine Name="Actions" Type="ZalDomain.ItemSets.ActionSet" FixedFromPoint="true" FixedToPoint="true">
-      <Path>
-        <Point X="7.562" Y="2.562" />
-        <Point X="7.562" Y="4.758" />
-        <Point X="5.5" Y="4.758" />
-      </Path>
-    </AssociationLine>
-    <AssociationLine Name="Badgets" Type="ZalDomain.ItemSets.BadgeSet" FixedFromPoint="true" FixedToPoint="true">
-      <Path>
-        <Point X="8.75" Y="2.375" />
-        <Point X="13.25" Y="2.375" />
-        <Point X="13.25" Y="3.25" />
-      </Path>
-    </AssociationLine>
     <AssociationLine Name="Documents" Type="ZalDomain.ItemSets.DocumentSet" FixedFromPoint="true" FixedToPoint="true">
       <Path>
         <Point X="8.75" Y="2.188" />
@@ -276,38 +172,43 @@
         <Point X="15" Y="3" />
       </Path>
     </AssociationLine>
+    <AssociationLine Name="Badges" Type="ZalDomain.ItemSets.BadgeSet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="8.75" Y="2.375" />
+        <Point X="13.25" Y="2.375" />
+        <Point X="13.25" Y="3.25" />
+      </Path>
+    </AssociationLine>
     <AssociationLine Name="Users" Type="ZalDomain.ItemSets.UserSet" FixedFromPoint="true" FixedToPoint="true">
       <Path>
         <Point X="8.25" Y="2.562" />
-        <Point X="8.25" Y="5.944" />
-        <Point X="8.542" Y="5.944" Type="JumpStart" />
-        <Point X="8.708" Y="5.944" Type="JumpEnd" />
-        <Point X="10.5" Y="5.944" />
+        <Point X="8.25" Y="5.432" />
+        <Point X="10.5" Y="5.432" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="Actions" Type="ZalDomain.ItemSets.ActionSet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.562" Y="2.562" />
+        <Point X="7.562" Y="4.758" />
+        <Point X="5.5" Y="4.758" />
       </Path>
     </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAICABoEBAAABhAAgAAYIEBAgRAAACIAAQAAAAAAA=</HashCode>
+      <HashCode>AgAAICAAoEBAAQBoAAgAAYIEBAgRAAACAAAAAQAAAAA=</HashCode>
       <FileName>Zal.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Property Name="Actions" />
-      <Property Name="Actualities" />
-      <Property Name="Badgets" />
       <Property Name="Database" />
       <Property Name="Documents" />
+      <Property Name="Badges" />
       <Property Name="Users" />
+      <Property Name="Actualities" />
+      <Property Name="Actions" />
     </ShowAsAssociation>
   </Class>
   <Class Name="DAL.Database" Collapsed="true">
     <Position X="8.75" Y="1" Width="1.5" />
     <TypeIdentifier />
   </Class>
-  <Interface Name="ZalDomain.ActiveRecords.IActualityItem" Collapsed="true">
-    <Position X="4" Y="9.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
-      <FileName>ActiveRecords\IActualityItem.cs</FileName>
-    </TypeIdentifier>
-  </Interface>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

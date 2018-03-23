@@ -7,8 +7,8 @@
     <ProjectGuid>{066CE032-C845-4890-B85A-0BB5FE57AAEE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DL</RootNamespace>
-    <AssemblyName>DomainLayer</AssemblyName>
+    <RootNamespace>ZalDomain</RootNamespace>
+    <AssemblyName>ZalDomain</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -50,21 +50,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveRecords\Actuality.cs" />
-    <Compile Include="ActiveRecords\ActionEvent.cs" />
     <Compile Include="ActiveRecords\Article.cs" />
+    <Compile Include="ActiveRecords\ActionEvent.cs" />
     <Compile Include="ActiveRecords\Document.cs" />
-    <Compile Include="ActiveRecords\GuestUser.cs" />
     <Compile Include="ActiveRecords\IActiveRecord.cs" />
-    <Compile Include="ActiveRecords\IActualityItem.cs" />
-    <Compile Include="ActiveRecords\InfoAction.cs" />
     <Compile Include="ActiveRecords\Badge.cs" />
     <Compile Include="ActiveRecords\ISimpleItem.cs" />
     <Compile Include="ActiveRecords\SimpleItem.cs" />
     <Compile Include="ActiveRecords\User.cs" />
-    <Compile Include="ActiveRecords\RecordAction.cs" />
     <Compile Include="consts\CONST.cs" />
     <Compile Include="consts\ZAL.cs" />
+    <Compile Include="Session.cs" />
     <Compile Include="Zal.cs" />
     <Compile Include="ItemSets\ActionSet.cs" />
     <Compile Include="ItemSets\ActualitySet.cs" />

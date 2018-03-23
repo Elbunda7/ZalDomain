@@ -8,7 +8,7 @@ namespace ZalDomain.ActiveRecords
 {
     public interface ISimpleItem
     {
-        int Id { get; }
+        //int Id { get; }
         string Title { get; }
         string Text { get; }
     }

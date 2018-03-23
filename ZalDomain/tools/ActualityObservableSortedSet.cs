@@ -7,14 +7,14 @@ using System.Text;
 
 namespace ZalDomain.tools
 {
-    class ActualityObservableSortedSet:ObservableSortedSet<Actuality>
+    class ActualityObservableSortedSet:ObservableSortedSet<Article>
     {
         public ActualityObservableSortedSet():base(new ActualityComparer()) {
 
         }
 
         public bool RemoveById(int id) {
-            foreach(Actuality a in this) {
+            foreach(Article a in this) {
                 if (a.Id == id) {
                     Remove(a);
                     return true;
@@ -24,8 +24,8 @@ namespace ZalDomain.tools
         }
 
         [Obsolete]
-        public bool ContainsById(Actuality item) {
-            foreach (Actuality a in this) {
+        public bool ContainsById(Article item) {
+            foreach (Article a in this) {
                 if (a.Id == item.Id) {
                     return true;
                 }

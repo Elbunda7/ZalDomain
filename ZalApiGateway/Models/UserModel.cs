@@ -20,5 +20,6 @@ namespace ZalApiGateway.Models
         //public int Body { get; set; }
         //public bool Pres_facebook { get; set; }
         //public bool Zaplatil_prispevek { get; set; }
+        //public string Role
     }
 }

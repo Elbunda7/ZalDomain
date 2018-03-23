@@ -28,9 +28,9 @@ namespace ZalDomain.ItemSets
             return simple;
         }
 
-        internal void Synchronize() {
+        internal async void Synchronize() {
             if (LastCheck == ZAL.DATE_OF_ORIGIN) {
-                Data = Document.GetAll();
+                Data = await Document.GetAll() as Collection<Document>;
                 LastCheck = DateTime.Now;
             }
         }

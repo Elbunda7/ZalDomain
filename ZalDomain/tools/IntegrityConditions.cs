@@ -10,13 +10,13 @@ namespace ZalDomain.tools
     internal static class IntegrityCondition
     {
         internal static void UserIsLeader() {
-            if (Zal.Me.RankLevel < ZAL.RANK.VEDOUCI) {
+            if (Zal.Session.CurrentUser.RankLevel < ZAL.RANK.VEDOUCI) {
                 throw new Exception("uživatel není vedoucí");
             }
         }
 
         internal static void UserHasSecondRank() {
-            if (Zal.Me.RankLevel < ZAL.RANK.PODRADCE) {
+            if (Zal.Session.CurrentUser.RankLevel < ZAL.RANK.PODRADCE) {
                 throw new Exception("uživatel není podrádce");
             }
         }

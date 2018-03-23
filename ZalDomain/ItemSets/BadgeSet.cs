@@ -20,9 +20,9 @@ namespace ZalDomain.ItemSets
             LastCheck = ZAL.DATE_OF_ORIGIN;
         }
 
-        internal void Synchronize() {
+        internal async void Synchronize() {
             if (LastCheck == ZAL.DATE_OF_ORIGIN) {
-                Badges = Badge.GetAll();
+                Badges = (await Badge.GetAllAsync()) as Collection<Badge>;
                 LastCheck = DateTime.Now;
             }
         } 
@@ -32,12 +32,12 @@ namespace ZalDomain.ItemSets
             Synchronize();
         }
 
-        internal Collection<Badge> GetAcquired() {
-            return GetAcquired(Zal.Me);
-        }
+        //internal Collection<Badge> GetAcquired() {
+        //    return GetAcquired(Zal.Me);
+        //}
 
-        internal Collection<Badge> GetAcquired(User user) {//vráti jen idčka
-            return Badge.GetAcquired(user);
+        internal async Task<IEnumerable<Badge>> GetAcquired(User user) {//vrátit jen idčka
+            return await Badge.GetAcquiredAsync(user);
         }
 
         internal XElement GetXml(string elementName) {

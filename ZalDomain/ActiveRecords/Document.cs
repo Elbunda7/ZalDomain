@@ -1,51 +1,39 @@
-﻿using DAL.Gateway;
-using DAL.tableStructures;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZalApiGateway;
+using ZalApiGateway.Models;
 
 namespace ZalDomain.ActiveRecords
 {
     public class Document : IActiveRecord, ISimpleItem
     {
-        private DokumentyTable Data;
+        private DocumentModel model;
 
-        public int Id { get { return Data.Id; } }
-        public string Title { get { return Data.Jmeno; } }
-        public string Text { get { return Data.Text; } }
+        public int Id => model.Id;
+        public string Title => model.Name;
+        public string Text => model.Text;
 
-        private static DokumentyGateway gateway;
-        private static DokumentyGateway Gateway {
-            get {
-                if (gateway == null) {
-                    gateway = DokumentyGateway.GetInstance();
-                }
-                return gateway;
-            }
+        private static DocumentGateway gateway;
+        private static DocumentGateway Gateway => gateway ?? (gateway = new DocumentGateway());
+
+        public Document(DocumentModel model) {
+            this.model = model;
         }
 
-        public Document(DokumentyTable doc) {
-            Data = doc;
+        public static async Task<IEnumerable<Document>> GetAll() {
+            IEnumerable<DocumentModel> rawModels = await Gateway.GetAllAsync();
+            IEnumerable<Document> badges = rawModels.Select(model => new Document(model));
+            return badges;
         }
 
-        public static Collection<Document> GetAll() {
-            Collection<DokumentyTable> rawData = Gateway.GetAll();
-            return InitializeForAll(rawData);
-        }
-
-        private static Collection<Document> InitializeForAll(Collection<DokumentyTable> items) {
-            Collection<Document> document = new Collection<Document>();
-            foreach (DokumentyTable doc in items) {
-                document.Add(new Document(doc));
-            }
-            return document;
-        }
 
         public override string ToString() {
-            return Data.Jmeno;
+            return model.Name;
         }
     }
 }

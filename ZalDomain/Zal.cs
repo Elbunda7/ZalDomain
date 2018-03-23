@@ -34,24 +34,25 @@ namespace ZalDomain
 
 
         public static bool IsConnected { get; private set; } = false;
-        public static bool UserIsLogged {get {return Me.Email != "";}}
+        public static bool UserIsLogged => Session.CurrentUser != null;
 
-        public static User Me { get; set; } = User.Empty();
+        //public static User Me { get; set; } = User.Empty();
+        public static Session Session { get; set; }
 
         public static DocumentSet Documents { get; private set; } = new DocumentSet();
-        public static BadgeSet Badgets { get; private set; } = new BadgeSet();
+        public static BadgeSet Badges { get; private set; } = new BadgeSet();
         public static UserSet Users { get; private set; } = new UserSet();
         public static ActualitySet Actualities { get; private set; } = new ActualitySet();
         public static ActionSet Actions { get; private set; } = new ActionSet();
 
 
-        public static bool Login(string email, string password) {
+        public static async Task<bool> LoginAsync(string email, string password) {
             bool isLogged = false;
             if (IsConnected) {
                 if (Users.Contains(email)) {
-                    User user = Users.Login(email, password);
+                    User user = await Users.LoginAsync(email, password);
                     if (user != null) {
-                        Me = user;
+                        Session.CurrentUser = user;
                         isLogged = true;
                         ReSynchronize();
                     }
@@ -63,19 +64,20 @@ namespace ZalDomain
         [Obsolete]
         public static bool LoginAsGuest() {
             if (IsConnected) {
-                Me = User.Empty();
+                //Me = User.Empty();
+                Session = new Session();
                 ReSynchronize();
             }
             return false;
         }
 
-        public static bool Register(string name, string surname, string phone, string email, string password) {
+        public static async Task<bool> Register(string name, string surname, string phone, string email, string password) {
             bool isRegistered = false;
             if (IsConnected) {
                 if (!Users.Contains(email)) {
-                    User user = Users.RegisterNewUser(name, surname, phone, email, password);
+                    User user = await Users.RegisterNewUserAsync(name, surname, phone, email, password);
                     if (user != null) {
-                        Me = user;
+                        Session.CurrentUser = user;
                         isRegistered = true;
                     }
                 }
@@ -84,7 +86,8 @@ namespace ZalDomain
         }
 
         public static void Logout() {
-            Me = User.Empty();
+            //Me = User.Empty();
+            Session.Stop();
         }
 
         public static void LoadOfflineCommands(XDocument commands) {
@@ -118,7 +121,7 @@ namespace ZalDomain
 
         private static void ReSynchronize() {
             Documents.ReSynchronize();
-            Badgets.ReSynchronize();
+            Badges.ReSynchronize();
             Users.ReSynchronize();
             Actualities.ReSynchronize();
             Actions.ReSynchronize();

@@ -35,7 +35,7 @@ namespace ZalDomain.ItemSets
 
         private async void CheckForChanges() {
             Data.Clear();
-            Data.AddAll(await ActionEvent.GetUpcoming(Zal.Me));
+            Data.AddAll(await ActionEvent.GetUpcoming(Zal.Session.CurrentUser));
             /*string changes = ActionEvent.Synchronize(Zal.Me, LastCheck);//nepozná když se záznam vymaže natvrdo
             if (changes.Equals(CONST.CHANGES.MAJOR)) {
                 Data.Clear();

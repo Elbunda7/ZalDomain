@@ -79,12 +79,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionGateway.cs" />
-    <Compile Include="ApiTools\PclApiClient.cs" />
-    <Compile Include="ApiTools\PortApiClient.cs" />
-    <Compile Include="ApiTools\RestApiClient.cs" />
-    <Compile Include="ApiTools\JsonFormator.cs" />
-    <Compile Include="Models\ActionModel.cs" />
+    <Compile Include="ArticleGateway.cs" />
     <Compile Include="ApiTools\ApiClient.cs" />
+    <Compile Include="ApiTools\JsonFormator.cs" />
+    <Compile Include="DocumentGateway.cs" />
+    <Compile Include="Models\ActionModel.cs" />
     <Compile Include="ApiTools\ApiSecurity.cs" />
     <Compile Include="ApiTools\API.cs" />
     <Compile Include="Models\Action_UserModel.cs" />
@@ -95,7 +94,9 @@
     <Compile Include="Models\IModel.cs" />
     <Compile Include="Models\RankModel.cs" />
     <Compile Include="Models\UserModel.cs" />
+    <Compile Include="BadgeGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserGateway.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

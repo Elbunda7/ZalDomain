@@ -21,16 +21,7 @@ namespace ZalDomain
             "server=dbsys.cs.vsb.cz\\STUDENT;database=bre0118;user=bre0118;password=BCQSpQY5YQ;";
         //"Data Source = Kluci-PC\\SQLEXPRESS;Initial Catalog = master; Integrated Security = True";
 
-        private static DAL.Database database;
-        private static DAL.Database Database  {
-            get {
-                if (database == null) {
-                    database = DAL.Database.GetInstance();
-                    database.CommandExecutedOffline += OnCommandExecutedOffline;
-                }
-                return database;
-            }
-        }
+
 
 
         public static bool IsConnected { get; private set; } = false;
@@ -91,16 +82,16 @@ namespace ZalDomain
         }
 
         public static void LoadOfflineCommands(XDocument commands) {
-            Database.LoadOfflineCommands(commands);
+            //Database.LoadOfflineCommands(commands);
         }
 
-        public static bool Connect() {
-            IsConnected = Database.Connect(CONNECTION_STRING);
-            if (IsConnected) {//???
-                StartSynchronizing();
-            }
-            return IsConnected;
-        }
+        //public static bool Connect() {
+        //    IsConnected = Database.Connect(CONNECTION_STRING);
+        //    if (IsConnected) {//???
+        //        StartSynchronizing();
+        //    }
+        //    return IsConnected;
+        //}
 
         private static void OnCommandExecutedOffline(XDocument command) {
             if (CommandExecutedOffline != null) {

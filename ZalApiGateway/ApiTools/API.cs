@@ -28,6 +28,7 @@ namespace ZalApiGateway.ApiTools
             public const string UPDATE = "Update";
             public const string DELETE = "Delete";
             public const string JOIN = "Join";
+            public const string GET_CHANGED = "GetChanged";
         }
     }
 }

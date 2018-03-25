@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="ActiveRecords\Article.cs" />
     <Compile Include="ActiveRecords\ActionEvent.cs" />
+    <Compile Include="ActiveRecords\ChangedActiveRecords.cs" />
     <Compile Include="ActiveRecords\Document.cs" />
     <Compile Include="ActiveRecords\IActiveRecord.cs" />
     <Compile Include="ActiveRecords\Badge.cs" />
@@ -57,6 +58,8 @@
     <Compile Include="consts\CONST.cs" />
     <Compile Include="consts\ZAL.cs" />
     <Compile Include="Session.cs" />
+    <Compile Include="tools\ActiveRecordEqualityComparer.cs" />
+    <Compile Include="tools\UserPermisionException.cs" />
     <Compile Include="Zal.cs" />
     <Compile Include="ItemSets\ActionSet.cs" />
     <Compile Include="ItemSets\ActualitySet.cs" />
@@ -69,7 +72,7 @@
     <Compile Include="tools\ActionObservableSortedSet.cs" />
     <Compile Include="tools\ActualityComparer.cs" />
     <Compile Include="tools\ActualityObservableSortedSet.cs" />
-    <Compile Include="tools\IntegrityConditions.cs" />
+    <Compile Include="tools\UserPermision.cs" />
     <Compile Include="tools\Security.cs" />
   </ItemGroup>
   <ItemGroup>

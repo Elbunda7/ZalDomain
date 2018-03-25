@@ -8,5 +8,6 @@ namespace ZalDomain.ActiveRecords
 {
     public interface IActiveRecord
     {
+        int Id { get;}
     }
 }

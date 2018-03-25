@@ -23,7 +23,7 @@ namespace ZalApiGateway.ApiTools
                 str = result.Content;
                 if (result.StatusCode == HttpStatusCode.InternalServerError) {
                     throw new Exception($"Internal Server Error: \"{str}\"");
-                }
+                }//?
             }
             return str.Decrypt();
         }

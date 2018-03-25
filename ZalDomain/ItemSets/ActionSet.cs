@@ -8,55 +8,95 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using ZalApiGateway.Models;
 
 namespace ZalDomain.ItemSets
 {
     public class ActionSet {
 
-        private ActionObservableSortedSet Data; //když vytvořím 2 stejné akce v offline režimu, tak se navzájem vyruší
+        public ActionObservableSortedSet UpcomingActionEvents { get; set; }
+        private Dictionary<int, ActionObservableSortedSet> ActionEvents { get; set; } 
         private DateTime LastCheck;
+        private int CurrentYear;
 
         public ActionSet() {
-            Data = new ActionObservableSortedSet();
+            UpcomingActionEvents = new ActionObservableSortedSet();
+            ActionEvents = new Dictionary<int, ActionObservableSortedSet>();
             LastCheck = ZAL.DATE_OF_ORIGIN;
+            CurrentYear = DateTime.Today.Year;
         }
+
+        public ActionObservableSortedSet GetActionEventsByYear(int year) {
+            CurrentYear = year;
+            if (ActionEvents.ContainsKey(year)) {
+                Synchronize();
+                return ActionEvents[year];
+            }
+            else {
+                ActionEvents.Add(year, new ActionObservableSortedSet());
+                GetAllByYear(year);
+                return ActionEvents[year];
+            }
+        }
+
+        private async void GetAllByYear(int year) {
+            ActionEvents[year] = await ActionEvent.GetAllByYear(Zal.Session.UserRank, year) as ActionObservableSortedSet;
+        }    
+
+        //private ActionObservableSortedSet Data; //když vytvořím 2 stejné akce v offline režimu, tak se navzájem vyruší
+        //private List<int> AvilableDataCategory;       
 
         public void Synchronize() {
             DateTime tmp = DateTime.Now;
-            CheckForChanges();
+            SynchronizeChanges();
             LastCheck = tmp;
         }
 
         public void ReSynchronize() {
-            Data.Clear();
+            UpcomingActionEvents.Clear();
+            ActionEvents.Clear();
             LastCheck = ZAL.DATE_OF_ORIGIN;
             Synchronize();
         }
 
-        private async void CheckForChanges() {
-            Data.Clear();
-            Data.AddAll(await ActionEvent.GetUpcoming(Zal.Session.CurrentUser));
-            /*string changes = ActionEvent.Synchronize(Zal.Me, LastCheck);//nepozná když se záznam vymaže natvrdo
-            if (changes.Equals(CONST.CHANGES.MAJOR)) {
-                Data.Clear();
-                Data.AddAll(ActionEvent.GetUpcoming(Zal.Me));
+        private async void SynchronizeChanges() {
+            ChangesRequestModel requestModel = new ChangesRequestModel {
+                    Rank = Zal.Session.UserRank,
+                    LastCheck = LastCheck,
+                    Year = CurrentYear,
+                    Count = ActionEvents.Count
+                };
+            var respond = await ActionEvent.GetChangedAsync(requestModel);
+            ActualizeDataWith(ActionEvents[CurrentYear], respond);
+            if (DateTime.Today.Year != CurrentYear) {
+                requestModel.Year = DateTime.Today.Year;
+                respond = await ActionEvent.GetChangedAsync(requestModel);
+                ActualizeDataWith(ActionEvents[DateTime.Today.Year], respond);
             }
-            else if (changes.Equals(CONST.CHANGES.MINOR)) {
-                List<int> changedItems = ActionEvent.SynchronizeAll(Zal.Me, LastCheck);
-                foreach (int id in changedItems) {
-                    if (id < 0) {
-                        Data.RemoveById(-id);
-                    }
-                    else {
-                        Data.RemoveById(id);
-                        Data.Add(ActionEvent.Get(id));
-                    }
-                }
-            }*/
+            UpcomingActionEvents = GetUpcoming();
         }
 
-        public void InsertNewAction(string name, string type, DateTime start, DateTime end, int fromRank, bool isOfficial) {
-            Data.Add(new ActionEvent(name, type, start, end, fromRank, isOfficial));
+        private void ActualizeDataWith(ActionObservableSortedSet data, ChangedActiveRecords<ActionEvent> changes) {
+            IEnumerable<ActionEvent> tmp;
+            tmp = data.Where(action => changes.Deleted.All(id => id != action.Id));
+            tmp.Union(changes.Changed, new ActiveRecordEqualityComparer());
+            data = tmp as ActionObservableSortedSet;
+        }
+
+        private ActionObservableSortedSet GetUpcoming() {
+            var tmp = ActionEvents[DateTime.Today.Year].Where(action => action.DateTo >= DateTime.Now);
+            return tmp as ActionObservableSortedSet;
+        }
+
+        public async void InsertNewAction(string name, string type, DateTime dateFrom, DateTime dateTo, int fromRank, bool isOfficial) {
+            if (!ActionEvents.ContainsKey(dateFrom.Year)) {
+                ActionEvents.Add(dateFrom.Year, new ActionObservableSortedSet());
+            }
+            ActionEvent item = await ActionEvent.AddAsync(name, type, dateFrom, dateTo, fromRank, isOfficial);
+            ActionEvents[dateFrom.Year].Add(item);
+            if (dateTo >= DateTime.Now) {
+                UpcomingActionEvents.Add(item);
+            }
         }
 
         /*public ActionEvent GetById(int value) {
@@ -111,28 +151,27 @@ namespace ZalDomain.ItemSets
         }*/
 
         internal XElement GetXml(string elementName) {
-            XElement element = new XElement(elementName);
+            /*XElement element = new XElement(elementName);
             foreach (ActionEvent a in Data) {
                 element.Add(a.GetXml("Action"));
             }
-            return element;
+            return element;*/
+            throw new NotImplementedException();
         }
 
         internal void LoadFromXml(XElement element) {
-            IEnumerable<XElement> data = element.Elements("Action");
+            /*IEnumerable<XElement> data = element.Elements("Action");
             foreach (XElement el in data) {
                 Data.Add(ActionEvent.LoadFromXml(el));
             }
-        }
-
-        public ICollection<ActionEvent> GetAll() {
-            Synchronize();
-            return Data;
+            */
+           throw new NotImplementedException();
         }
 
         public async void Delete(ActionEvent akce) {
             if (await akce.DeleteAsync()) {
-                Data.Remove(akce);
+                ActionEvents[akce.DateFrom.Year].Remove(akce);
+                UpcomingActionEvents.Remove(akce);
             }
         }
 

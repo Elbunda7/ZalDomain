@@ -89,6 +89,8 @@
     <Compile Include="Models\Action_UserModel.cs" />
     <Compile Include="Models\ArticleModel.cs" />
     <Compile Include="Models\BadgeModel.cs" />
+    <Compile Include="Models\ChangesRequestModel.cs" />
+    <Compile Include="Models\ChangesRespondModel.cs" />
     <Compile Include="Models\DocumentModel.cs" />
     <Compile Include="Models\GroupsModel.cs" />
     <Compile Include="Models\IModel.cs" />

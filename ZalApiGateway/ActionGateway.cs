@@ -66,8 +66,16 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
-        public async Task<Collection<ActionModel>> GetUpcomingAsync(int rankLevel, bool onlyOfficial) {
-            throw new NotImplementedException();
+        public async Task<Collection<ActionModel>> GetAllByYearAsync(int rankLevel, bool onlyOfficial, int year) {
+            //throw new NotImplementedException();
+            return await GetAllAsync();
+        }
+
+        public async Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ChangesRequestModel requestModel) {
+            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.GET_CHANGED, requestModel);
+            tmp = await ApiClient.PostRequest(tmp);
+            var result = JsonConvert.DeserializeObject<ChangesRespondModel<ActionModel>>(tmp);
+            return result;
         }
 
         public async Task<List<int>> GetAllChangedAsync(int rankLevel, DateTime lastCheck) {

@@ -10,7 +10,7 @@ using System.Collections;
 
 namespace ZalDomain.tools
 {
-    class ActionObservableSortedSet : ObservableSortedSet<ActionEvent>
+    public class ActionObservableSortedSet : ObservableSortedSet<ActionEvent>
     {
 
         public ActionObservableSortedSet():base(new ActionComparer()) {}

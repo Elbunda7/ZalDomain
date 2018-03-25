@@ -55,7 +55,7 @@ namespace ZalDomain.ItemSets
         }
 
         public void AddNewEmptyUser(string name, string surname, int group) {
-            IntegrityCondition.UserIsLeader();
+            UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.RANK.VEDOUCI);
             Data.Add(User.AddNewEmptyUser(name, surname, group));
         }
 

@@ -20,7 +20,7 @@ namespace ZalDomain.ActiveRecords
         private static ArticleGateway gateway;
         private static ArticleGateway Gateway => gateway ?? (gateway = new ArticleGateway());
 
-        internal int Id { get { return model.Id; } }
+        public int Id => model.Id;
         internal DateTime DateOfCreation { get { return model.Date_Creation; } }
 
         public string Title => model.Title;
@@ -74,7 +74,7 @@ namespace ZalDomain.ActiveRecords
             return await Gateway.CheckForChanges(user.Email, lastCheck);
         }
 
-        public static async Task<Collection<Article>> GetAllFor(User user) {
+        public static async Task<Collection<Article>> GetAllFor(int userRank) {
             /* Collection<AktualityTable> actualityValues = Gateway.SelectAllGeneralFor(user.Email);
              Collection<Actuality> actualities = new Collection<Actuality>();
              foreach (AktualityTable a in actualityValues) {
@@ -93,7 +93,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public static async Task<bool> Delete(Article actuality) {
-            IntegrityCondition.UserIsLeader();
+            UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.RANK.VEDOUCI);
             return await Gateway.DeleteAsync(actuality.model.Id);
         }
 

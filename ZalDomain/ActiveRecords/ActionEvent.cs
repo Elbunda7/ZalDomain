@@ -20,13 +20,14 @@ namespace ZalDomain.ActiveRecords
         private Collection<User> participants;
         private Article info;
         private Article report;
-
+        
         public int Id => Model.Id;
         public string Type => Model.EventType;
         public string Name => Model.Name;
         public int Days => GetDays();
         public int FromRank => Model.FromRank;
         public DateTime DateFrom => Model.Date_start;
+        public DateTime DateTo => Model.Date_end;
         public Article Info { get { return InfoLazyLoad(); } private set { info = value; } }
         public Article Report { get { return ReportLazyLoad(); } private set { report = value; } }
         public Collection<User> Garants { get { return GarantsLazyLoad(); } set { SetGarants(value); } }
@@ -63,14 +64,25 @@ namespace ZalDomain.ActiveRecords
             return report;
         }
 
+        internal static async Task<ChangedActiveRecords<ActionEvent>> GetChangedAsync(ChangesRequestModel requestModel) {
+            var rawChanges = await Gateway.GetAllChangedAsync(requestModel);
+            var changes = new ChangedActiveRecords<ActionEvent> {
+                Deleted = rawChanges.Deleted,
+                Added = rawChanges.Added.Select(model => new ActionEvent(model)),
+                Changed = rawChanges.Changed.Select(model => new ActionEvent(model))
+            };
+            return changes;
+        }
 
         private static ActionGateway gateway;
         private static ActionGateway Gateway => gateway ?? (gateway = new ActionGateway());
+
 
         public ActionEvent(ActionModel model) {
             Model = model;
         }
 
+        [Obsolete]
         public ActionEvent(string name, string type, DateTime start, DateTime end, int odHodnosti, bool isOfficial) {
             Model = new ActionModel {
                 Id = -1,
@@ -83,6 +95,23 @@ namespace ZalDomain.ActiveRecords
                 IsOfficial = isOfficial,
             };
             PostModel();
+        }
+
+        public static async Task<ActionEvent> AddAsync(string name, string type, DateTime start, DateTime end, int fromRank, bool isOfficial = true) {
+            ActionModel model = new ActionModel {
+                Id = -1,
+                Name = name,
+                EventType = type,
+                Date_start = start,
+                Date_end = end,
+                FromRank = fromRank,
+                //Email_vedouci = null,
+                IsOfficial = isOfficial,
+            };
+            if (await Gateway.AddAsync(model)) {
+                return new ActionEvent(model);
+            }
+            return null;
         }
 
         public async void PostModel() {
@@ -103,6 +132,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public async Task<Article> CreateNewInfo(string title, string text) {
+            //token uživatele
             return await CreateNewInfo(Zal.Session.CurrentUser, title, text);
         }
 
@@ -113,6 +143,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public async Task<Article> CreateNewReport(string title, string text) {
+            //token uživatele
             return await CreateNewReport(Zal.Session.CurrentUser, title, text);
         }
 
@@ -175,7 +206,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public async void Aktualize(String name, String type, DateTime? start, DateTime? end, int? fromRank, bool? isOfficial) {
-            IntegrityCondition.UserIsLeader();
+            UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.RANK.VEDOUCI);
             if (name != null) {
                 Model.Name = name;
             }
@@ -203,6 +234,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public async Task<bool> Participate(bool isGoing) {
+            //token uživatele
             return await ParticipateAsync(Zal.Session.CurrentUser, isGoing);
         }
 
@@ -218,9 +250,9 @@ namespace ZalDomain.ActiveRecords
             Model = await Gateway.GetChangedAsync(Id, lastCheck);
         }
 
-        public async static Task<IEnumerable<ActionEvent>> GetUpcoming(User user) {
-            bool onlyOfficial = user.RankLevel < ZAL.RANK.VEDOUCI ? true : false;
-            var models = await Gateway.GetUpcomingAsync(user.RankLevel, onlyOfficial);
+        public async static Task<IEnumerable<ActionEvent>> GetAllByYear(int userRank, int year) {
+            bool onlyOfficial = userRank < ZAL.RANK.VEDOUCI ? true : false;
+            var models = await Gateway.GetAllByYearAsync(userRank, onlyOfficial, year);
             var actions = models.Select(model => new ActionEvent(model));
             return actions;
         }

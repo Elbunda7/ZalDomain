@@ -20,8 +20,8 @@ namespace ZalDomain
 
         public static bool IsConnected { get; private set; } = false;
         public static bool UserIsLogged => Session.IsLogged;
-        
-        public static Session Session { get; set; }
+
+        public static Session Session { get; set; } = new Session();
 
         public static DocumentSet Documents { get; private set; } = new DocumentSet();
         public static BadgeSet Badges { get; private set; } = new BadgeSet();
@@ -113,21 +113,21 @@ namespace ZalDomain
 
         public static XDocument GetLocalDataXml() {
             XDocument doc = new XDocument();
-            XElement root = new XElement("root");
+            /*XElement root = new XElement("root");
             root.Add(Actualities.GetXml("Actualities"));
             root.Add(Actions.GetXml("Actions"));
             //root.Add(Docs.GetXml("Docs"));
-            doc.Add(root);
+            doc.Add(root);*/
             return doc;
         }
 
         public static void LoadLocalData(XDocument doc) {
-            if (doc != null) {
+            /*if (doc != null) {
                 XElement root = doc.Root;
                 Actualities.LoadFromXml(root.Element("Actualities"));
                 Actions.LoadFromXml(root.Element("Actions"));
                 //Docs.LoadFromXml(root.Element("Docs"))
-            }
+            }*/
         }
     }
 }

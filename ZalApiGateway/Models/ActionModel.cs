@@ -13,7 +13,6 @@ namespace ZalApiGateway.Models
         public DateTime Date_start { get; set; }
         public DateTime Date_end { get; set; }
         public string EventType { get; set; }
-        //public String Email_vedouci { get; set; }
         public int FromRank { get; set; }
         public bool IsOfficial { get; set; }
         public int? Id_Gallery { get; set; }

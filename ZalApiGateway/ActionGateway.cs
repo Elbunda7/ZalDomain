@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZalApiGateway.ApiTools;
 using ZalApiGateway.Models;
+using ZalApiGateway.Models.NonSqlModels;
 
 namespace ZalApiGateway
 {
@@ -22,22 +23,33 @@ namespace ZalApiGateway
         public async Task<ActionModel> GetAsync(int id) {
             string tmp = jsonFormator.CreateApiRequestString(API.METHOD.GET, id);
             tmp = await ApiClient.PostRequest(tmp);
-            ActionModel model = JsonConvert.DeserializeObject<ActionModel>(tmp);
-            return model;
+            ActionModel respond = JsonConvert.DeserializeObject<ActionModel>(tmp);
+            return respond;
         }
 
         public async Task<Collection<ActionModel>> GetAllAsync() {
             string tmp = jsonFormator.CreateApiRequestString(API.METHOD.GET_ALL);
             tmp = await ApiClient.PostRequest(tmp);
-            Collection<ActionModel> model = JsonConvert.DeserializeObject<Collection<ActionModel>>(tmp);
-            return model;
+            Collection<ActionModel> respond = JsonConvert.DeserializeObject<Collection<ActionModel>>(tmp);
+            return respond;
+        }
+
+        public async Task<Collection<ActionModel>> GetAllByYearAsync(ActionRequestModel model) {
+            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.GET_ALL_BY_YEAR, model);
+            tmp = await ApiClient.PostRequest(tmp);
+            Collection<ActionModel> respond = JsonConvert.DeserializeObject<Collection<ActionModel>>(tmp);
+            return respond;
         }
 
         public async Task<bool> AddAsync(ActionModel model) {
             string tmp = jsonFormator.CreateApiRequestString(API.METHOD.ADD, model);
             tmp = await ApiClient.PostRequest(tmp);
-            model.Id = JsonConvert.DeserializeObject<int>(tmp);
-            return true;
+            int respond = JsonConvert.DeserializeObject<int>(tmp);
+            if (respond != -1) {
+                model.Id = respond;
+                return true;
+            }
+            return false;
         }
 
         public async Task<bool> JoinAsync(int idAction, int idUser) {
@@ -59,16 +71,14 @@ namespace ZalApiGateway
         }
 
         public async Task<bool> UpdateAsync(ActionModel model) {
-            throw new NotImplementedException();
+            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.UPDATE, model);
+            tmp = await ApiClient.PostRequest(tmp);
+            bool result = JsonConvert.DeserializeObject<bool>(tmp);
+            return result;
         }
 
         public async Task<ActionModel> GetChangedAsync(int id, DateTime lastCheck) {
             throw new NotImplementedException();
-        }
-
-        public async Task<Collection<ActionModel>> GetAllByYearAsync(int rankLevel, bool onlyOfficial, int year) {
-            //throw new NotImplementedException();
-            return await GetAllAsync();
         }
 
         public async Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ChangesRequestModel requestModel) {
@@ -78,8 +88,5 @@ namespace ZalApiGateway
             return result;
         }
 
-        public async Task<List<int>> GetAllChangedAsync(int rankLevel, DateTime lastCheck) {
-            throw new NotImplementedException();
-        }
     }
 }

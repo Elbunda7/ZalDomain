@@ -3,7 +3,7 @@
   <Class Name="ZalDomain.ActiveRecords.Article" BaseTypeListCollapsed="true">
     <Position X="0.5" Y="8.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAACAAAIAAAAAEBgAAAAIQAAAAEABAAIIAAACAAIEQA=</HashCode>
+      <HashCode>AAACAAAIAAAAAEBgAAAAIQEAAAEABAAIIAAACAAIEQA=</HashCode>
       <FileName>ActiveRecords\Article.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
@@ -40,18 +40,14 @@
     <Position X="4" Y="3.5" Width="1.5" />
     <Members>
       <Method Name="GetXml" Hidden="true" />
-      <Method Name="CheckForChanges" Hidden="true" />
     </Members>
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAgAAIAAAAAAAAAAAQAAAEAAEAABAIIgAAAAAAAQA=</HashCode>
+      <HashCode>AAAAAAAABkCAAAAAAAAQIAAAAAAAAAAYAAAAACAIyYA=</HashCode>
       <FileName>ItemSets\ActionSet.cs</FileName>
     </TypeIdentifier>
-    <ShowAsCollectionAssociation>
-      <Field Name="Data" />
-    </ShowAsCollectionAssociation>
   </Class>
   <Class Name="ZalDomain.ItemSets.ActualitySet">
     <Position X="0.5" Y="2.5" Width="1.5" />
@@ -62,7 +58,7 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAIAQAAAAAAAAAQBAAEAAAAABAIMgAAAAAAAQA=</HashCode>
+      <HashCode>AAAAAAAIAAAAAgAAAAAQBAAEAAAAABAIMgAAAAAAAQA=</HashCode>
       <FileName>ItemSets\ActualitySet.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -105,7 +101,7 @@
       <Method Name="ReportLazyLoad" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEAGAEAgEIAAQABsAIAAIAQAIEEAoABIYQgAAECEBYA=</HashCode>
+      <HashCode>AEAGAEAhEQIAAABsQIAAIAUAAEAA4BBIYUgAAECEBYA=</HashCode>
       <FileName>ActiveRecords\ActionEvent.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
@@ -174,7 +170,7 @@
       </Path>
     </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AgAAICAAoABAAQBoAAgAAQIEBAgBAAACAAAAAQAAAAA=</HashCode>
+      <HashCode>AgAAICAAoABIAQBoAAgAAQIABAgBAAACAAAAAAAAQAA=</HashCode>
       <FileName>Zal.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>

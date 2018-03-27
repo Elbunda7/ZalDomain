@@ -9,6 +9,7 @@ using ZalDomain.tools;
 using ZalApiGateway.Models;
 using ZalApiGateway;
 using System.Threading.Tasks;
+using ZalApiGateway.Models.NonSqlModels;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -18,8 +19,8 @@ namespace ZalDomain.ActiveRecords
         //private AkceTable 
         private Collection<User> garants;
         private Collection<User> participants;
-        private Article info;
-        private Article report;
+        private Article Report { get; set; }
+        private Article Info { get; set; }
         
         public int Id => Model.Id;
         public string Type => Model.EventType;
@@ -28,73 +29,57 @@ namespace ZalDomain.ActiveRecords
         public int FromRank => Model.FromRank;
         public DateTime DateFrom => Model.Date_start;
         public DateTime DateTo => Model.Date_end;
-        public Article Info { get { return InfoLazyLoad(); } private set { info = value; } }
-        public Article Report { get { return ReportLazyLoad(); } private set { report = value; } }
         public Collection<User> Garants { get { return GarantsLazyLoad(); } set { SetGarants(value); } }
         //public Collection<User> Participants { get { return ParticipantsLazyLoad(); } private set { participants = value; } }
         //public int ParticipantsCount => Participants.Count; //Model.NumOfParticipants
-                                                            //public bool Je_oficialni { get; set; }
-                                                            //účastním se?
+        //public bool Je_oficialni { get; set; }
+        //účastním se?
 
         //public int Price { get { return Data.Price; } }
         //public decimal GPS_lon { get { return Data.GPS_lon; } }
         //public decimal GPS_lat { get { return Data.GPS_lat; } }
+        public bool HasInfo => Model.Id_Info.HasValue;
+        public bool HasReport => Model.Id_Report.HasValue;
 
+        private static ActionGateway gateway;
+        private static ActionGateway Gateway => gateway ?? (gateway = new ActionGateway());
 
         private int GetDays() {
             TimeSpan ts = Model.Date_end - Model.Date_start;
             return (int)ts.TotalDays;
         }
 
-        private Article InfoLazyLoad() {
-            if (info == null) {
-                if (Model.Id_Info.HasValue) {
-                    info = Zal.Actualities.GetArticle(Model.Id_Info.Value);
-                }
+        private async Task<Article> InfoLazyLoad() {
+            if (Info == null && Model.Id_Info.HasValue) {
+                Info = await Zal.Actualities.GetArticleAsync(Model.Id_Info.Value);
             }
-            return info;
+            return Info;
         }
 
-        private Article ReportLazyLoad() {
-            if (report == null) {
-                if (Model.Id_Report.HasValue) {
-                    report = Zal.Actualities.GetArticle(Model.Id_Report.Value);
-                }
+        private async Task<Article> ReportLazyLoad() {
+            if (Report == null && Model.Id_Report.HasValue) {
+                    Report = await Zal.Actualities.GetArticleAsync(Model.Id_Report.Value);
             }
-            return report;
+            return Report;
         }
 
-        internal static async Task<ChangedActiveRecords<ActionEvent>> GetChangedAsync(ChangesRequestModel requestModel) {
+        internal static async Task<ChangedActiveRecords<ActionEvent>> GetChangedAsync(int userRank, DateTime lastCheck, int currentYear, int count) {
+            var requestModel = new ChangesRequestModel {
+                Rank = userRank,
+                LastCheck = lastCheck,
+                Year = currentYear,
+                Count = count
+            };
             var rawChanges = await Gateway.GetAllChangedAsync(requestModel);
             var changes = new ChangedActiveRecords<ActionEvent> {
                 Deleted = rawChanges.Deleted,
-                Added = rawChanges.Added.Select(model => new ActionEvent(model)),
                 Changed = rawChanges.Changed.Select(model => new ActionEvent(model))
             };
             return changes;
         }
 
-        private static ActionGateway gateway;
-        private static ActionGateway Gateway => gateway ?? (gateway = new ActionGateway());
-
-
         public ActionEvent(ActionModel model) {
             Model = model;
-        }
-
-        [Obsolete]
-        public ActionEvent(string name, string type, DateTime start, DateTime end, int odHodnosti, bool isOfficial) {
-            Model = new ActionModel {
-                Id = -1,
-                Name = name,
-                EventType = type,
-                Date_start = start,
-                Date_end = end,
-                //Email_vedouci = null,
-                //Od_hodnosti = odHodnosti,
-                IsOfficial = isOfficial,
-            };
-            PostModel();
         }
 
         public static async Task<ActionEvent> AddAsync(string name, string type, DateTime start, DateTime end, int fromRank, bool isOfficial = true) {
@@ -105,17 +90,12 @@ namespace ZalDomain.ActiveRecords
                 Date_start = start,
                 Date_end = end,
                 FromRank = fromRank,
-                //Email_vedouci = null,
                 IsOfficial = isOfficial,
             };
             if (await Gateway.AddAsync(model)) {
                 return new ActionEvent(model);
             }
             return null;
-        }
-
-        public async void PostModel() {
-            await Gateway.AddAsync(Model);
         }
 
         private Collection<User> GarantsLazyLoad() {
@@ -131,26 +111,34 @@ namespace ZalDomain.ActiveRecords
             throw new NotImplementedException();
         }
 
-        public async Task<Article> CreateNewInfo(string title, string text) {
+        public async Task<bool> AddNewInfoAsync(string title, string text) {
             //token uživatele
-            return await CreateNewInfo(Zal.Session.CurrentUser, title, text);
+            return await AddNewInfoAsync(Zal.Session.CurrentUser, title, text);
         }
 
-        public async Task<Article> CreateNewInfo(User author, string title, string text) {
-            info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
-            //update info Id
-            return info;
-        }
-
-        public async Task<Article> CreateNewReport(string title, string text) {
+        public async Task<bool> AddNewInfoAsync(User author, string title, string text) {
             //token uživatele
-            return await CreateNewReport(Zal.Session.CurrentUser, title, text);
+            Info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
+            if (Info != null) {
+                Model.Id_Info = Info.Id;
+                return await Gateway.UpdateAsync(Model);
+            }
+            return false;
         }
 
-        public async Task<Article> CreateNewReport(User author, string title, string text) {
-            info = await Zal.Actualities.CreateNewArticle(author, title, text, ZAL.RANK.LISKA);
-            //update zapis id
-            return info;
+        public async Task<bool> AddNewReportAsync(string title, string text) {
+            //token uživatele
+            return await AddNewReportAsync(Zal.Session.CurrentUser, title, text);
+        }
+
+        public async Task<bool> AddNewReportAsync(User author, string title, string text) {
+            //token uživatele
+            Report = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
+            if (Report != null) {
+                Model.Id_Report = Report.Id;
+                return await Gateway.UpdateAsync(Model);
+            }
+            return false;
         }
 
         private async Task<Collection<User>> ParticipantsLazyLoad() {
@@ -205,32 +193,15 @@ namespace ZalDomain.ActiveRecords
             throw new NotImplementedException();
         }
 
-        public async void Aktualize(String name, String type, DateTime? start, DateTime? end, int? fromRank, bool? isOfficial) {
+        public async Task<bool> AktualizeAsync(String name, String type, DateTime? start, DateTime? end, int? fromRank, bool? isOfficial) {
             UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.RANK.VEDOUCI);
-            if (name != null) {
-                Model.Name = name;
-            }
-            if (type != null) {
-                Model.EventType = type;
-            }
-            if (start != null) {
-                Model.Date_start = start.Value;
-            }
-            if (end != null) {
-                Model.Date_end = end.Value;
-            }
-            if (fromRank != null) {
-                //Model.Od_hodnosti = (int)fromRank;
-            }
-            if (isOfficial != null) {
-                Model.IsOfficial = (bool)isOfficial;
-            }
-            await Gateway.UpdateAsync(Model);
-        }
-
-        public int GetNumberOfMembers() {
-            throw new NotImplementedException();
-            //return Gateway.getNumOfUsers(this);
+            if (name != null) Model.Name = name;
+            if (type != null) Model.EventType = type;
+            if (end != null) Model.Date_end = end.Value;
+            if (start != null) Model.Date_start = start.Value;
+            if (fromRank != null) Model.FromRank = fromRank.Value;
+            if (isOfficial != null) Model.IsOfficial = isOfficial.Value;
+            return await Gateway.UpdateAsync(Model);
         }
 
         public async Task<bool> Participate(bool isGoing) {
@@ -251,14 +222,13 @@ namespace ZalDomain.ActiveRecords
         }
 
         public async static Task<IEnumerable<ActionEvent>> GetAllByYear(int userRank, int year) {
-            bool onlyOfficial = userRank < ZAL.RANK.VEDOUCI ? true : false;
-            var models = await Gateway.GetAllByYearAsync(userRank, onlyOfficial, year);
-            var actions = models.Select(model => new ActionEvent(model));
+            var requestModel = new ActionRequestModel {
+                Rank = userRank,
+                Year = year
+            };
+            var models = await Gateway.GetAllByYearAsync(requestModel);
+            IEnumerable<ActionEvent> actions = models.Select(model => new ActionEvent(model));
             return actions;
-        }
-
-        public async static Task<List<int>> SynchronizeAll(User user, DateTime lastCheck) {
-            return await Gateway.GetAllChangedAsync(user.RankLevel, lastCheck);
         }
 
         public async static Task<ActionEvent> Get(int id) {

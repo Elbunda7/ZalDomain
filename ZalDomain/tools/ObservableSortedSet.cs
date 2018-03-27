@@ -16,6 +16,10 @@ namespace ZalDomain.tools
             InnerCollection = new SortedSet<T>(comparer);
         }
 
+        public ObservableSortedSet(IEnumerable<T> enumerable, IComparer<T> comparer) {
+            InnerCollection = new SortedSet<T>(enumerable, comparer);
+        }
+
         public int Count => InnerCollection.Count;
 
         public bool IsReadOnly => (InnerCollection as ICollection<T>).IsReadOnly;

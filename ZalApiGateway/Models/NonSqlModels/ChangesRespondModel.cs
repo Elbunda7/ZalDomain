@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZalDomain.ActiveRecords
+namespace ZalApiGateway.Models.NonSqlModels
 {
-    public class ChangedActiveRecords<T> where T : IActiveRecord
+    public class ChangesRespondModel<T> where T : IModel
     {
         public bool IsChanged { get; set; }
         public bool IsHardChanged { get; set; }

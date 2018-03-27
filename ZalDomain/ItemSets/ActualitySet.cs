@@ -11,8 +11,7 @@ using System.Xml.Linq;
 
 namespace ZalDomain.ItemSets
 {
-    public class ActualitySet
-    {
+    public class ActualitySet {
         private ActualityObservableSortedSet Data { get; set; }
         private DateTime LastCheck;
 
@@ -78,14 +77,17 @@ namespace ZalDomain.ItemSets
             }*/
         }
 
-        internal Article GetArticle(int id) {
-            Article a = Data.Single(article => article.Id == id);
-            if (a == null) {
-                a = Article.Get(id);
+        public async Task<Article> GetArticleAsync(int id) {
+            Article a;
+            if (Data.Any(article => article.Id == id)) {
+                a = Data.Single(article => article.Id == id);
+            }
+            else {
+                a = await Article.GetAsync(id);
                 Data.Add(a);
             }
             return a;
-        }        
+        }    
 
         //public IActualityItem Get(Article a) {
         //    return a.ItemLazyLoad();

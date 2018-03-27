@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using ZalApiGateway.Models;
 
 namespace ZalDomain.ItemSets
 {
@@ -17,86 +16,90 @@ namespace ZalDomain.ItemSets
         public ActionObservableSortedSet UpcomingActionEvents { get; set; }
         private Dictionary<int, ActionObservableSortedSet> ActionEvents { get; set; } 
         private DateTime LastCheck;
-        private int CurrentYear;
+        private int ActiveYear;
 
         public ActionSet() {
             UpcomingActionEvents = new ActionObservableSortedSet();
             ActionEvents = new Dictionary<int, ActionObservableSortedSet>();
             LastCheck = ZAL.DATE_OF_ORIGIN;
-            CurrentYear = DateTime.Today.Year;
+            ActiveYear = DateTime.Today.Year;
         }
 
-        public ActionObservableSortedSet GetActionEventsByYear(int year) {
-            CurrentYear = year;
-            if (ActionEvents.ContainsKey(year)) {
-                Synchronize();
-                return ActionEvents[year];
-            }
-            else {
-                ActionEvents.Add(year, new ActionObservableSortedSet());
-                GetAllByYear(year);
-                return ActionEvents[year];
-            }
+        public async Task<ActionObservableSortedSet> GetActionEventsByYearAsync(int year) {
+            ActiveYear = year;
+            await SynchronizeDataInAsync(year);
+            return ActionEvents[year];
         }
 
-        private async void GetAllByYear(int year) {
-            ActionEvents[year] = await ActionEvent.GetAllByYear(Zal.Session.UserRank, year) as ActionObservableSortedSet;
-        }    
+        //když vytvořím 2 stejné akce v offline režimu, tak se navzájem vyruší    
 
-        //private ActionObservableSortedSet Data; //když vytvořím 2 stejné akce v offline režimu, tak se navzájem vyruší
-        //private List<int> AvilableDataCategory;       
-
-        public void Synchronize() {
-            DateTime tmp = DateTime.Now;
-            SynchronizeChanges();
-            LastCheck = tmp;
-        }
-
-        public void ReSynchronize() {
+        public async Task ReSynchronizeAsync() {
             UpcomingActionEvents.Clear();
             ActionEvents.Clear();
             LastCheck = ZAL.DATE_OF_ORIGIN;
-            Synchronize();
+            await SynchronizeAsync();
         }
 
-        private async void SynchronizeChanges() {
-            ChangesRequestModel requestModel = new ChangesRequestModel {
-                    Rank = Zal.Session.UserRank,
-                    LastCheck = LastCheck,
-                    Year = CurrentYear,
-                    Count = ActionEvents.Count
-                };
-            var respond = await ActionEvent.GetChangedAsync(requestModel);
-            ActualizeDataWith(ActionEvents[CurrentYear], respond);
-            if (DateTime.Today.Year != CurrentYear) {
-                requestModel.Year = DateTime.Today.Year;
-                respond = await ActionEvent.GetChangedAsync(requestModel);
-                ActualizeDataWith(ActionEvents[DateTime.Today.Year], respond);
+        public async Task SynchronizeAsync() {
+            DateTime tmp = DateTime.Now;
+            await SynchronizeDataInAsync(ActiveYear);
+            if (DateTime.Today.Year != ActiveYear) {
+                await SynchronizeDataInAsync(DateTime.Today.Year);
             }
-            UpcomingActionEvents = GetUpcoming();
+            RefreshUpcomingActions();    
+            LastCheck = tmp;//čas serveru nemusí být stejný (nepoužívat místní)
         }
 
-        private void ActualizeDataWith(ActionObservableSortedSet data, ChangedActiveRecords<ActionEvent> changes) {
-            IEnumerable<ActionEvent> tmp;
-            tmp = data.Where(action => changes.Deleted.All(id => id != action.Id));
-            tmp.Union(changes.Changed, new ActiveRecordEqualityComparer());
-            data = tmp as ActionObservableSortedSet;
+        private async Task SynchronizeDataInAsync(int year) {
+            if (ActionEvents.ContainsKey(year)) {
+                await ActualizeDataInAsync(year);
+            }
+            else {
+                ActionEvents.Add(year, new ActionObservableSortedSet());
+                await GetAllByYearAsync(year);
+            }
         }
 
-        private ActionObservableSortedSet GetUpcoming() {
+        private async Task ActualizeDataInAsync(int year) {
+            var respond = await ActionEvent.GetChangedAsync(Zal.Session.UserRank, LastCheck, year, ActionEvents[year].Count);
+            if (respond.IsHardChanged) {
+                ActionEvents[year] = new ActionObservableSortedSet(respond.Changed);
+            }
+            else if (respond.IsChanged) {
+                RefreshDataIn(year, respond);
+            }
+        }
+
+        private async Task GetAllByYearAsync(int year) {
+            var respond = await ActionEvent.GetAllByYear(Zal.Session.UserRank, year);
+            ActionEvents[year] = new ActionObservableSortedSet(respond);
+        }
+
+        private void RefreshUpcomingActions() {
             var tmp = ActionEvents[DateTime.Today.Year].Where(action => action.DateTo >= DateTime.Now);
-            return tmp as ActionObservableSortedSet;
+            UpcomingActionEvents = new ActionObservableSortedSet(tmp);
         }
 
-        public async void InsertNewAction(string name, string type, DateTime dateFrom, DateTime dateTo, int fromRank, bool isOfficial) {
+        private void RefreshDataIn(int year, ChangedActiveRecords<ActionEvent> changes) {
+            var tmp = ActionEvents[year].Where(action => changes.Deleted.All(id => id != action.Id));
+            tmp.Union(changes.Changed, new ActiveRecordEqualityComparer());
+            ActionEvents[year] = new ActionObservableSortedSet(tmp);
+        }
+
+        public async Task<bool> AddNewActionAsync(string name, string type, DateTime dateFrom, DateTime dateTo, int fromRank, bool isOfficial) {
             if (!ActionEvents.ContainsKey(dateFrom.Year)) {
                 ActionEvents.Add(dateFrom.Year, new ActionObservableSortedSet());
             }
+            bool isAdded = false;
             ActionEvent item = await ActionEvent.AddAsync(name, type, dateFrom, dateTo, fromRank, isOfficial);
-            ActionEvents[dateFrom.Year].Add(item);
-            if (dateTo >= DateTime.Now) {
-                UpcomingActionEvents.Add(item);
+            if (item != null) {
+                ActionEvents[dateFrom.Year].Add(item);
+                if (dateTo >= DateTime.Now) {
+                    UpcomingActionEvents.Add(item);
+                }
+                isAdded = true;
             }
+            return isAdded;
         }
 
         /*public ActionEvent GetById(int value) {
@@ -168,11 +171,13 @@ namespace ZalDomain.ItemSets
            throw new NotImplementedException();
         }
 
-        public async void Delete(ActionEvent akce) {
-            if (await akce.DeleteAsync()) {
+        public async Task<bool> DeleteAsync(ActionEvent akce) {
+            bool isDeleted = await akce.DeleteAsync();
+            if (isDeleted) {
                 ActionEvents[akce.DateFrom.Year].Remove(akce);
                 UpcomingActionEvents.Remove(akce);
             }
+            return isDeleted;
         }
 
         /*internal Collection<Akce> getAll() {

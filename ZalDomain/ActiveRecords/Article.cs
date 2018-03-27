@@ -88,8 +88,8 @@ namespace ZalDomain.ActiveRecords
             return await Gateway.GetChanged(user.Email, lastCheck);
         }
 
-        public static Article Get(int id) {
-            return new Article(Gateway.SelectGeneral(id));
+        public static async Task<Article> GetAsync(int id) {
+            return new Article(await Gateway.GetAsync(id));
         }
 
         public static async Task<bool> Delete(Article actuality) {

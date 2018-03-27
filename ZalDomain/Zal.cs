@@ -38,7 +38,7 @@ namespace ZalDomain
                     if (user != null) {
                         Session.CurrentUser = user;
                         isLogged = true;
-                        ReSynchronize();
+                        ReSynchronizeAsync();
                     }
                 }
             }
@@ -50,7 +50,7 @@ namespace ZalDomain
             if (IsConnected) {
                 //Me = User.Empty();
                 Session = new Session();
-                ReSynchronize();
+                ReSynchronizeAsync();
             }
             return false;
         }
@@ -95,20 +95,20 @@ namespace ZalDomain
             }
         }
 
-        public static void StartSynchronizing() {
+        public static async Task StartSynchronizingAsync() {
             //Documents.Synchronize();
             //Badgets.Synchronize();
             //Users.Synchronize();
             //Actualities.Synchronize();
-            Actions.Synchronize();
+            await Actions.SynchronizeAsync();
         }
 
-        private static void ReSynchronize() {
+        private static async Task ReSynchronizeAsync() {
             Documents.ReSynchronize();
             Badges.ReSynchronize();
             Users.ReSynchronize();
             Actualities.ReSynchronize();
-            Actions.ReSynchronize();
+            await Actions.ReSynchronizeAsync();
         }
 
         public static XDocument GetLocalDataXml() {

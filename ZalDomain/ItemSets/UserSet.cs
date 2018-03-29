@@ -50,7 +50,7 @@ namespace ZalDomain.ItemSets
 
         public async Task<User> RegisterNewUserAsync(string name, string surname, string phone, string email, string password) {
             User user = await User.RegisterNewAsync(email, name, surname, phone, password);
-            Data.Add(user);
+            Data.Add(user);//null?
             return user;
         }
 
@@ -79,6 +79,7 @@ namespace ZalDomain.ItemSets
         }
 
         public bool Contains(string email) {
+            return false;
             return User.Contains(email);
         }
 

@@ -9,7 +9,7 @@ using ZalDomain.tools;
 using ZalApiGateway.Models;
 using ZalApiGateway;
 using System.Threading.Tasks;
-using ZalApiGateway.Models.NonSqlModels;
+using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -49,14 +49,14 @@ namespace ZalDomain.ActiveRecords
             return (int)ts.TotalDays;
         }
 
-        private async Task<Article> InfoLazyLoad() {
+        public async Task<Article> InfoLazyLoad() {
             if (Info == null && Model.Id_Info.HasValue) {
                 Info = await Zal.Actualities.GetArticleAsync(Model.Id_Info.Value);
             }
             return Info;
         }
 
-        private async Task<Article> ReportLazyLoad() {
+        public async Task<Article> ReportLazyLoad() {
             if (Report == null && Model.Id_Report.HasValue) {
                     Report = await Zal.Actualities.GetArticleAsync(Model.Id_Report.Value);
             }
@@ -98,7 +98,7 @@ namespace ZalDomain.ActiveRecords
             return null;
         }
 
-        private Collection<User> GarantsLazyLoad() {
+        public Collection<User> GarantsLazyLoad() {
             /*if (garants == null) {
                 if (Model.Email_vedouci != null) {
                     garants = Zal.Users.GetByEmail(Model.Email_vedouci);
@@ -141,7 +141,7 @@ namespace ZalDomain.ActiveRecords
             return false;
         }
 
-        private async Task<Collection<User>> ParticipantsLazyLoad() {
+        public async Task<Collection<User>> ParticipantsLazyLoad() {
             if (participants == null) {//obnovit?
                 List<int> list = await gateway.GetParticipatingUsersAsync(Model.Id);
                 participants = await Zal.Users.Get(list) as Collection<User>;

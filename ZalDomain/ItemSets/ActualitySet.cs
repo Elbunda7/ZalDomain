@@ -20,18 +20,23 @@ namespace ZalDomain.ItemSets
             LastCheck = ZAL.DATE_OF_ORIGIN;
         }
 
-        public async Task<Article> CreateNewArticle(string title, string text, int fromRank, int? forGroup = null) {
+        internal async Task<Article> CreateNewArticle(string title, string text, int fromRank, int? forGroup = null) {
             //token uživatele
             return await CreateNewArticle(Zal.Session.CurrentUser, title, text, fromRank, forGroup);
         }
 
-        public async Task<Article> CreateNewArticle(User author, string title, string text, int fromRank, int? forGroup = null) {
+        internal async Task<Article> CreateNewArticle(User author, string title, string text, int fromRank, int? forGroup = null) {
             Article article = await Article.AddAsync(author, title, text);//, fromRank, forGroup));
             if (article != null) {
                 Data.Add(article);
                 return article;
             }
             return null;
+        }
+
+        public async Task<bool> AddNewArticle(string title, string text, int fromRank, int? forGroup = null) {
+            Article article = await CreateNewArticle(Zal.Session.CurrentUser, title, text, fromRank, forGroup);
+            return article != null;
         }
 
         public async void Remove(Article item) {
@@ -44,7 +49,7 @@ namespace ZalDomain.ItemSets
             }
         }
 
-        internal void Synchronize() {
+        public async Task SynchronizeAsync() {
             DateTime tmp = DateTime.Now;
             CheckForChanges();
             LastCheck = tmp;
@@ -52,7 +57,7 @@ namespace ZalDomain.ItemSets
 
         internal void ReSynchronize() {
             LastCheck = ZAL.DATE_OF_ORIGIN;
-            Synchronize();
+            SynchronizeAsync();
         }
 
         private async void CheckForChanges() {
@@ -94,7 +99,7 @@ namespace ZalDomain.ItemSets
         //}
 
         public IEnumerable<Article> GetAll() {
-            Synchronize();
+            SynchronizeAsync();
             return Data;
         }
 

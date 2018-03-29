@@ -12,7 +12,7 @@ namespace ZalApiGateway.ApiTools
     internal class ApiClient
     {
         static Uri BaseUri = new Uri("http://zalesak.hlucin.com");
-        static Uri ResourceUri = new Uri("http://zalesak.hlucin.com/api/endpoint.php");
+        static Uri ResourceUri = new Uri("http://zalesak.hlucin.com/api/index.php");
 
         public static async Task<string> PostRequest(string jsonContent) {
             string str = jsonContent.Encrypt();

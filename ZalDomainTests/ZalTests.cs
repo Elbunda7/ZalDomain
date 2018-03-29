@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZalDomain.ActiveRecords;
 
 namespace ZalDomain.Tests
 {
@@ -23,6 +24,18 @@ namespace ZalDomain.Tests
             Assert.IsTrue(await act.AddNewInfoAsync("titleInfo", "textInfo"));
             Assert.IsTrue(await act.AddNewReportAsync("titleRep", "textRep"));
             Assert.IsTrue(await act.DeleteAsync());
+        }
+
+        [TestMethod()]
+        public async Task ActualityTest() {
+            await Zal.Actualities.SynchronizeAsync();
+            Assert.IsTrue(await Zal.Actualities.AddNewArticle("title", "test", 0));
+        }
+
+        [TestMethod()]
+        public async Task UsersTest() {
+            await Zal.RegisterAsync("Pepa", "Zdepa", "999456236", "pepa@email.cz", "1234");
+            Assert.IsTrue(Zal.Session.IsLogged);
         }
     }
 }

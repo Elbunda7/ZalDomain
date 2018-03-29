@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZalApiGateway;
 using ZalApiGateway.Models;
+using ZalApiGateway.Models.ApiCommunicationModels;
 using ZalDomain.consts;
 
 namespace ZalDomain.ActiveRecords
@@ -22,7 +23,7 @@ namespace ZalDomain.ActiveRecords
         public string Email => model.Email;
         public string Nick => model.NickName;
         public int RankLevel => model.Id_Rank;
-        public int GroupNumber => model.Id_Group;
+        public int? GroupNumber => model.Id_Group;
         //public string Rank { get { return ZAL.RANK_NAME[model.Hodnost]; } }
         //public string Group { get { return ZAL.GROUP_NAME_SING[model.Id_druzina]; } }
         public string Name => model.Name;
@@ -30,7 +31,7 @@ namespace ZalDomain.ActiveRecords
         public string Phone => model.Phone;
         //public string Role { get { return model.Role; } }
         //public int Points { get { return model.Body; } }
-        public DateTime DateOfBirth { get { return model.BirthDate; } }
+        public DateTime? DateOfBirth { get { return model.BirthDate; } }
         //public bool PaidForMembership { get { return model.Zaplatil_prispevek; } }
         //public Collection<Badge> Budges { get { return BudgesLazyLoad(); } private set { budgets = value; } }
 
@@ -108,14 +109,15 @@ namespace ZalDomain.ActiveRecords
         }
 
         public static async Task<User> RegisterNewAsync(string email, string name, string surname, string phone, string password) {
-            UserModel model = new UserModel {
+            var requestModel = new RegistrationRequestModel {
                 Name = name,
                 Surname = surname, 
                 Phone = phone,
                 Email = email,
+                Password = password
             };
-            if (await Gateway.Register(model, password)) {
-                return new User(model);
+            if (await Gateway.RegisterAsync(requestModel)) {
+                return new User(new UserModel(requestModel));
             }
             return null;
         }

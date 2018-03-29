@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ZalApiGateway.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalApiGateway
 {
@@ -15,7 +16,7 @@ namespace ZalApiGateway
         private JsonFormator jsonFormator;
 
         public UserGateway() {
-            jsonFormator = new JsonFormator(API.ENDPOINT.ACTIONS);
+            jsonFormator = new JsonFormator(API.ENDPOINT.USERS);
         }
 
         public async Task<UserModel> GetAsync(int id) {
@@ -94,6 +95,17 @@ namespace ZalApiGateway
 
         public async Task<IEnumerable<UserModel>> GetAsync(IEnumerable<int> ids) {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> RegisterAsync(RegistrationRequestModel model) {
+            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.REGISTER, model);
+            tmp = await ApiClient.PostRequest(tmp);
+            int respond = JsonConvert.DeserializeObject<int>(tmp);
+            if (respond != -1) {
+                model.Id = respond;
+                return true;
+            }
+            return false;
         }
 
         /*public Collection<Uzivatel> getAllFrom(int id_druziny) {

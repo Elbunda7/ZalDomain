@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZalApiGateway.Models.NonSqlModels
+namespace ZalApiGateway.Models.ApiCommunicationModels
 {
     public class ChangesRequestModel
     {

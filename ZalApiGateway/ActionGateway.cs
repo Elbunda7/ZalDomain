@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZalApiGateway.ApiTools;
 using ZalApiGateway.Models;
-using ZalApiGateway.Models.NonSqlModels;
+using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalApiGateway
 {

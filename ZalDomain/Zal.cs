@@ -18,7 +18,7 @@ namespace ZalDomain
         public static event OfflineCommandDelegate CommandExecutedOffline;
 
 
-        public static bool IsConnected { get; private set; } = false;
+        public static bool IsConnected { get; private set; } = true;
         public static bool UserIsLogged => Session.IsLogged;
 
         public static Session Session { get; set; } = new Session();
@@ -55,7 +55,7 @@ namespace ZalDomain
             return false;
         }
 
-        public static async Task<bool> Register(string name, string surname, string phone, string email, string password) {
+        public static async Task<bool> RegisterAsync(string name, string surname, string phone, string email, string password) {
             bool isRegistered = false;
             if (IsConnected) {
                 if (!Users.Contains(email)) {

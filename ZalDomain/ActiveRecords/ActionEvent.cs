@@ -10,6 +10,7 @@ using ZalApiGateway.Models;
 using ZalApiGateway;
 using System.Threading.Tasks;
 using ZalApiGateway.Models.ApiCommunicationModels;
+using Newtonsoft.Json.Linq;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -239,35 +240,13 @@ namespace ZalDomain.ActiveRecords
             return await Gateway.DeleteAsync(Model.Id);
         }
 
-        public XElement GetXml(string elementName) {
-            /*XElement element = new XElement(elementName,
-                new XElement("Id", Model.Id),
-                new XElement("DateOfAction", Model.Datum_od.Ticks),
-                new XElement("Name", Model.Jmeno),
-                new XElement("Type", Model.Typ),
-                new XElement("IsOfficial", Model.Je_oficialni),
-                new XElement("FromRank", Model.Od_hodnosti),
-                new XElement("Days", Model.Pocet_dni),
-                new XElement("GarantEmail",Model.Email_vedouci));
-            return element;*/
-            throw new NotImplementedException();
+        internal JToken GetJson() {
+            return JObject.FromObject(Model);
         }
 
-        public static ActionEvent LoadFromXml(XElement element) {
-            /*AkceTable data = new AkceTable {
-                Id = Int32.Parse(element.Element("Id").Value),
-                Datum_od = new DateTime(long.Parse(element.Element("DateOfAction").Value)),
-                Jmeno = element.Element("Name").Value,
-                Typ = element.Element("Type").Value,
-                Je_oficialni = Boolean.Parse(element.Element("IsOfficial").Value),
-                Od_hodnosti = Int32.Parse(element.Element("FromRank").Value),
-                Pocet_dni = Int32.Parse(element.Element("Days").Value),
-            };
-            if (!element.Element("GarantEmail").IsEmpty) {
-                data.Email_vedouci = element.Element("GarantEmail").Value;
-            }
-            return new ActionEvent(data);*/
-            throw new NotImplementedException();
+        internal static ActionEvent LoadFrom(JToken json) {
+            var model = json.ToObject<ActionModel>();
+            return new ActionEvent(model);
         }
     }
 }

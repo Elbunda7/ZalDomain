@@ -37,5 +37,12 @@ namespace ZalDomain.Tests
             await Zal.RegisterAsync("Pepa", "Zdepa", "999456236", "pepa@email.cz", "1234");
             Assert.IsTrue(Zal.Session.IsLogged);
         }
+
+        [TestMethod()]
+        public async Task ZalTest() {
+            await Zal.StartSynchronizingAsync();
+            var a = Zal.GetDataJson();
+            Zal.LoadDataFrom(a);
+        }
     }
 }

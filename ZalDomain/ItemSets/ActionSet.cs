@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ZalDomain.ItemSets
 {
@@ -17,12 +19,13 @@ namespace ZalDomain.ItemSets
         private Dictionary<int, ActionObservableSortedSet> ActionEvents { get; set; } 
         private DateTime LastCheck;
         private int ActiveYear;
+        private int CurrentYear;
 
         public ActionSet() {
             UpcomingActionEvents = new ActionObservableSortedSet();
             ActionEvents = new Dictionary<int, ActionObservableSortedSet>();
             LastCheck = ZAL.DATE_OF_ORIGIN;
-            ActiveYear = DateTime.Today.Year;
+            CurrentYear = ActiveYear = DateTime.Today.Year;
         }
 
         public async Task<ActionObservableSortedSet> GetActionEventsByYearAsync(int year) {
@@ -43,8 +46,8 @@ namespace ZalDomain.ItemSets
         public async Task SynchronizeAsync() {
             DateTime tmp = DateTime.Now;
             await SynchronizeDataInAsync(ActiveYear);
-            if (DateTime.Today.Year != ActiveYear) {
-                await SynchronizeDataInAsync(DateTime.Today.Year);
+            if (CurrentYear != ActiveYear) {
+                await SynchronizeDataInAsync(CurrentYear);
             }
             RefreshUpcomingActions();    
             LastCheck = tmp;//čas serveru nemusí být stejný (nepoužívat místní)
@@ -76,7 +79,7 @@ namespace ZalDomain.ItemSets
         }
 
         private void RefreshUpcomingActions() {
-            var tmp = ActionEvents[DateTime.Today.Year].Where(action => action.DateTo >= DateTime.Now);
+            var tmp = ActionEvents[CurrentYear].Where(action => action.DateTo >= DateTime.Now);
             UpcomingActionEvents = new ActionObservableSortedSet(tmp);
         }
 
@@ -87,19 +90,31 @@ namespace ZalDomain.ItemSets
         }
 
         public async Task<bool> AddNewActionAsync(string name, string type, DateTime dateFrom, DateTime dateTo, int fromRank, bool isOfficial) {
-            if (!ActionEvents.ContainsKey(dateFrom.Year)) {
-                ActionEvents.Add(dateFrom.Year, new ActionObservableSortedSet());
-            }
             bool isAdded = false;
             ActionEvent item = await ActionEvent.AddAsync(name, type, dateFrom, dateTo, fromRank, isOfficial);
             if (item != null) {
-                ActionEvents[dateFrom.Year].Add(item);
-                if (dateTo >= DateTime.Now) {
-                    UpcomingActionEvents.Add(item);
-                }
+                PlaceIntoRelevantCollections(item);
                 isAdded = true;
             }
             return isAdded;
+        }
+
+        private void PlaceIntoRelevantCollections(ActionEvent item) {
+            if (!ActionEvents.ContainsKey(item.DateFrom.Year)) {
+                ActionEvents.Add(item.DateFrom.Year, new ActionObservableSortedSet());
+            }
+            ActionEvents[item.DateFrom.Year].Add(item);
+            if (item.DateTo >= DateTime.Now) {
+                UpcomingActionEvents.Add(item);
+            }
+        }
+
+        private void PlaceIntoRelevantCollections(IEnumerable<ActionEvent> items, int year) {
+            if (!ActionEvents.ContainsKey(year)) {
+                ActionEvents.Add(year, new ActionObservableSortedSet());
+            }
+            ActionEvents[year] = ActionEvents[year].Union(items) as ActionObservableSortedSet;
+            UpcomingActionEvents = UpcomingActionEvents.Union(items.Where(action => action.DateTo >= DateTime.Now)) as ActionObservableSortedSet;
         }
 
         /*public ActionEvent GetById(int value) {
@@ -153,22 +168,20 @@ namespace ZalDomain.ItemSets
             return tmp;
         }*/
 
-        internal XElement GetXml(string elementName) {
-            /*XElement element = new XElement(elementName);
-            foreach (ActionEvent a in Data) {
-                element.Add(a.GetXml("Action"));
+        internal JToken GetJson() {
+            JArray jArray = new JArray();               
+            foreach (ActionEvent a in ActionEvents[CurrentYear]) {
+                jArray.Add(a.GetJson());
             }
-            return element;*/
-            throw new NotImplementedException();
+            return jArray;
         }
 
-        internal void LoadFromXml(XElement element) {
-            /*IEnumerable<XElement> data = element.Elements("Action");
-            foreach (XElement el in data) {
-                Data.Add(ActionEvent.LoadFromXml(el));
+        internal void LoadFrom(JToken json) {
+            var actions = json.Select(x => ActionEvent.LoadFrom(x));
+            if (actions.Count() >= 1) {
+                int year = actions.First().DateFrom.Year;
+                PlaceIntoRelevantCollections(actions, year);
             }
-            */
-           throw new NotImplementedException();
         }
 
         public async Task<bool> DeleteAsync(ActionEvent akce) {

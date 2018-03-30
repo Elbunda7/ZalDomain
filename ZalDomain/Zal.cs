@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ZalDomain
 {
@@ -128,6 +130,24 @@ namespace ZalDomain
                 Actions.LoadFromXml(root.Element("Actions"));
                 //Docs.LoadFromXml(root.Element("Docs"))
             }*/
+        }
+
+        public static void LoadDataFrom(string json) {
+            try {
+                JObject jObject = JObject.Parse(json);
+                Session = JsonConvert.DeserializeObject<Session>(jObject.GetValue("session").ToString());
+                Actions.LoadFrom(jObject.GetValue("actions"));
+            }
+            catch (Exception) {
+            }
+        }
+
+        public static string GetDataJson() {
+            JObject jObject = new JObject {
+                {"session", Session.GetJson() },
+                {"actions", Actions.GetJson() }
+            };
+            return jObject.ToString();
         }
     }
 }

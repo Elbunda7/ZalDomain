@@ -210,8 +210,12 @@ namespace ZalDomain.ActiveRecords
             return await ParticipateAsync(Zal.Session.CurrentUser, isGoing);
         }
 
-        public async Task<bool> ParticipateAsync(User user, bool isGoing) {
-            return await Gateway.JoinAsync(user.Id, Model.Id);
+        public Task<bool> ParticipateAsync(User user, bool isGoing) {
+            var requestModel = new Action_UserModel {
+                Id_User = user.Id,
+                Id_Action = Model.Id
+            };
+            return Gateway.JoinAsync(requestModel);
         }
 
         public override string ToString() {

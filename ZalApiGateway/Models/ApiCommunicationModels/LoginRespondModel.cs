@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace ZalApiGateway.Models.ApiCommunicationModels
 {
-    internal class LoginRespondModel
+    public class LoginRespondModel
     {
+        public bool IsExist { get; set; }
+        public bool IsPasswordCorrect { get; set; }
+        public bool HasAnyErrors => !(IsExist && IsPasswordCorrect);
 
+        public UserModel UserModel { get; set; }
+        public string Token { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

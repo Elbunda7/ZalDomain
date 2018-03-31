@@ -12,27 +12,19 @@ using ZalApiGateway.Models;
 
 namespace ZalApiGateway
 {
-    public class ArticleGateway
+    public class ArticleGateway:Gateway
     {
-        private JsonFormator jsonFormator;
-
-        public ArticleGateway() {
-            jsonFormator = new JsonFormator(API.ENDPOINT.ARTICLES);
-        }
+        public ArticleGateway() : base(API.ENDPOINT.ARTICLES){ }
 
 
         public async Task<bool> AddAsync(ArticleModel model) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.ADD, model);
-            tmp = await ApiClient.PostRequest(tmp);
-            model.Id = JsonConvert.DeserializeObject<int>(tmp);
-            return true;
+            int respond = await SendRequestFor<int>(API.METHOD.REGISTER, model);
+            model.Id = respond;
+            return respond != -1;
         }
 
-        public async Task<bool> DeleteAsync(int id) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.DELETE, id);
-            tmp = await ApiClient.PostRequest(tmp);
-            bool result = JsonConvert.DeserializeObject<bool>(tmp);
-            return result;
+        public Task<bool> DeleteAsync(int id) {
+            return SendRequestFor<bool>(API.METHOD.DELETE, id);
         }
 
         public async Task<string> CheckForChanges(string userEmail, DateTime lastCheck) {

@@ -18,6 +18,7 @@ namespace ZalApiGateway.ApiTools
             public const string GROUPS = "groups";
             public const string RANKS = "ranks";
             public const string USERS = "users";
+            public const string SESSION = "session";
         }
 
         internal abstract class METHOD
@@ -31,6 +32,7 @@ namespace ZalApiGateway.ApiTools
             public const string GET_CHANGED = "GetChanged";
             public const string GET_ALL_BY_YEAR = "GetAllByYear";
             public const string REGISTER = "Register";
+            public const string LOGIN = "Login";
         }
     }
 }

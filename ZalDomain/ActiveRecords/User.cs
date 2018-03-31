@@ -65,7 +65,8 @@ namespace ZalDomain.ActiveRecords
             this.model = model;
         }
 
-        public static async Task<User> Login(string email, string password) {
+        [Obsolete]
+        public static async Task<User> LoginAsync(string email, string password) {
             User user = new User(await Gateway.Login(email, password));
             return user;
         }
@@ -108,6 +109,7 @@ namespace ZalDomain.ActiveRecords
             return Gateway.Contains(email);
         }
 
+         [Obsolete]
         public static async Task<User> RegisterNewAsync(string email, string name, string surname, string phone, string password) {
             var requestModel = new RegistrationRequestModel {
                 Name = name,

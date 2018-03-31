@@ -21,7 +21,7 @@ namespace ZalDomain.ItemSets
         }
 
         public async Task<User> LoginAsync(string email, string password) {
-            return await User.Login(email, password);
+            return await User.LoginAsync(email, password);
         }
 
         public async void Synchronize() {

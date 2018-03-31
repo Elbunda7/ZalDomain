@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ZalApiGateway.Models.ApiCommunicationModels
 {
-    public class LoginRequestModel
+    public class SessionRequestModel
     {
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public int IdUser { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

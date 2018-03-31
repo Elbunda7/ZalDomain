@@ -54,7 +54,8 @@
     <Compile Include="ActiveRecords\User.cs" />
     <Compile Include="consts\CONST.cs" />
     <Compile Include="consts\ZAL.cs" />
-    <Compile Include="Session.cs" />
+    <Compile Include="ActiveRecords\Session.cs" />
+    <Compile Include="Models\LoginErrorModel.cs" />
     <Compile Include="tools\ActiveRecordEqualityComparer.cs" />
     <Compile Include="tools\UserPermisionException.cs" />
     <Compile Include="Zal.cs" />

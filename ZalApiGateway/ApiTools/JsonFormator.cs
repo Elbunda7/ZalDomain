@@ -9,7 +9,7 @@ using ZalApiGateway.Models;
 
 namespace ZalApiGateway.ApiTools
 {
-    internal class JsonFormator {
+    public class JsonFormator {
 
         private string endpoint;
 

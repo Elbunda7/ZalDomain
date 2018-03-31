@@ -1,10 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ZalApiGateway.ApiTools;
 using ZalApiGateway.Models;
@@ -12,80 +8,50 @@ using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalApiGateway
 {
-    public class ActionGateway
+    public class ActionGateway:Gateway
     {
-        private JsonFormator jsonFormator;
+        public ActionGateway() : base(API.ENDPOINT.ACTIONS) { }
 
-        public ActionGateway() {
-            jsonFormator = new JsonFormator(API.ENDPOINT.ACTIONS);
+        public Task<ActionModel> GetAsync(int id) {
+            return SendRequestFor<ActionModel>(API.METHOD.GET, id);
         }
 
-        public async Task<ActionModel> GetAsync(int id) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.GET, id);
-            tmp = await ApiClient.PostRequest(tmp);
-            ActionModel respond = JsonConvert.DeserializeObject<ActionModel>(tmp);
-            return respond;
+        public Task<Collection<ActionModel>> GetAllAsync() {
+            return SendRequestFor<Collection<ActionModel>>(API.METHOD.GET_ALL);
         }
 
-        public async Task<Collection<ActionModel>> GetAllAsync() {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.GET_ALL);
-            tmp = await ApiClient.PostRequest(tmp);
-            Collection<ActionModel> respond = JsonConvert.DeserializeObject<Collection<ActionModel>>(tmp);
-            return respond;
-        }
-
-        public async Task<Collection<ActionModel>> GetAllByYearAsync(ActionRequestModel model) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.GET_ALL_BY_YEAR, model);
-            tmp = await ApiClient.PostRequest(tmp);
-            Collection<ActionModel> respond = JsonConvert.DeserializeObject<Collection<ActionModel>>(tmp);
-            return respond;
+        public Task<Collection<ActionModel>> GetAllByYearAsync(ActionRequestModel model) {
+            return SendRequestFor<Collection<ActionModel>>(API.METHOD.GET_ALL_BY_YEAR, model);
         }
 
         public async Task<bool> AddAsync(ActionModel model) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.ADD, model);
-            tmp = await ApiClient.PostRequest(tmp);
-            int respond = JsonConvert.DeserializeObject<int>(tmp);
-            if (respond != -1) {
-                model.Id = respond;
-                return true;
-            }
-            return false;
+            int respond = await SendRequestFor<int>(API.METHOD.ADD, model);
+            model.Id = respond;
+            return respond != -1;
         }
 
-        public async Task<bool> JoinAsync(int idAction, int idUser) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.JOIN, new Action_UserModel { Id_Action = idAction, Id_User = idUser });
-            tmp = await ApiClient.PostRequest(tmp);
-            bool result = JsonConvert.DeserializeObject<bool>(tmp);
-            return result;
+        public Task<bool> JoinAsync(Action_UserModel model) {
+            return SendRequestFor<bool>(API.METHOD.JOIN, model);
         }
 
-        public async Task<bool> DeleteAsync(int idAction) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.DELETE, idAction);
-            tmp = await ApiClient.PostRequest(tmp);
-            bool result = JsonConvert.DeserializeObject<bool>(tmp);
-            return result;
+        public Task<bool> DeleteAsync(int idAction) {
+            return SendRequestFor<bool>(API.METHOD.DELETE, idAction);
         }
 
         public async Task<List<int>> GetParticipatingUsersAsync(int id) {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> UpdateAsync(ActionModel model) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.UPDATE, model);
-            tmp = await ApiClient.PostRequest(tmp);
-            bool result = JsonConvert.DeserializeObject<bool>(tmp);
-            return result;
+        public Task<bool> UpdateAsync(ActionModel model) {
+            return SendRequestFor<bool>(API.METHOD.UPDATE, model);
         }
 
         public async Task<ActionModel> GetChangedAsync(int id, DateTime lastCheck) {
             throw new NotImplementedException();
         }
 
-        public async Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ChangesRequestModel requestModel) {
-            string tmp = jsonFormator.CreateApiRequestString(API.METHOD.GET_CHANGED, requestModel);
-            tmp = await ApiClient.PostRequest(tmp);
-            var result = JsonConvert.DeserializeObject<ChangesRespondModel<ActionModel>>(tmp);
-            return result;
+        public Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ChangesRequestModel model) {
+            return SendRequestFor<ChangesRespondModel<ActionModel>>(API.METHOD.GET_CHANGED, model);
         }
 
     }

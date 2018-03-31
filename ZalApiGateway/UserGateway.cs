@@ -51,10 +51,7 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
-        public async Task<bool> Register(UserModel uzivatel, string password) {
-            throw new NotImplementedException();
-        }
-
+        [Obsolete]
         public async Task<UserModel> Login(string userEmail, string password) {
             throw new NotImplementedException();
         }
@@ -97,6 +94,7 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
+        [Obsolete]
         public async Task<bool> RegisterAsync(RegistrationRequestModel model) {
             string tmp = jsonFormator.CreateApiRequestString(API.METHOD.REGISTER, model);
             tmp = await ApiClient.PostRequest(tmp);

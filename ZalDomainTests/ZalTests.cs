@@ -33,8 +33,12 @@ namespace ZalDomain.Tests
         }
 
         [TestMethod()]
-        public async Task UsersTest() {
-            await Zal.RegisterAsync("Pepa", "Zdepa", "999456236", "pepa@email.cz", "1234");
+        public async Task SessionTest() {
+            bool isRegistered = await Zal.Session.RegisterAsync("Pepa", "Zdepa", "999456236", "pepa3@email.cz", "password");
+            if (!isRegistered) {
+                var a = await Zal.Session.LoginAsync("pepa3@email.cz", "password", true);
+                Assert.IsFalse(a.HasAnyErrors);
+            }
             Assert.IsTrue(Zal.Session.IsLogged);
         }
 

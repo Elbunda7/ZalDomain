@@ -14,13 +14,16 @@ namespace ZalApiGateway
         public SessionGateway() : base(API.ENDPOINT.SESSION) { }
 
         public async Task<bool> RegisterAsync(RegistrationRequestModel model) {
-            int respond = await SendRequestFor<int>(API.METHOD.REGISTER, model);
-            model.Id = respond;
-            return respond != -1;
+            model.Id = await SendRequestFor<int>(API.METHOD.REGISTER, model);
+            return model.Id != -1;
         }
 
         public Task<LoginRespondModel> LoginAsync(LoginRequestModel model) {
             return SendRequestFor<LoginRespondModel>(API.METHOD.LOGIN, model);
+        }
+
+        public Task<TokenRespondModel> RefreshToken(TokenRequestModel model) {
+            return SendRequestFor<TokenRespondModel>(API.METHOD.GET_TOKEN, model);
         }
     }
 }

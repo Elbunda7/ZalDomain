@@ -38,8 +38,15 @@ namespace ZalDomain.Tests
             if (!isRegistered) {
                 var a = await Zal.Session.LoginAsync("pepa3@email.cz", "password", true);
                 Assert.IsFalse(a.HasAnyErrors);
+                var tok = Zal.Session.Token;
+                await Zal.Session.AskForNewToken();
+                var tok2 = Zal.Session.Token;
+                Assert.AreNotEqual(tok, tok2);
+                Zal.Session.RefreshToken = "false";
+                await Zal.Session.AskForNewToken();
+                Assert.IsNull(Zal.Session.Token);
             }
-            Assert.IsTrue(Zal.Session.IsLogged);
+            //Assert.IsTrue(Zal.Session.IsLogged);
         }
 
         [TestMethod()]

@@ -17,11 +17,11 @@ namespace ZalDomain.ActiveRecords
     {
         public User CurrentUser { get; set; }
         public string RefreshToken { get; set; }
-        public bool StayLogged { get; set; } = false;
+        public bool StayLogged => !string.IsNullOrEmpty(RefreshToken);
 
         public string Token { get; set; }
         public bool IsLogged => CurrentUser != null;
-        public int UserRank => IsLogged ? CurrentUser.RankLevel : ZAL.RANK.CLEN;
+        public int UserRank => IsLogged ? CurrentUser.RankLevel : ZAL.RANK.NOVACEK;
 
         private static SessionGateway gateway;
         private static SessionGateway Gateway => gateway ?? (gateway = new SessionGateway());
@@ -37,6 +37,12 @@ namespace ZalDomain.ActiveRecords
             return json;
         }
 
+        private void Clear() {
+            CurrentUser = null;
+            RefreshToken = null;
+            Token = null;
+        }
+
         internal void Stop() {
             CurrentUser = null;
             Token = null;
@@ -45,14 +51,14 @@ namespace ZalDomain.ActiveRecords
         public async Task<LoginErrorModel> LoginAsync(string email, string password, bool stayLogged) {
             var requestModel = new LoginRequestModel {
                 Email = email,
-                Password = password
+                Password = password, 
+                StayLogged = stayLogged
             };
             var respondModel = await Gateway.LoginAsync(requestModel);
             if (!respondModel.HasAnyErrors) {
                 CurrentUser = new User(respondModel.UserModel);
                 Token = respondModel.Token;
                 RefreshToken = respondModel.RefreshToken;
-                StayLogged = stayLogged;
             }
             return new LoginErrorModel(respondModel);
         }
@@ -70,6 +76,23 @@ namespace ZalDomain.ActiveRecords
                 CurrentUser = new User(new UserModel(requestModel));
             }
             return isRegistered;
+        }
+
+        public async Task AskForNewToken() {
+            if (StayLogged && CurrentUser != null) {
+                var requestModel = new TokenRequestModel {
+                    IdUser = CurrentUser.Id,
+                    RefreshToken = RefreshToken,
+                };
+                var respondModel = await Gateway.RefreshToken(requestModel);
+                if (!respondModel.IsExpired) {
+                    Token = respondModel.Token;
+                }
+                else {
+                    Clear();
+                }
+            }
+
         }
 
         /*public static void Logout() {

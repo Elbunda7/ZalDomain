@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZalApiGateway.Models.ApiCommunicationModels
 {
-    public class SessionRespondModel
+    public class TokenRespondModel
     {
         public bool IsExpired { get; set; }
         public string Token { get; set; }

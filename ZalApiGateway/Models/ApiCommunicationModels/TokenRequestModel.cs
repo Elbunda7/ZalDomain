@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZalApiGateway.Models.ApiCommunicationModels
 {
-    public class SessionRequestModel
+    public class TokenRequestModel
     {
         public int IdUser { get; set; }
         public string RefreshToken { get; set; }

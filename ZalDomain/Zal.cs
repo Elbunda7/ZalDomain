@@ -31,7 +31,7 @@ namespace ZalDomain
         public static ActualitySet Actualities { get; private set; } = new ActualitySet();
         public static ActionSet Actions { get; private set; } = new ActionSet();
 
-
+        [Obsolete]
         public static async Task<bool> LoginAsync(string email, string password) {
             bool isLogged = false;
             if (IsConnected) {
@@ -57,6 +57,7 @@ namespace ZalDomain
             return false;
         }
 
+        [Obsolete]
         public static async Task<bool> RegisterAsync(string name, string surname, string phone, string email, string password) {
             bool isRegistered = false;
             if (IsConnected) {
@@ -70,7 +71,7 @@ namespace ZalDomain
             }
             return isRegistered;
         }
-
+        [Obsolete]
         public static void Logout() {
             //Me = User.Empty();
             Session.Stop();
@@ -111,25 +112,6 @@ namespace ZalDomain
             Users.ReSynchronize();
             Actualities.ReSynchronize();
             await Actions.ReSynchronizeAsync();
-        }
-
-        public static XDocument GetLocalDataXml() {
-            XDocument doc = new XDocument();
-            /*XElement root = new XElement("root");
-            root.Add(Actualities.GetXml("Actualities"));
-            root.Add(Actions.GetXml("Actions"));
-            //root.Add(Docs.GetXml("Docs"));
-            doc.Add(root);*/
-            return doc;
-        }
-
-        public static void LoadLocalData(XDocument doc) {
-            /*if (doc != null) {
-                XElement root = doc.Root;
-                Actualities.LoadFromXml(root.Element("Actualities"));
-                Actions.LoadFromXml(root.Element("Actions"));
-                //Docs.LoadFromXml(root.Element("Docs"))
-            }*/
         }
 
         public static void LoadDataFrom(string json) {

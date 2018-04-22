@@ -7,24 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using ZalDomain.consts;
 
 namespace ZalDomain.tools
 {
     public class ActionObservableSortedSet : ObservableSortedSet<ActionEvent>
     {
-
         public ActionObservableSortedSet():base(new ActionComparer()) {}
 
-        public ActionObservableSortedSet(IEnumerable<ActionEvent> enumerable) : base(enumerable, new ActionComparer()) { }
-
-        public bool RemoveById(int id) {
-            foreach (ActionEvent a in this) {
-                if (a.Id == id) {
-                    Remove(a);
-                    return true;
-                }
-            }
-            return false;
-        }
+        public ActionObservableSortedSet(IEnumerable<ActionEvent> enumerable) : base(enumerable, new ActionComparer()) { }        
     }
 }

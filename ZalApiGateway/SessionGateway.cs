@@ -22,7 +22,7 @@ namespace ZalApiGateway
             return SendRequestFor<LoginRespondModel>(API.METHOD.LOGIN, model);
         }
 
-        public Task<TokenRespondModel> RefreshToken(TokenRequestModel model) {
+        public Task<TokenRespondModel> RefreshTokenAsync(TokenRequestModel model) {
             return SendRequestFor<TokenRespondModel>(API.METHOD.GET_TOKEN, model);
         }
     }

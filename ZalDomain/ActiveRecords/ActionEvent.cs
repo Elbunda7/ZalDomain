@@ -11,6 +11,7 @@ using ZalApiGateway;
 using System.Threading.Tasks;
 using ZalApiGateway.Models.ApiCommunicationModels;
 using Newtonsoft.Json.Linq;
+using ZalDomain.Models;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -72,15 +73,11 @@ namespace ZalDomain.ActiveRecords
                 Count = count
             };
             var rawChanges = await Gateway.GetAllChangedAsync(requestModel);
-            var changes = new ChangedActiveRecords<ActionEvent> {
-                Deleted = rawChanges.Deleted,
-                Changed = rawChanges.Changed.Select(model => new ActionEvent(model))
-            };
-            return changes;
+            return new ChangedActiveRecords<ActionEvent>(rawChanges);
         }
 
-        public ActionEvent(ActionModel model) {
-            Model = model;
+        public ActionEvent(IModel model) {
+            Model = model as ActionModel;
         }
 
         public static async Task<ActionEvent> AddAsync(string name, string type, DateTime start, DateTime end, int fromRank, bool isOfficial = true) {
@@ -119,7 +116,7 @@ namespace ZalDomain.ActiveRecords
 
         public async Task<bool> AddNewInfoAsync(User author, string title, string text) {
             //token uživatele
-            Info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
+            Info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);//new article + action.Id_foreign = najednou
             if (Info != null) {
                 Model.Id_Info = Info.Id;
                 return await Gateway.UpdateAsync(Model);
@@ -129,6 +126,7 @@ namespace ZalDomain.ActiveRecords
 
         public async Task<bool> AddNewReportAsync(string title, string text) {
             //token uživatele
+            //přepsat stávající?
             return await AddNewReportAsync(Zal.Session.CurrentUser, title, text);
         }
 
@@ -226,14 +224,13 @@ namespace ZalDomain.ActiveRecords
             Model = await Gateway.GetChangedAsync(Id, lastCheck);
         }
 
-        public async static Task<IEnumerable<ActionEvent>> GetAllByYear(int userRank, int year) {
+        public async static Task<AllActiveRecords<ActionEvent>> GetAllByYear(int userRank, int year) {//vrátit respond model se serverovým časem 
             var requestModel = new ActionRequestModel {
                 Rank = userRank,
                 Year = year
             };
-            var models = await Gateway.GetAllByYearAsync(requestModel);
-            IEnumerable<ActionEvent> actions = models.Select(model => new ActionEvent(model));
-            return actions;
+            var rawRespondModel = await Gateway.GetAllByYearAsync(requestModel);
+            return new AllActiveRecords<ActionEvent>(rawRespondModel);
         }
 
         public async static Task<ActionEvent> Get(int id) {

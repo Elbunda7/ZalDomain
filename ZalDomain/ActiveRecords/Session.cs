@@ -78,13 +78,13 @@ namespace ZalDomain.ActiveRecords
             return isRegistered;
         }
 
-        public async Task AskForNewToken() {
+        public async Task LoginWithTokenAsync() {
             if (StayLogged && CurrentUser != null) {
                 var requestModel = new TokenRequestModel {
                     IdUser = CurrentUser.Id,
                     RefreshToken = RefreshToken,
                 };
-                var respondModel = await Gateway.RefreshToken(requestModel);
+                var respondModel = await Gateway.RefreshTokenAsync(requestModel);
                 if (!respondModel.IsExpired) {
                     Token = respondModel.Token;
                 }

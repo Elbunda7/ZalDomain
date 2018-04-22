@@ -10,17 +10,16 @@ namespace ZalApiGateway.Models.ApiCommunicationModels
     {
         public bool IsChanged { get; set; }
         public bool IsHardChanged { get; set; }
+        public DateTime Timestamp { get; set; }
+        public int[] Deleted { get; set; }
+        public IEnumerable<T> Changed { get; set; }
 
-        private IEnumerable<int> deleted;
-        public IEnumerable<int> Deleted {
-            get { return deleted ?? new List<int>(); }
-            set { deleted = value; }
+        public int[] GetDeleted() {
+            return Deleted ?? new int[0];
         }
 
-        public IEnumerable<T> changed;
-        public IEnumerable<T> Changed {
-            get { return changed ?? new List<T>(); }
-            set { changed = value; }
+        public IEnumerable<T> GetChanged() {
+            return Changed ?? new List<T>();
         }
     }
 }

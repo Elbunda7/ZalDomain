@@ -18,9 +18,8 @@ namespace ZalApiGateway
 
 
         public async Task<bool> AddAsync(ArticleModel model) {
-            int respond = await SendRequestFor<int>(API.METHOD.REGISTER, model);
-            model.Id = respond;
-            return respond != -1;
+            model.Id = await SendRequestFor<int>(API.METHOD.ADD, model);
+            return model.Id != -1;
         }
 
         public Task<bool> DeleteAsync(int id) {

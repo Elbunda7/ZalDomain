@@ -45,7 +45,8 @@
   <ItemGroup>
     <Compile Include="ActiveRecords\Article.cs" />
     <Compile Include="ActiveRecords\ActionEvent.cs" />
-    <Compile Include="ActiveRecords\ChangedActiveRecords.cs" />
+    <Compile Include="Models\AllActiveRecords.cs" />
+    <Compile Include="Models\ChangedActiveRecords.cs" />
     <Compile Include="ActiveRecords\Document.cs" />
     <Compile Include="ActiveRecords\IActiveRecord.cs" />
     <Compile Include="ActiveRecords\Badge.cs" />

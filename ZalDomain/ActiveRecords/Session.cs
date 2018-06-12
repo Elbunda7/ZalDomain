@@ -91,12 +91,6 @@ namespace ZalDomain.ActiveRecords
             return isLogged;
         }
 
-        public void RaisSessionStateChanged() {
-            if (UsersSessionStateChanged != null) {
-                UsersSessionStateChanged.Invoke(this);
-            }
-        }
-
         public async Task Logout() {
             var requestModel = new LogoutRequestModel {
                 IdUser = CurrentUser.Id,
@@ -104,6 +98,13 @@ namespace ZalDomain.ActiveRecords
             };
             await Gateway.LogoutAsync(requestModel);
             Clear();
+            RaisSessionStateChanged();
+        }
+
+        public void RaisSessionStateChanged() {
+            if (UsersSessionStateChanged != null) {
+                UsersSessionStateChanged.Invoke(this);
+            }
         }
 
         internal JObject GetJson() {

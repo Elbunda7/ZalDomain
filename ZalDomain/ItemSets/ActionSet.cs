@@ -112,8 +112,10 @@ namespace ZalDomain.ItemSets
 
         private void PlaceIntoRelevantCollections(IEnumerable<ActionEvent> items, int year) {
             AddToDictionaryIfNeeded(year);
-            ActionEventsDict[year] = ActionEventsDict[year].Union(items) as ActionObservableSortedSet;
-            UpcomingActionEvents = UpcomingActionEvents.Union(items.Where(action => action.DateTo >= DateTime.Now)) as ActionObservableSortedSet;
+            var actions = ActionEventsDict[year].Union(items);
+            ActionEventsDict[year] = new ActionObservableSortedSet(actions);
+            actions = UpcomingActionEvents.Union(items.Where(action => action.DateTo >= DateTime.Now));
+            UpcomingActionEvents = new ActionObservableSortedSet(actions);//skusit to udělat bez vytváření nových instancí
         }
 
         private void AddToDictionaryIfNeeded(int year) {

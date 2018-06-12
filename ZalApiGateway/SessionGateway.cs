@@ -25,5 +25,9 @@ namespace ZalApiGateway
         public Task<TokenRespondModel> RefreshTokenAsync(TokenRequestModel model) {
             return SendRequestFor<TokenRespondModel>(API.METHOD.GET_TOKEN, model);
         }
+
+        public Task LogoutAsync(LogoutRequestModel model) {
+            return SendRequestFor<bool>(API.METHOD.LOGOUT, model);
+        }
     }
 }

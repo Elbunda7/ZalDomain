@@ -9,5 +9,7 @@ namespace ZalApiGateway.Models
     public interface IModel
     {
         int Id { get; set; }
+
+        IModel Copy();
     }
 }

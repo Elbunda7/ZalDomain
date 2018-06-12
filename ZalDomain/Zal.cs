@@ -14,14 +14,16 @@ using Newtonsoft.Json;
 namespace ZalDomain
 {
     public delegate void OfflineCommandDelegate(XDocument commands);
+    public delegate void SessionStateDelegate(Session session);
 
     public static class Zal
     {
         public static event OfflineCommandDelegate CommandExecutedOffline;
+        public static event SessionStateDelegate UsersSessionStateChanged;
 
 
         public static bool IsConnected { get; private set; } = true;
-        public static bool UserIsLogged => Session.IsLogged;
+        public static bool UserIsLogged => Session.IsUserLogged;
 
         public static Session Session { get; set; } = new Session();
 
@@ -117,7 +119,7 @@ namespace ZalDomain
         public static void LoadDataFrom(string json) {
             try {
                 JObject jObject = JObject.Parse(json);
-                Session = JsonConvert.DeserializeObject<Session>(jObject.GetValue("session").ToString());
+                Session.LoadFrom(jObject.GetValue("session"));// = JsonConvert.DeserializeObject<Session>(jObject.GetValue("session").ToString());
                 Actions.LoadFrom(jObject.GetValue("actions"));
             }
             catch (Exception) {

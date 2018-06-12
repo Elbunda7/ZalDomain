@@ -15,27 +15,19 @@ namespace ZalDomain.ActiveRecords
 {
     public class Session
     {
-        public User CurrentUser { get; set; }
-        public string RefreshToken { get; set; }
-        public bool StayLogged => !string.IsNullOrEmpty(RefreshToken);
+        public event SessionStateDelegate UsersSessionStateChanged;
 
-        public string Token { get; set; }
-        public bool IsLogged => CurrentUser != null;
-        public int UserRank => IsLogged ? CurrentUser.RankLevel : ZAL.RANK.NOVACEK;
+        public User CurrentUser { get; set; }
+        private string RefreshToken { get; set; }
+        private string Token { get; set; }
+
+        public bool StayLogged => !string.IsNullOrEmpty(RefreshToken);
+        public bool IsUserLogged => CurrentUser != null;
+        public int UserRank => IsUserLogged ? CurrentUser.RankLevel : ZAL.RANK.NOVACEK;
 
         private static SessionGateway gateway;
         private static SessionGateway Gateway => gateway ?? (gateway = new SessionGateway());
 
-        internal JObject GetJson() {
-            JObject json = new JObject {
-                { "StayLogged", StayLogged }
-            };
-            if (StayLogged) {
-                json.Add("RefreshToken", RefreshToken);
-                json.Add("CurrentUser", JToken.FromObject(CurrentUser));
-            }            
-            return json;
-        }
 
         private void Clear() {
             CurrentUser = null;
@@ -59,6 +51,7 @@ namespace ZalDomain.ActiveRecords
                 CurrentUser = new User(respondModel.UserModel);
                 Token = respondModel.Token;
                 RefreshToken = respondModel.RefreshToken;
+                RaisSessionStateChanged();
             }
             return new LoginErrorModel(respondModel);
         }
@@ -78,26 +71,58 @@ namespace ZalDomain.ActiveRecords
             return isRegistered;
         }
 
-        public async Task LoginWithTokenAsync() {
-            if (StayLogged && CurrentUser != null) {
+        public async Task<bool> TryLoginWithTokenAsync() {
+            bool isLogged = StayLogged && CurrentUser != null;
+            if (isLogged) {
                 var requestModel = new TokenRequestModel {
                     IdUser = CurrentUser.Id,
                     RefreshToken = RefreshToken,
                 };
                 var respondModel = await Gateway.RefreshTokenAsync(requestModel);
-                if (!respondModel.IsExpired) {
+                isLogged = !respondModel.IsExpired;
+                if (isLogged) {
                     Token = respondModel.Token;
+                    RaisSessionStateChanged();
                 }
                 else {
                     Clear();
                 }
             }
-
+            return isLogged;
         }
 
-        /*public static void Logout() {
-            //Me = User.Empty();
-            Session.Stop();
-        }*/
+        public void RaisSessionStateChanged() {
+            if (UsersSessionStateChanged != null) {
+                UsersSessionStateChanged.Invoke(this);
+            }
+        }
+
+        public async Task Logout() {
+            var requestModel = new LogoutRequestModel {
+                IdUser = CurrentUser.Id,
+                Token = Token,
+            };
+            await Gateway.LogoutAsync(requestModel);
+            Clear();
+        }
+
+        internal JObject GetJson() {
+            JObject json = new JObject {
+                { "StayLogged", StayLogged }
+            };
+            if (StayLogged) {
+                json.Add("RefreshToken", RefreshToken);
+                json.Add("CurrentUser", CurrentUser.GetModelJson());
+            }            
+            return json;
+        }
+
+        internal void LoadFrom(JToken jToken) {
+            bool stayLogged = jToken.Value<bool>("StayLogged");
+            if (stayLogged) {
+                RefreshToken = jToken.Value<string>("RefreshToken");
+                CurrentUser = User.LoadFrom(jToken.SelectToken("CurrentUser"));
+            }
+        }
     }
 }

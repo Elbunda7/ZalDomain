@@ -58,7 +58,9 @@
     <Compile Include="ActiveRecords\Session.cs" />
     <Compile Include="Models\LoginErrorModel.cs" />
     <Compile Include="tools\ActiveRecordEqualityComparer.cs" />
+    <Compile Include="tools\UnitOfWork.cs" />
     <Compile Include="tools\UserPermisionException.cs" />
+    <Compile Include="tools\Validator.cs" />
     <Compile Include="Zal.cs" />
     <Compile Include="ItemSets\ActionSet.cs" />
     <Compile Include="ItemSets\ActualitySet.cs" />

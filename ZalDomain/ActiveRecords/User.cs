@@ -4,10 +4,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using ZalApiGateway;
 using ZalApiGateway.Models;
 using ZalApiGateway.Models.ApiCommunicationModels;
 using ZalDomain.consts;
+using Newtonsoft.Json;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -32,6 +34,12 @@ namespace ZalDomain.ActiveRecords
         //public string Role { get { return model.Role; } }
         //public int Points { get { return model.Body; } }
         public DateTime? DateOfBirth { get { return model.BirthDate; } }
+
+        internal static User LoadFrom(JToken jToken) {
+            UserModel model = jToken.ToObject<UserModel>();
+            return new User(model);
+        }
+
         //public bool PaidForMembership { get { return model.Zaplatil_prispevek; } }
         //public Collection<Badge> Budges { get { return BudgesLazyLoad(); } private set { budgets = value; } }
 
@@ -99,6 +107,10 @@ namespace ZalDomain.ActiveRecords
 
         public static bool CheckForChanges(int userCount, DateTime lastCheck) {
             return Gateway.CheckForChanges(userCount, lastCheck);
+        }
+
+        internal JToken GetModelJson() {
+            return JToken.FromObject(model);
         }
 
         public static async Task<User> GetAsync(int id) {

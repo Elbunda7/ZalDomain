@@ -46,6 +46,9 @@ namespace ZalDomain.ActiveRecords
         private static ActionGateway gateway;
         private static ActionGateway Gateway => gateway ?? (gateway = new ActionGateway());
 
+        private UnitOfWork<ActionModel> unitOfWork;
+        public UnitOfWork<ActionModel> UnitOfWork => unitOfWork ?? (unitOfWork = new UnitOfWork<ActionModel>(Model, OnUpdateCommited));
+
         private int GetDays() {
             TimeSpan ts = Model.Date_end - Model.Date_start;
             return (int)ts.TotalDays;
@@ -192,6 +195,12 @@ namespace ZalDomain.ActiveRecords
             throw new NotImplementedException();
         }
 
+
+        private Task<bool> OnUpdateCommited() {
+            return Gateway.UpdateAsync(Model);
+        }
+
+        [Obsolete]
         public async Task<bool> AktualizeAsync(String name, String type, DateTime? start, DateTime? end, int? fromRank, bool? isOfficial) {
             UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.RANK.VEDOUCI);
             if (name != null) Model.Name = name;
@@ -203,12 +212,12 @@ namespace ZalDomain.ActiveRecords
             return await Gateway.UpdateAsync(Model);
         }
 
-        public async Task<bool> Participate(bool isGoing) {
+        public Task<bool> Participate(bool isGoing) {
             //token uživatele
-            return await ParticipateAsync(Zal.Session.CurrentUser, isGoing);
+            return Participate(Zal.Session.CurrentUser, isGoing);
         }
 
-        public Task<bool> ParticipateAsync(User user, bool isGoing) {
+        public Task<bool> Participate(User user, bool isGoing) {
             var requestModel = new Action_UserModel {
                 Id_User = user.Id,
                 Id_Action = Model.Id
@@ -237,8 +246,8 @@ namespace ZalDomain.ActiveRecords
             return new ActionEvent(await Gateway.GetAsync(id));
         }
 
-        public async Task<bool> DeleteAsync() {
-            return await Gateway.DeleteAsync(Model.Id);
+        public Task<bool> DeleteAsync() {
+            return Gateway.DeleteAsync(Model.Id);
         }
 
         internal JToken GetJson() {

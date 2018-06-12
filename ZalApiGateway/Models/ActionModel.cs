@@ -18,5 +18,20 @@ namespace ZalApiGateway.Models
         public int? Id_Gallery { get; set; }
         public int? Id_Info { get; set; }
         public int? Id_Report { get; set; }
+
+        public IModel Copy() {
+            return new ActionModel {
+                Id = Id,
+                Name = Name,
+                Date_start = Date_start,
+                Date_end = Date_end,
+                EventType = EventType,
+                FromRank = FromRank,
+                Id_Gallery = Id_Gallery,
+                Id_Info = Id_Info,
+                Id_Report = Id_Report,
+                IsOfficial = IsOfficial,
+            };
+        }
     }
 }

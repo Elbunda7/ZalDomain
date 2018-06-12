@@ -68,6 +68,7 @@
     <Compile Include="Models\ApiCommunicationModels\AllRespondModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\LoginRequestModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\LoginRespondModel.cs" />
+    <Compile Include="Models\ApiCommunicationModels\LogoutRequestModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\TokenRequestModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\TokenRespondModel.cs" />
     <Compile Include="Models\ArticleModel.cs" />

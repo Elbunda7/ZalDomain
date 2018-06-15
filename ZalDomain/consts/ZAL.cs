@@ -55,5 +55,10 @@ namespace ZalDomain.consts
             public const string RECORD = "zapis";
             public const string ARTICLE = "clanek";
         }
+
+        public enum ActionUserRole
+        {
+            Garant, Member, Any
+        }
     }
 }

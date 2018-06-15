@@ -16,8 +16,8 @@ namespace ZalApiGateway
             return SendRequestFor<ActionModel>(API.METHOD.GET, id);
         }
 
-        public Task<Collection<ActionModel>> GetAllAsync() {
-            return SendRequestFor<Collection<ActionModel>>(API.METHOD.GET_ALL);
+        public Task<IEnumerable<ActionModel>> GetAllAsync() {
+            return SendRequestFor<IEnumerable<ActionModel>>(API.METHOD.GET_ALL);
         }
 
         public Task<AllRespondModel<ActionModel>> GetAllByYearAsync(ActionRequestModel model) {
@@ -30,16 +30,20 @@ namespace ZalApiGateway
             return respond != -1;
         }
 
-        public Task<bool> JoinAsync(Action_UserModel model) {
+        public Task<bool> Join(ActionUserJoinModel model) {
             return SendRequestFor<bool>(API.METHOD.JOIN, model);
+        }
+
+        public Task<bool> UnJoin(ActionUserModel model) {
+            return SendRequestFor<bool>(API.METHOD.UNJOIN, model);
         }
 
         public Task<bool> DeleteAsync(int idAction) {
             return SendRequestFor<bool>(API.METHOD.DELETE, idAction);
         }
 
-        public async Task<List<int>> GetParticipatingUsersAsync(int id) {
-            throw new NotImplementedException();
+        public Task<IEnumerable<MembersOnActionModel>> GetUsersOnAction(int id) {
+            return SendRequestFor<IEnumerable<MembersOnActionModel>>(API.METHOD.GET_USERS_ON_ACTION, id);
         }
 
         public Task<bool> UpdateAsync(ActionModel model) {
@@ -53,6 +57,5 @@ namespace ZalApiGateway
         public Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ChangesRequestModel model) {
             return SendRequestFor<ChangesRespondModel<ActionModel>>(API.METHOD.GET_CHANGED, model);
         }
-
     }
 }

@@ -37,6 +37,15 @@ namespace ZalDomain.Tests
         }
 
         [TestMethod()]
+        public async Task MemberOnActionTest() {
+            await Zal.Session.LoginAsync("pepa3@email.cz", "password", true);
+            var a = await Zal.Actions.GetActionEventsByYearAsync(1999);
+            bool b = await a.First().Join();
+            bool c = await a.First().Join(true);
+            bool d = await a.First().UnJoin();          
+        }
+
+        [TestMethod()]
         public async Task SessionTest() {
             var a = await Zal.Session.LoginAsync("pepa3@email.cz", "password", false);
             await Zal.Session.Logout();

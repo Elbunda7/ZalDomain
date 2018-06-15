@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace ZalApiGateway.Models
 {
-    public class Action_UserModel
+    public class ActionUserModel
     {
         public int Id_User { get; set; }
         public int Id_Action { get; set; }
+    }
+
+    public class ActionUserJoinModel : ActionUserModel
+    {
+        public bool IsGarant { get; set; }
     }
 }

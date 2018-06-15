@@ -29,12 +29,14 @@ namespace ZalApiGateway.ApiTools
             public const string UPDATE = "Update";
             public const string DELETE = "Delete";
             public const string JOIN = "Join";
+            public const string UNJOIN = "UnJoin";
             public const string GET_CHANGED = "GetChanged";
             public const string GET_ALL_BY_YEAR = "GetAllByYear";
             public const string REGISTER = "Register";
             public const string LOGIN = "Login";
             public const string GET_TOKEN = "GetToken";
             public const string LOGOUT = "Logout";
+            public const string GET_USERS_ON_ACTION = "GetUsersOnAction";
         }
     }
 }

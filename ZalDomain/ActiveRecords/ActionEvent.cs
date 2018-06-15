@@ -18,11 +18,11 @@ namespace ZalDomain.ActiveRecords
     public class ActionEvent : IActiveRecord
     {
         private ActionModel Model;
-        //private AkceTable 
-        private Collection<User> garants;
-        private Collection<User> participants;
-        private Article Report { get; set; }
-        private Article Info { get; set; }
+
+        private IEnumerable<User> garants;
+        private IEnumerable<User> members;
+        private Article report;
+        private Article info;
         
         public int Id => Model.Id;
         public string Type => Model.EventType;
@@ -31,10 +31,8 @@ namespace ZalDomain.ActiveRecords
         public int FromRank => Model.FromRank;
         public DateTime DateFrom => Model.Date_start;
         public DateTime DateTo => Model.Date_end;
-        public Collection<User> Garants { get { return GarantsLazyLoad(); } set { SetGarants(value); } }
-        //public Collection<User> Participants { get { return ParticipantsLazyLoad(); } private set { participants = value; } }
-        //public int ParticipantsCount => Participants.Count; //Model.NumOfParticipants
-        //public bool Je_oficialni { get; set; }
+        public int MembersCount => Model.MemberCount;
+        public bool IsOfficial => Model.IsOfficial;//přejmenovat nebo přidat IsPublished
         //účastním se?
 
         //public int Price { get { return Data.Price; } }
@@ -55,17 +53,17 @@ namespace ZalDomain.ActiveRecords
         }
 
         public async Task<Article> InfoLazyLoad() {
-            if (Info == null && Model.Id_Info.HasValue) {
-                Info = await Zal.Actualities.GetArticleAsync(Model.Id_Info.Value);
+            if (HasInfo && info == null) {
+                info = await Zal.Actualities.GetArticleAsync(Model.Id_Info.Value);
             }
-            return Info;
+            return info;
         }
 
         public async Task<Article> ReportLazyLoad() {
-            if (Report == null && Model.Id_Report.HasValue) {
-                    Report = await Zal.Actualities.GetArticleAsync(Model.Id_Report.Value);
+            if (HasReport && report == null) {
+                report = await Zal.Actualities.GetArticleAsync(Model.Id_Report.Value);
             }
-            return Report;
+            return report;
         }
 
         internal static async Task<ChangedActiveRecords<ActionEvent>> GetChangedAsync(int userRank, DateTime lastCheck, int currentYear, int count) {
@@ -99,17 +97,21 @@ namespace ZalDomain.ActiveRecords
             return null;
         }
 
-        public Collection<User> GarantsLazyLoad() {
-            /*if (garants == null) {
-                if (Model.Email_vedouci != null) {
-                    garants = Zal.Users.GetByEmail(Model.Email_vedouci);
-                }
-                else {
-                    garants = User.Empty();
-                }               
+        public async Task<IEnumerable<User>> MembersLazyLoad(ZAL.ActionUserRole role, bool reload = false) {
+            await MembersLazyLoad(reload);
+            switch (role) {
+                case ZAL.ActionUserRole.Garant: return garants;
+                case ZAL.ActionUserRole.Member: return members;
+                default: return garants.Union(members);
             }
-            return garants;*/
-            throw new NotImplementedException();
+        }
+
+        private async Task MembersLazyLoad(bool reload = false) {
+            if (reload || (garants == null && members == null)) {
+                var respond = await Gateway.GetUsersOnAction(Id);
+                garants = respond.Where(x => x.IsGarant).Select(x => new User(x.Member)).ToList();
+                members = respond.Where(x => !x.IsGarant).Select(x => new User(x.Member)).ToList();
+            }
         }
 
         public async Task<bool> AddNewInfoAsync(string title, string text) {
@@ -119,9 +121,9 @@ namespace ZalDomain.ActiveRecords
 
         public async Task<bool> AddNewInfoAsync(User author, string title, string text) {
             //token uživatele
-            Info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);//new article + action.Id_foreign = najednou
-            if (Info != null) {
-                Model.Id_Info = Info.Id;
+            info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);//new article + action.Id_foreign = najednou
+            if (info != null) {
+                Model.Id_Info = info.Id;
                 return await Gateway.UpdateAsync(Model);
             }
             return false;
@@ -135,20 +137,12 @@ namespace ZalDomain.ActiveRecords
 
         public async Task<bool> AddNewReportAsync(User author, string title, string text) {
             //token uživatele
-            Report = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
-            if (Report != null) {
-                Model.Id_Report = Report.Id;
+            report = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
+            if (report != null) {
+                Model.Id_Report = report.Id;
                 return await Gateway.UpdateAsync(Model);
             }
             return false;
-        }
-
-        public async Task<Collection<User>> ParticipantsLazyLoad() {
-            if (participants == null) {//obnovit?
-                List<int> list = await gateway.GetParticipatingUsersAsync(Model.Id);
-                participants = await Zal.Users.Get(list) as Collection<User>;
-            }
-            return participants;
         }
 
         /*public bool Has(int key, int value) {
@@ -185,16 +179,6 @@ namespace ZalDomain.ActiveRecords
             }
         }*/
 
-        public bool SetGarants(Collection<User> garants) {
-            /*IntegrityCondition.UserIsLeader();
-            if (Gateway.JoinLeaderToAction(garants.Email, Model.Id)) {
-                Garants = garants;
-                return true;
-            }
-            return false;*/
-            throw new NotImplementedException();
-        }
-
 
         private Task<bool> OnUpdateCommited() {
             return Gateway.UpdateAsync(Model);
@@ -212,17 +196,53 @@ namespace ZalDomain.ActiveRecords
             return await Gateway.UpdateAsync(Model);
         }
 
-        public Task<bool> Participate(bool isGoing) {
+        public Task<bool> Join(bool asGarant = false) {
             //token uživatele
-            return Participate(Zal.Session.CurrentUser, isGoing);
+            return Join(Zal.Session.CurrentUser, asGarant);
         }
 
-        public Task<bool> Participate(User user, bool isGoing) {
-            var requestModel = new Action_UserModel {
+        public async Task<bool> Join(User user, bool asGarant = false) {
+            await MembersLazyLoad();
+            UpdateLocalMember(user, asGarant);
+            var requestModel = new ActionUserJoinModel {
                 Id_User = user.Id,
-                Id_Action = Model.Id
+                Id_Action = Id,
+                IsGarant = asGarant,
             };
-            return Gateway.JoinAsync(requestModel);
+            return await Gateway.Join(requestModel);
+        }
+
+        public Task<bool> UnJoin() {
+            return UnJoin(Zal.Session.CurrentUser);
+        }
+
+        public async Task<bool> UnJoin(User user) {
+            await MembersLazyLoad();
+            RemoveLocalMember(user);
+            var requestModel = new ActionUserModel {
+                Id_User = user.Id,
+                Id_Action = Id,
+            };
+            return await Gateway.UnJoin(requestModel);
+        }
+
+        private void UpdateLocalMember(User user, bool asGarant) {
+            RemoveLocalMember(user);
+            if (asGarant) {
+                (garants as List<User>).Add(user);
+            }
+            else {
+                (members as List<User>).Add(user);
+            }
+        }
+
+        private void RemoveLocalMember(User user) {
+            if (garants.Contains(user, ActiveRecordEqualityComparer.Instance)) {
+                (garants as List<User>).Remove(garants.Single(x => x.Id == user.Id));
+            }
+            else if (members.Contains(user, ActiveRecordEqualityComparer.Instance)) {
+                (members as List<User>).Remove(members.Single(x => x.Id == user.Id));
+            }
         }
 
         public override string ToString() {

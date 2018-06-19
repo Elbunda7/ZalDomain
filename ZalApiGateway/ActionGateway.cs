@@ -20,12 +20,12 @@ namespace ZalApiGateway
             return SendRequestFor<IEnumerable<ActionModel>>(API.METHOD.GET_ALL);
         }
 
-        public Task<AllRespondModel<ActionModel>> GetAllByYearAsync(ActionRequestModel model) {
-            return SendRequestFor<AllRespondModel<ActionModel>>(API.METHOD.GET_ALL_BY_YEAR, model);
+        public Task<AllRespondModel<ActionModel>> GetAllByYearAsync(ActionRequestModel model, string token) {
+            return SendRequestFor<AllRespondModel<ActionModel>>(API.METHOD.GET_ALL_BY_YEAR, model, token);
         }
 
-        public async Task<bool> AddAsync(ActionModel model) {
-            int respond = await SendRequestFor<int>(API.METHOD.ADD, model);
+        public async Task<bool> AddAsync(ActionModel model, string token) {
+            int respond = await SendRequestFor<int>(API.METHOD.ADD, model, token);
             model.Id = respond;
             return respond != -1;
         }
@@ -38,24 +38,24 @@ namespace ZalApiGateway
             return SendRequestFor<bool>(API.METHOD.UNJOIN, model);
         }
 
-        public Task<bool> DeleteAsync(int idAction) {
-            return SendRequestFor<bool>(API.METHOD.DELETE, idAction);
+        public Task<bool> DeleteAsync(int idAction, string token) {
+            return SendRequestFor<bool>(API.METHOD.DELETE, idAction, token);
         }
 
         public Task<IEnumerable<MembersOnActionModel>> GetUsersOnAction(int id) {
             return SendRequestFor<IEnumerable<MembersOnActionModel>>(API.METHOD.GET_USERS_ON_ACTION, id);
         }
 
-        public Task<bool> UpdateAsync(ActionModel model) {
-            return SendRequestFor<bool>(API.METHOD.UPDATE, model);
+        public Task<bool> UpdateAsync(ActionModel model, string token) {
+            return SendRequestFor<bool>(API.METHOD.UPDATE, model, token);
         }
 
         public async Task<ActionModel> GetChangedAsync(int id, DateTime lastCheck) {
             throw new NotImplementedException();
         }
 
-        public Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ChangesRequestModel model) {
-            return SendRequestFor<ChangesRespondModel<ActionModel>>(API.METHOD.GET_CHANGED, model);
+        public Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ChangesRequestModel model, string token) {
+            return SendRequestFor<ChangesRespondModel<ActionModel>>(API.METHOD.GET_CHANGED, model, token);
         }
     }
 }

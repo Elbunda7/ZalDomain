@@ -24,7 +24,8 @@ namespace ZalDomain.Tests
             await Zal.Actions.ReSynchronizeAsync();
             //Assert.AreEqual(1, actions.Count);
             var act = actions.First();
-            Assert.IsTrue(await act.AktualizeAsync(null, "typ", null, null, null, null));
+            act.UnitOfWork.ToUpdate.EventType = "typ";
+            Assert.IsTrue(await act.UnitOfWork.CommitAsync());
             Assert.IsTrue(await act.AddNewInfoAsync("titleInfo", "textInfo"));
             Assert.IsTrue(await act.AddNewReportAsync("titleRep", "textRep"));
             Assert.IsTrue(await act.DeleteAsync());
@@ -38,11 +39,13 @@ namespace ZalDomain.Tests
 
         [TestMethod()]
         public async Task MemberOnActionTest() {
+            //await Zal.Actions.AddNewActionAsync("false", "fal", DateTime.Now, DateTime.Now, 1, true);
             await Zal.Session.LoginAsync("pepa3@email.cz", "password", true);
-            var a = await Zal.Actions.GetActionEventsByYearAsync(1999);
+            await Zal.Actions.AddNewActionAsync("true", "tru", DateTime.Now, DateTime.Now, 1, true);
+            /*var a = await Zal.Actions.GetActionEventsByYearAsync(1999);
             bool b = await a.First().Join();
             bool c = await a.First().Join(true);
-            bool d = await a.First().UnJoin();          
+            bool d = await a.First().UnJoin();      */    
         }
 
         [TestMethod()]

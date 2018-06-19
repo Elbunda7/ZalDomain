@@ -19,7 +19,7 @@ namespace ZalDomain.ActiveRecords
 
         public User CurrentUser { get; set; }
         private string RefreshToken { get; set; }
-        private string Token { get; set; }
+        internal string Token { get; set; }//exception when token = null?
 
         public bool StayLogged => !string.IsNullOrEmpty(RefreshToken);
         public bool IsUserLogged => CurrentUser != null;

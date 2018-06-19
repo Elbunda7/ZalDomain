@@ -73,7 +73,7 @@ namespace ZalDomain.ActiveRecords
                 Year = currentYear,
                 Count = count
             };
-            var rawChanges = await Gateway.GetAllChangedAsync(requestModel);
+            var rawChanges = await Gateway.GetAllChangedAsync(requestModel, Zal.Session.Token);
             return new ChangedActiveRecords<ActionEvent>(rawChanges);
         }
 
@@ -91,7 +91,7 @@ namespace ZalDomain.ActiveRecords
                 FromRank = fromRank,
                 IsOfficial = isOfficial,
             };
-            if (await Gateway.AddAsync(model)) {
+            if (await Gateway.AddAsync(model, Zal.Session.Token)) {
                 return new ActionEvent(model);
             }
             return null;
@@ -115,85 +115,34 @@ namespace ZalDomain.ActiveRecords
         }
 
         public async Task<bool> AddNewInfoAsync(string title, string text) {
-            //token uživatele
             return await AddNewInfoAsync(Zal.Session.CurrentUser, title, text);
         }
 
         public async Task<bool> AddNewInfoAsync(User author, string title, string text) {
-            //token uživatele
             info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);//new article + action.Id_foreign = najednou
             if (info != null) {
                 Model.Id_Info = info.Id;
-                return await Gateway.UpdateAsync(Model);
+                return await Gateway.UpdateAsync(Model, Zal.Session.Token);
             }
             return false;
         }
 
         public async Task<bool> AddNewReportAsync(string title, string text) {
-            //token uživatele
             //přepsat stávající?
             return await AddNewReportAsync(Zal.Session.CurrentUser, title, text);
         }
 
-        public async Task<bool> AddNewReportAsync(User author, string title, string text) {
-            //token uživatele
+        public async Task<bool> AddNewReportAsync(User author, string title, string text) {//vytvořit jediný dotaz?
             report = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
             if (report != null) {
                 Model.Id_Report = report.Id;
-                return await Gateway.UpdateAsync(Model);
+                return await Gateway.UpdateAsync(Model, Zal.Session.Token);
             }
             return false;
         }
 
-        /*public bool Has(int key, int value) {
-            switch (key) {
-                case CONST.AKCE.ID: return Model.Id == value;
-                case CONST.AKCE.POCET_DNI: return Model.Pocet_dni == value;
-                case CONST.AKCE.OD_HODNOSTI: return Model.Od_hodnosti == value;
-                default: return false;
-            }
-        }
-
-        public bool Has(int key, String value) {
-            switch (key) {
-                case CONST.AKCE.JMENO: return value.Equals(Model.Jmeno);
-                case CONST.AKCE.TYP: return value.Equals(Model.Typ);
-                case CONST.AKCE.EMAIL_VEDOUCI: return value.Equals(Model.Email_vedouci);
-                default: return false;
-            }
-        }
-
-        public bool Has(int key, bool value) {
-            switch (key) {
-                case CONST.AKCE.JE_OFICIALNI: return Model.Je_oficialni == value;
-                default: return false;
-            }
-        }
-
-        public bool Has(int key, DateTime value) {
-            switch (key) {
-                case CONST.AKCE.DATUM: return Model.Datum_od.Date == value.Date;
-                case CONST.AKCE.DATUM_DO: return Model.Datum_od.Date <= value.Date;
-                case CONST.AKCE.DATUM_OD: return Model.Datum_od.Date >= value.Date;
-                default: return false;
-            }
-        }*/
-
-
         private Task<bool> OnUpdateCommited() {
-            return Gateway.UpdateAsync(Model);
-        }
-
-        [Obsolete]
-        public async Task<bool> AktualizeAsync(String name, String type, DateTime? start, DateTime? end, int? fromRank, bool? isOfficial) {
-            UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.RANK.VEDOUCI);
-            if (name != null) Model.Name = name;
-            if (type != null) Model.EventType = type;
-            if (end != null) Model.Date_end = end.Value;
-            if (start != null) Model.Date_start = start.Value;
-            if (fromRank != null) Model.FromRank = fromRank.Value;
-            if (isOfficial != null) Model.IsOfficial = isOfficial.Value;
-            return await Gateway.UpdateAsync(Model);
+            return Gateway.UpdateAsync(Model, Zal.Session.Token);
         }
 
         public Task<bool> Join(bool asGarant = false) {
@@ -249,7 +198,8 @@ namespace ZalDomain.ActiveRecords
             return Model.Name;
         }
 
-        public async void Synchronize(DateTime lastCheck) {
+        [Obsolete]
+        public async void Synchronize(DateTime lastCheck) {//?
             Model = await Gateway.GetChangedAsync(Id, lastCheck);
         }
 
@@ -258,7 +208,7 @@ namespace ZalDomain.ActiveRecords
                 Rank = userRank,
                 Year = year
             };
-            var rawRespondModel = await Gateway.GetAllByYearAsync(requestModel);
+            var rawRespondModel = await Gateway.GetAllByYearAsync(requestModel, Zal.Session.Token);
             return new AllActiveRecords<ActionEvent>(rawRespondModel);
         }
 
@@ -267,7 +217,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public Task<bool> DeleteAsync() {
-            return Gateway.DeleteAsync(Model.Id);
+            return Gateway.DeleteAsync(Model.Id, Zal.Session.Token);
         }
 
         internal JToken GetJson() {

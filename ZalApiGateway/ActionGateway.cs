@@ -20,8 +20,8 @@ namespace ZalApiGateway
             return SendRequestFor<IEnumerable<ActionModel>>(API.METHOD.GET_ALL);
         }
 
-        public Task<AllRespondModel<ActionModel>> GetAllByYearAsync(ActionRequestModel model, string token) {
-            return SendRequestFor<AllRespondModel<ActionModel>>(API.METHOD.GET_ALL_BY_YEAR, model, token);
+        public Task<AllRespondModel<ActionModel>> GetPastByYearAsync(ActionRequestModel model, string token) {
+            return SendRequestFor<AllRespondModel<ActionModel>>(API.METHOD.GET_PAST_BY_YEAR, model, token);
         }
 
         public async Task<bool> AddAsync(ActionModel model, string token) {

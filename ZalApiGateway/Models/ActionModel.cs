@@ -15,7 +15,7 @@ namespace ZalApiGateway.Models
         public string EventType { get; set; }
         public int FromRank { get; set; }
         public bool IsOfficial { get; set; }
-        public int MemberCount { get; set; }
+        public int[] Members { get; set; }
         public int? Id_Gallery { get; set; }
         public int? Id_Info { get; set; }
         public int? Id_Report { get; set; }
@@ -28,6 +28,7 @@ namespace ZalApiGateway.Models
                 Date_end = Date_end,
                 EventType = EventType,
                 FromRank = FromRank,
+                Members = Members,
                 Id_Gallery = Id_Gallery,
                 Id_Info = Id_Info,
                 Id_Report = Id_Report,

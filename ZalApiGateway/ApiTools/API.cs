@@ -31,7 +31,7 @@ namespace ZalApiGateway.ApiTools
             public const string JOIN = "Join";
             public const string UNJOIN = "UnJoin";
             public const string GET_CHANGED = "GetChanged";
-            public const string GET_ALL_BY_YEAR = "GetAllByYear";
+            public const string GET_PAST_BY_YEAR = "GetAllByYear";//refactoring
             public const string REGISTER = "Register";
             public const string LOGIN = "Login";
             public const string GET_TOKEN = "GetToken";

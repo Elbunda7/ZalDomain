@@ -105,7 +105,7 @@ namespace ZalDomain
             //Badgets.Synchronize();
             //Users.Synchronize();
             //Actualities.Synchronize();
-            await Actions.SynchronizeAsync();
+            await Actions.SynchronizeAllActive();
         }
 
         private static async Task ReSynchronizeAsync() {

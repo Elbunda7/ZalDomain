@@ -27,29 +27,37 @@ namespace ZalDomain.ActiveRecords
         public int Id => Model.Id;
         public string Type => Model.EventType;
         public string Name => Model.Name;
-        public int Days => GetDays();
         public int FromRank => Model.FromRank;
         public DateTime DateFrom => Model.Date_start;
         public DateTime DateTo => Model.Date_end;
-        public int MembersCount => Model.MemberCount;
+        public int MembersCount => Model.Members.Length;
+        public bool DoIParticipate => Model.Members.Contains(Zal.Session.CurrentUser.Id);//jak aktualizovat?
         public bool IsOfficial => Model.IsOfficial;//přejmenovat nebo přidat IsPublished
-        //účastním se?
+        public bool HasInfo => Model.Id_Info.HasValue;
+        public bool HasReport => Model.Id_Report.HasValue;
+        public int Days {
+            get {
+                TimeSpan ts = Model.Date_end - Model.Date_start;
+                return (int)ts.TotalDays;
+            }
+        }
 
         //public int Price { get { return Data.Price; } }
         //public decimal GPS_lon { get { return Data.GPS_lon; } }
         //public decimal GPS_lat { get { return Data.GPS_lat; } }
-        public bool HasInfo => Model.Id_Info.HasValue;
-        public bool HasReport => Model.Id_Report.HasValue;
 
         private static ActionGateway gateway;
         private static ActionGateway Gateway => gateway ?? (gateway = new ActionGateway());
 
+        public ActionEvent(IModel model) {
+            Model = model as ActionModel;
+        }
+
         private UnitOfWork<ActionModel> unitOfWork;
         public UnitOfWork<ActionModel> UnitOfWork => unitOfWork ?? (unitOfWork = new UnitOfWork<ActionModel>(Model, OnUpdateCommited));
 
-        private int GetDays() {
-            TimeSpan ts = Model.Date_end - Model.Date_start;
-            return (int)ts.TotalDays;
+        private Task<bool> OnUpdateCommited() {
+            return Gateway.UpdateAsync(Model, Zal.Session.Token);
         }
 
         public async Task<Article> InfoLazyLoad() {
@@ -66,19 +74,21 @@ namespace ZalDomain.ActiveRecords
             return report;
         }
 
-        internal static async Task<ChangedActiveRecords<ActionEvent>> GetChangedAsync(int userRank, DateTime lastCheck, int currentYear, int count) {
-            var requestModel = new ChangesRequestModel {
-                Rank = userRank,
-                LastCheck = lastCheck,
-                Year = currentYear,
-                Count = count
-            };
-            var rawChanges = await Gateway.GetAllChangedAsync(requestModel, Zal.Session.Token);
-            return new ChangedActiveRecords<ActionEvent>(rawChanges);
+        public async Task<IEnumerable<User>> MembersLazyLoad(ZAL.ActionUserRole role, bool reload = false) {
+            await MembersLazyLoad(reload);
+            switch (role) {
+                case ZAL.ActionUserRole.Garant: return garants;
+                case ZAL.ActionUserRole.Member: return members;
+                default: return garants.Union(members);
+            }
         }
 
-        public ActionEvent(IModel model) {
-            Model = model as ActionModel;
+        private async Task MembersLazyLoad(bool reload = false) {
+            if (reload || (garants == null && members == null)) {
+                var respond = await Gateway.GetUsersOnAction(Id);
+                garants = respond.Where(x => x.IsGarant).Select(x => new User(x.Member)).ToList();
+                members = respond.Where(x => !x.IsGarant).Select(x => new User(x.Member)).ToList();
+            }
         }
 
         public static async Task<ActionEvent> AddAsync(string name, string type, DateTime start, DateTime end, int fromRank, bool isOfficial = true) {
@@ -97,21 +107,8 @@ namespace ZalDomain.ActiveRecords
             return null;
         }
 
-        public async Task<IEnumerable<User>> MembersLazyLoad(ZAL.ActionUserRole role, bool reload = false) {
-            await MembersLazyLoad(reload);
-            switch (role) {
-                case ZAL.ActionUserRole.Garant: return garants;
-                case ZAL.ActionUserRole.Member: return members;
-                default: return garants.Union(members);
-            }
-        }
-
-        private async Task MembersLazyLoad(bool reload = false) {
-            if (reload || (garants == null && members == null)) {
-                var respond = await Gateway.GetUsersOnAction(Id);
-                garants = respond.Where(x => x.IsGarant).Select(x => new User(x.Member)).ToList();
-                members = respond.Where(x => !x.IsGarant).Select(x => new User(x.Member)).ToList();
-            }
+        public Task<bool> DeleteAsync() {
+            return Gateway.DeleteAsync(Model.Id, Zal.Session.Token);
         }
 
         public async Task<bool> AddNewInfoAsync(string title, string text) {
@@ -139,10 +136,6 @@ namespace ZalDomain.ActiveRecords
                 return await Gateway.UpdateAsync(Model, Zal.Session.Token);
             }
             return false;
-        }
-
-        private Task<bool> OnUpdateCommited() {
-            return Gateway.UpdateAsync(Model, Zal.Session.Token);
         }
 
         public Task<bool> Join(bool asGarant = false) {
@@ -194,6 +187,17 @@ namespace ZalDomain.ActiveRecords
             }
         }
 
+        internal static async Task<ChangedActiveRecords<ActionEvent>> GetChangedAsync(int userRank, DateTime lastCheck, int currentYear, int count) {
+            var requestModel = new ChangesRequestModel {
+                Rank = userRank,
+                LastCheck = lastCheck,
+                Year = currentYear,
+                Count = count
+            };
+            var rawChanges = await Gateway.GetAllChangedAsync(requestModel, Zal.Session.Token);
+            return new ChangedActiveRecords<ActionEvent>(rawChanges);
+        }
+
         public override string ToString() {
             return Model.Name;
         }
@@ -203,21 +207,17 @@ namespace ZalDomain.ActiveRecords
             Model = await Gateway.GetChangedAsync(Id, lastCheck);
         }
 
-        public async static Task<AllActiveRecords<ActionEvent>> GetAllByYear(int userRank, int year) {//vrátit respond model se serverovým časem 
+        internal async static Task<AllActiveRecords<ActionEvent>> GetActionsByYear(int userRank, int year) {//vrátit respond model se serverovým časem 
             var requestModel = new ActionRequestModel {
                 Rank = userRank,
                 Year = year
             };
-            var rawRespondModel = await Gateway.GetAllByYearAsync(requestModel, Zal.Session.Token);
+            var rawRespondModel = await Gateway.GetPastByYearAsync(requestModel, Zal.Session.Token);
             return new AllActiveRecords<ActionEvent>(rawRespondModel);
         }
 
         public async static Task<ActionEvent> Get(int id) {
             return new ActionEvent(await Gateway.GetAsync(id));
-        }
-
-        public Task<bool> DeleteAsync() {
-            return Gateway.DeleteAsync(Model.Id, Zal.Session.Token);
         }
 
         internal JToken GetJson() {

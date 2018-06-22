@@ -17,7 +17,7 @@ namespace ZalDomain.consts
         public static string[] GROUP_NAME_SING => groupNameSing;
 
         private static string[] rankName = { "Nováček", "Nováček", "Člen", "Kadet", "Podrádce", "Rádce", "Vedoucí", "Vedoucí", "Hlavní vedoucí" };
-        public static string[] RANK_NAME => rankName;
+        public static string[] RANK_NAME => rankName;//enums
 
         public abstract class GROUP
         {
@@ -54,6 +54,11 @@ namespace ZalDomain.consts
             public const string INFO = "info";
             public const string RECORD = "zapis";
             public const string ARTICLE = "clanek";
+        }
+
+        public abstract class YEAR
+        {
+            public const int UPCOMING = 9999;
         }
 
         public enum ActionUserRole

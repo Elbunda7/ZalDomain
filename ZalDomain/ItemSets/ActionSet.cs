@@ -47,37 +47,39 @@ namespace ZalDomain.ItemSets
             if (!IsCurrentYear) {//delete
                 await SynchronizeDataInAsync(ActiveYear);//Upcoming()
             }*/
-            await Synchronize2(UpcomingActionEvents, ZAL.YEAR.UPCOMING);
+            UpcomingActionEvents = await Synchronize2(UpcomingActionEvents, ZAL.YEAR.UPCOMING);
             AddToDictionaryIfNeeded(CurrentYear);
-            await Synchronize2(ActionEventsDict[CurrentYear], CurrentYear);
+            ActionEventsDict[CurrentYear] = await Synchronize2(ActionEventsDict[CurrentYear], CurrentYear);
         }
 
-        private async Task Synchronize2(ActionObservableSortedSet actions, int year) {
+        private Task<ActionObservableSortedSet> Synchronize2(ActionObservableSortedSet actions, int year) {
             if (actions.HasToBeReloaded) {
-                await LoadActionsByYear2(actions, year);
+                return LoadActionsByYear2(actions, year);
             }
             else {
-                await LoadChangesByYear2(actions, year);
+                return LoadChangesByYear2(actions, year);
             }
         }
 
-        private async Task LoadActionsByYear2(ActionObservableSortedSet actions, int year) {
+        private async Task<ActionObservableSortedSet> LoadActionsByYear2(ActionObservableSortedSet actions, int year) {
             var respond = await ActionEvent.GetActionsByYear(Zal.Session.UserRank, year);
-            actions = new ActionObservableSortedSet(respond.ActiveRecords) {//přiřadit, nevytvářet new
+            return new ActionObservableSortedSet(respond.ActiveRecords) {//přiřadit, nevytvářet new
                 LastSynchronization = respond.Timestamp
             };
         }
 
-        private async Task LoadChangesByYear2(ActionObservableSortedSet actions, int year) {
+        private async Task<ActionObservableSortedSet> LoadChangesByYear2(ActionObservableSortedSet actions, int year) {
             var respond = await ActionEvent.GetChangedAsync(Zal.Session.UserRank, actions.LastSynchronization, year, actions.Count);
             if (respond.IsHardChanged) {
                 actions = new ActionObservableSortedSet(respond.Changed);//přiřadit, nevytvářet new
+                actions.LastSynchronization = respond.Timestamp;
             }
             else if (respond.IsChanged) {
                 actions.RemoveByIds(respond.Deleted);
                 actions.AddOrUpdateAll(respond.Changed);
+                actions.LastSynchronization = respond.Timestamp;
             }
-            actions.LastSynchronization = respond.Timestamp;
+            return actions;
         }
 
         private async Task SynchronizeDataInAsync(int year) {

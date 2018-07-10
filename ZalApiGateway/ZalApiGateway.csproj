@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionGateway.cs" />
+    <Compile Include="ApiTools\NoChangesException.cs" />
     <Compile Include="ArticleGateway.cs" />
     <Compile Include="ApiTools\ApiClient.cs" />
     <Compile Include="ApiTools\JsonFormator.cs" />

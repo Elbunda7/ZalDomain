@@ -34,6 +34,9 @@ namespace ZalApiGateway.ApiTools
                 }
                 throw e;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent) {
+                throw new NoChangesException();
+            }
             return response.Content;
         }
     }

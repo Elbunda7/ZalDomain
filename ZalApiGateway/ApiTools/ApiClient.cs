@@ -20,7 +20,7 @@ namespace ZalApiGateway.ApiTools
                 request.AddParameter("x", str);
                 str = await SendAsync(client, request);
             }
-            return str.Decrypt();
+            return String.IsNullOrEmpty(str) ? str : str.Decrypt();
         }
 
         private static async Task<string> SendAsync(RestClient client, RestRequest request) {
@@ -33,9 +33,6 @@ namespace ZalApiGateway.ApiTools
                     throw new HttpRequestException("Token expired (response code: 421)");
                 }
                 throw e;
-            }
-            if (response.StatusCode == System.Net.HttpStatusCode.NoContent) {
-                throw new NoChangesException();
             }
             return response.Content;
         }

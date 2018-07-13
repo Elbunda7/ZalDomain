@@ -17,9 +17,18 @@ namespace ZalApiGateway
         }
 
         protected async Task<T> SendRequestFor<T>(string apiMethod, object content = null, string userToken = null) {
-            string tmp = JsonFormator.CreateApiRequestString(apiMethod, content, userToken);
-            tmp = await ApiClient.PostRequest(tmp);
-            return JsonConvert.DeserializeObject<T>(tmp);
+            string respond = await SendRequest(apiMethod, content, userToken);
+            return JsonConvert.DeserializeObject<T>(respond);
+        }
+
+        protected async Task<T> SendRequestForNullable<T>(string apiMethod, object content = null, string userToken = null) {
+            string respond = await SendRequest(apiMethod, content, userToken);
+            return String.IsNullOrEmpty(respond) ? default(T) : JsonConvert.DeserializeObject<T>(respond);
+        }
+
+        protected Task<string> SendRequest(string apiMethod, object content, string userToken) {
+            string str = JsonFormator.CreateApiRequestString(apiMethod, content, userToken);
+            return ApiClient.PostRequest(str);
         }
     }
 }

@@ -55,11 +55,8 @@ namespace ZalApiGateway
         }
 
         public async Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ChangesRequestModel model, string token) {
-            try {
-                return await SendRequestFor<ChangesRespondModel<ActionModel>>(API.METHOD.GET_CHANGED, model, token);
-            }catch (NoChangesException) {
-                return new ChangesRespondModel<ActionModel>();
-            }
+            var respond = await SendRequestForNullable<ChangesRespondModel<ActionModel>>(API.METHOD.GET_CHANGED, model, token);
+            return respond ?? new ChangesRespondModel<ActionModel>();
         }
     }
 }

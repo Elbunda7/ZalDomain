@@ -3,7 +3,7 @@
   <Class Name="ZalDomain.ActiveRecords.Article" BaseTypeListCollapsed="true">
     <Position X="0.5" Y="8.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAACAAAIAAAAAEBgAAAAIQEAAAEABAAIIAAACAAIEQA=</HashCode>
+      <HashCode>AAACAAAIAAAAAEAgAAAAIQEAAAEABAAIIAAAKAAIEQA=</HashCode>
       <FileName>ActiveRecords\Article.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
@@ -28,7 +28,7 @@
       <Property Name="IsChanged" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AABCIIAIACAAAAAkAAACIAQABBgRACABAgCQIAEYAAA=</HashCode>
+      <HashCode>AgBCIIAIACAAAAAkAAAiIAQABBgRACABAgCAIIEYAAA=</HashCode>
       <FileName>ActiveRecords\User.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -38,14 +38,11 @@
   </Class>
   <Class Name="ZalDomain.ItemSets.ActionSet">
     <Position X="4" Y="3.5" Width="1.5" />
-    <Members>
-      <Method Name="GetXml" Hidden="true" />
-    </Members>
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAABkCAAAAAAAAQIAAAAAAAAAAYAAAAACAIyYA=</HashCode>
+      <HashCode>BAABAAAAAEEAAAAEABAiAAAAAIAhAAQAIAAAAKgAQIA=</HashCode>
       <FileName>ItemSets\ActionSet.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -58,7 +55,7 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAIAAAAAgAAAAAQBAAEAAAAABAIMgAAAAAAAQA=</HashCode>
+      <HashCode>AAAAAAAIBQAAAgAAAAAQBAAEEAAAABAIAgAAAAAAAQA=</HashCode>
       <FileName>ItemSets\ActualitySet.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -94,19 +91,14 @@
   <Class Name="ZalDomain.ActiveRecords.ActionEvent">
     <Position X="7.5" Y="7" Width="1.5" />
     <Members>
-      <Method Name="GarantsLazyLoad" Hidden="true" />
       <Field Name="gateway" Hidden="true" />
       <Method Name="InfoLazyLoad" Hidden="true" />
-      <Method Name="ParticipantsLazyLoad" Hidden="true" />
       <Method Name="ReportLazyLoad" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEAGAEAhEQIAAABsQIAAIAUAAEAA4BBIYUgAAECEBYA=</HashCode>
+      <HashCode>ABAGAAAgAAIIAIhkQAggIAWgAAAgwBRAY0gAAICGAII=</HashCode>
       <FileName>ActiveRecords\ActionEvent.cs</FileName>
     </TypeIdentifier>
-    <ShowAsCollectionAssociation>
-      <Field Name="participants" />
-    </ShowAsCollectionAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="ZalDomain.ItemSets.DocumentSet">
@@ -165,12 +157,12 @@
     <AssociationLine Name="Actions" Type="ZalDomain.ItemSets.ActionSet" FixedFromPoint="true" FixedToPoint="true">
       <Path>
         <Point X="7.562" Y="2.562" />
-        <Point X="7.562" Y="4.758" />
-        <Point X="5.5" Y="4.758" />
+        <Point X="7.562" Y="4.865" />
+        <Point X="5.5" Y="4.865" />
       </Path>
     </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AgAAICAAoABIAQBoAAgAAQIABAgBAAACAAAAAAAAQAA=</HashCode>
+      <HashCode>AgAAICAAIIBIAQBoAAggAAIABAgAAABiAAAAAAAAQAA=</HashCode>
       <FileName>Zal.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>

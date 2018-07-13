@@ -14,7 +14,6 @@ namespace ZalDomain.tools
         public event PropertyChangedEventHandler PropertyChanged;
 
         public DateTime LastSynchronization { get; set; } = ZAL.DATE_OF_ORIGIN;
-        public bool HasToBeReloaded => LastSynchronization == ZAL.DATE_OF_ORIGIN;
 
         readonly SortedSet<T> InnerCollection;
 

@@ -10,12 +10,12 @@ namespace ZalDomain.tools
 {
     internal static class UserPermision
     {
-        internal static void HasRank(User user, int expectedRank) {
+        internal static void HasRank(User user, ZAL.Rank expectedRank) {
             if (user == null) {
                 throw new UserPermisionException("null exception!");
             }
-            if (user.RankLevel < expectedRank) {
-                throw new UserPermisionException($"Low user Rank - expected: [{ZAL.RANK_NAME[expectedRank]}], current: [{ZAL.RANK_NAME[user.RankLevel]}]");
+            if (user.Rank < expectedRank) {
+                throw new UserPermisionException($"Low user Rank - expected: [{ZAL.RANK_NAME[(int)expectedRank]}], current: [{ZAL.RANK_NAME[(int)user.Rank]}]");
             }
         }
     }

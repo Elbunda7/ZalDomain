@@ -30,11 +30,11 @@ namespace ZalApiGateway
             return respond != -1;
         }
 
-        public Task<bool> Join(ActionUserJoinModel model) {
+        public Task<bool> JoinAsync(ActionUserJoinModel model) {
             return SendRequestFor<bool>(API.METHOD.JOIN, model);
         }
 
-        public Task<bool> UnJoin(ActionUserModel model) {
+        public Task<bool> UnJoinAsync(ActionUserModel model) {
             return SendRequestFor<bool>(API.METHOD.UNJOIN, model);
         }
 
@@ -42,7 +42,7 @@ namespace ZalApiGateway
             return SendRequestFor<bool>(API.METHOD.DELETE, idAction, token);
         }
 
-        public Task<IEnumerable<MembersOnActionModel>> GetUsersOnAction(int id) {
+        public Task<IEnumerable<MembersOnActionModel>> GetUsersOnActionAsync(int id) {
             return SendRequestFor<IEnumerable<MembersOnActionModel>>(API.METHOD.GET_USERS_ON_ACTION, id);
         }
 

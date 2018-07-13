@@ -10,38 +10,43 @@ using ZalApiGateway.Models;
 using ZalApiGateway.Models.ApiCommunicationModels;
 using ZalDomain.consts;
 using Newtonsoft.Json;
+using ZalDomain.tools;
+using ZalDomain.Models;
 
 namespace ZalDomain.ActiveRecords
 {
     public class User : IActiveRecord {
 
-        private UserModel model;
-        //private UzivatelMainTable model;
-        //private UzivatelDetailTable otherData;
-        //private UzivatelDetailTable model { get { return OtherDataLazyLoad(); } set { otherData = value; } }
+        private UserModel Model;
+
         private Collection<Badge> budges;
 
-        public int Id => model.Id;
-        public string Email => model.Email;
-        public string Nick => model.NickName;
-        public int RankLevel => model.Id_Rank;
-        public int? GroupNumber => model.Id_Group;
-        //public string Rank { get { return ZAL.RANK_NAME[model.Hodnost]; } }
-        //public string Group { get { return ZAL.GROUP_NAME_SING[model.Id_druzina]; } }
-        public string Name => model.Name;
-        public string Surname => model.Surname;
-        public string Phone => model.Phone;
+        public int Id => Model.Id;
+        public string Email => Model.Email;
+        public string Nick => Model.NickName;
+        public string Name => Model.Name;
+        public string Surname => Model.Surname;
+        public string Phone => Model.Phone;
+        public ZAL.Rank Rank => (ZAL.Rank)Model.Id_Rank;
+        public ZAL.Group Group => (ZAL.Group)Model.Id_Group;
+        public string RankAsString => ZAL.RANK_NAME[Model.Id_Rank];
+        public string GroupAsString => ZAL.GROUP_NAME_SINGULAR[Model.Id_Group];
+        public DateTime? DateOfBirth => Model.BirthDate;
         //public string Role { get { return model.Role; } }
         //public int Points { get { return model.Body; } }
-        public DateTime? DateOfBirth { get { return model.BirthDate; } }
-
-        internal static User LoadFrom(JToken jToken) {
-            UserModel model = jToken.ToObject<UserModel>();
-            return new User(model);
-        }
 
         //public bool PaidForMembership { get { return model.Zaplatil_prispevek; } }
         //public Collection<Badge> Budges { get { return BudgesLazyLoad(); } private set { budgets = value; } }
+
+        private static UserGateway gateway;
+        private static UserGateway Gateway => gateway ?? (gateway = new UserGateway());
+
+        private UnitOfWork<UserUpdateModel> unitOfWork;
+        public UnitOfWork<UserUpdateModel> UnitOfWork => unitOfWork ?? (unitOfWork = new UnitOfWork<UserUpdateModel>(Model, OnUpdateCommited));
+
+        private Task<bool> OnUpdateCommited() {
+            return Gateway.UpdateAsync(Model, Zal.Session.Token);
+        }
 
 
         internal static User AddNewEmptyUser(string name, string surname, int group) {
@@ -58,9 +63,6 @@ namespace ZalDomain.ActiveRecords
 
         private bool IsChanged { get; set; }
 
-        private static UserGateway gateway;
-        private static UserGateway Gateway => gateway ?? (gateway = new UserGateway());
-
 
         private async Task<Collection<Badge>> BudgesLazyLoad() {
             if (budges == null) {
@@ -70,7 +72,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public User(UserModel model) {
-            this.model = model;
+            this.Model = model;
         }
 
         [Obsolete]
@@ -109,10 +111,6 @@ namespace ZalDomain.ActiveRecords
             return Gateway.CheckForChanges(userCount, lastCheck);
         }
 
-        internal JToken GetModelJson() {
-            return JToken.FromObject(model);
-        }
-
         public static async Task<User> GetAsync(int id) {
             return new User(await Gateway.GetAsync(id));
         }
@@ -144,11 +142,11 @@ namespace ZalDomain.ActiveRecords
 
         public void BecomeMember(DateTime dateOfBirthDay, int group, string prezdivka = null) {
             //if (model.Role == ZAL.MEMBERSHIP.NECLEN) {
-                model.BirthDate = dateOfBirthDay;
-            if (prezdivka != null) model.NickName = prezdivka;
+                Model.BirthDate = dateOfBirthDay;
+            if (prezdivka != null) Model.NickName = prezdivka;
                 //model.Role = ZAL.MEMBERSHIP.CLEN;
-                model.Id_Group = group;
-                Gateway.BecomeMember(model);
+                Model.Id_Group = group;
+                Gateway.BecomeMember(Model);
             //}
             //else {
             //    throw new Exception("user already is a member");
@@ -339,8 +337,18 @@ namespace ZalDomain.ActiveRecords
             return Nick;
         }
 
+        [Obsolete]
         public bool IsLeader() {
-            return RankLevel >= ZAL.RANK.VEDOUCI;
+            return Rank >= ZAL.Rank.Vedouci;
+        }
+
+        internal static User LoadFrom(JToken jToken) {
+            UserModel model = jToken.ToObject<UserModel>();
+            return new User(model);
+        }
+
+        internal JToken GetModelJson() {
+            return JToken.FromObject(Model);
         }
     }
 }

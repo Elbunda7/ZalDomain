@@ -1,31 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ZalApiGateway.Models;
+using ZalDomain.Models;
 
 namespace ZalDomain.tools
 {
-    public class UnitOfWork<T> where T : IModel
+    public class UnitOfWork<T> where T : IUpdatableModel
     {
-        private T currentModel;
+        private IModel currentModel;
         private Func<Task<bool>> onUpdateCommited;
 
         public T ToUpdate { get; private set; }
 
-        public UnitOfWork(T model, Func<Task<bool>> callback) {
+        internal UnitOfWork(IModel model, Func<Task<bool>> callback) {
             currentModel = model;
-            ToUpdate = (T)model.Copy();
+            ToUpdate = default(T);
+            ToUpdate.CopyFrom(model);
             onUpdateCommited = callback;
         }
 
         public void UndoChanges() {
-            ToUpdate = (T)currentModel.Copy();
+            ToUpdate.CopyFrom(currentModel);
         }
 
         public Task<bool> CommitAsync() {
-            currentModel = (T)ToUpdate.Copy();
+            ToUpdate.CopyInto(currentModel);
             return onUpdateCommited.Invoke();
         }
     }

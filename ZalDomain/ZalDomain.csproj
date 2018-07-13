@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="ActiveRecords\Article.cs" />
     <Compile Include="ActiveRecords\ActionEvent.cs" />
+    <Compile Include="Models\ActionUpdateModel.cs" />
     <Compile Include="Models\AllActiveRecords.cs" />
     <Compile Include="Models\ChangedActiveRecords.cs" />
     <Compile Include="ActiveRecords\Document.cs" />
@@ -56,7 +57,9 @@
     <Compile Include="consts\CONST.cs" />
     <Compile Include="consts\ZAL.cs" />
     <Compile Include="ActiveRecords\Session.cs" />
+    <Compile Include="Models\IUpdatableModel.cs" />
     <Compile Include="Models\LoginErrorModel.cs" />
+    <Compile Include="Models\UserUpdateModel.cs" />
     <Compile Include="tools\ActiveRecordEqualityComparer.cs" />
     <Compile Include="tools\UnitOfWork.cs" />
     <Compile Include="tools\UserPermisionException.cs" />

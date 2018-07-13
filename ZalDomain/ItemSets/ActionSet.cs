@@ -61,14 +61,14 @@ namespace ZalDomain.ItemSets
         }
 
         private async Task<ActionObservableSortedSet> LoadActionsByYear(ActionObservableSortedSet actions, int year) {
-            var respond = await ActionEvent.GetActionsByYear(Zal.Session.UserRank, year);
+            var respond = await ActionEvent.GetActionsByYear((int)Zal.Session.UserRank, year);
             return new ActionObservableSortedSet(respond.ActiveRecords) {
                 LastSynchronization = respond.Timestamp
             };
         }
 
         private async Task<ActionObservableSortedSet> LoadChangesByYear(ActionObservableSortedSet actions, int year) {
-            var respond = await ActionEvent.GetChangedAsync(Zal.Session.UserRank, actions.LastSynchronization, year, actions.Count);
+            var respond = await ActionEvent.GetChangedAsync((int)Zal.Session.UserRank, actions.LastSynchronization, year, actions.Count);
             if (respond.IsHardChanged) {
                 actions.Clear();
                 actions.AddAll(respond.Changed);

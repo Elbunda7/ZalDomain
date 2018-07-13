@@ -7,7 +7,7 @@ using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalApiGateway.Models
 {
-    public class UserModel
+    public class UserModel:IModel
     {
         public int Id { get; set; }
         public string NickName { get; set; }
@@ -17,7 +17,7 @@ namespace ZalApiGateway.Models
         public string Phone { get; set; }
         public DateTime? BirthDate { get; set; }
         public int Id_Rank { get; set; }
-        public int? Id_Group { get; set; }
+        public int Id_Group { get; set; }
         //public int Body { get; set; }
         //public bool Pres_facebook { get; set; }
         //public bool Zaplatil_prispevek { get; set; }

@@ -23,7 +23,7 @@ namespace ZalDomain.ActiveRecords
 
         public bool StayLogged => !string.IsNullOrEmpty(RefreshToken);
         public bool IsUserLogged => CurrentUser != null;
-        public int UserRank => IsUserLogged ? CurrentUser.RankLevel : ZAL.RANK.NOVACEK;
+        public ZAL.Rank UserRank => IsUserLogged ? CurrentUser.Rank : ZAL.Rank.Novacek;
 
         private static SessionGateway gateway;
         private static SessionGateway Gateway => gateway ?? (gateway = new SessionGateway());

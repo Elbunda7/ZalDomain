@@ -10,37 +10,45 @@ namespace ZalDomain.consts
     {
         public static DateTime DATE_OF_ORIGIN = new DateTime(1997, 2, 1);
 
-        private static string[] groupNamePlur = {"non", "Lišky", "Bobři", "Ještěrky", "Svišti", "Veverky", "Trosky"};
-        public static string[] GROUP_NAME_PLUR => groupNamePlur;
+        private static string[] groupNamePlural = {"Neoddíloví", "Zbloudilí jedinci", "Lišky", "Bobři", "Ještěrky", "Svišti", "Veverky", "Trosky"};
+        public static string[] GROUP_NAME_PLURAL => groupNamePlural;
 
-        private static string[] groupNameSing = { "non", "Liška", "Bobr", "Ještěrka", "Svišť", "Veverka", "Troska" };
-        public static string[] GROUP_NAME_SING => groupNameSing;
+        private static string[] groupNameSingular = { "Neoddílový", "Nestálý člen", "Liška", "Bobr", "Ještěrka", "Svišť", "Veverka", "Troska" };
+        public static string[] GROUP_NAME_SINGULAR => groupNameSingular;
 
-        private static string[] rankName = { "Nováček", "Nováček", "Člen", "Kadet", "Podrádce", "Rádce", "Vedoucí", "Vedoucí", "Hlavní vedoucí" };
-        public static string[] RANK_NAME => rankName;//enums
+        private static string[] rankName = { "Liška", "Nováček", "Člen", "Kadet", "Podrádce", "Rádce", "Vedoucí", "Vedoucí", "Hlavní vedoucí" };
+        public static string[] RANK_NAME => rankName;
 
-        public abstract class GROUP
+        public enum Group
         {
-            public const int NON = 0;
-            public const int LISKY = 1;
-            public const int BOBRI = 2;
-            public const int JESTERKY = 3;
-            public const int SVISTI = 4;
-            public const int VEVERKY = 5;
-            public const int TROSKY = 6;
+            Non = 1,
+            Casual = 2,
+            Lisky = 4,
+            Bobri = 8,
+            Jesterky = 16,
+            Svisti = 32,
+            Veverky = 64,
+            Trosky = 128,
         }
 
-        public abstract class RANK
+        public enum UserRoles
         {
-            public static int LISKA = 0;
-            public static int NOVACEK = 1;
-            public static int CLEN = 2;
-            public static int KADET = 3;
-            public static int PODRADCE = 4;
-            public static int RADCE = 5;
-            public static int VEDOUCI = 6;
-            public static int VEDOUCI_RADA = 7;
-            public static int HLAVNI_VEDOUCI = 8;
+            Registered,
+            Parent,
+            Admin,
+        }
+
+        public enum Rank
+        {
+            Liska = 0,
+            Novacek = 1,
+            Clen = 2,
+            Kadet = 3,
+            Podradce = 4,
+            Radce = 5,
+            Vedouci = 6,
+            VedouciRada = 7,
+            VedouciHlavni = 8,
         }
 
         public abstract class MEMBERSHIP

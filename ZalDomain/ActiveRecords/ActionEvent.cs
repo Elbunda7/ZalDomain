@@ -53,8 +53,8 @@ namespace ZalDomain.ActiveRecords
             Model = model as ActionModel;
         }
 
-        private UnitOfWork<ActionModel> unitOfWork;
-        public UnitOfWork<ActionModel> UnitOfWork => unitOfWork ?? (unitOfWork = new UnitOfWork<ActionModel>(Model, OnUpdateCommited));
+        private UnitOfWork<ActionUpdateModel> unitOfWork;
+        public UnitOfWork<ActionUpdateModel> UnitOfWork => unitOfWork ?? (unitOfWork = new UnitOfWork<ActionUpdateModel>(Model, OnUpdateCommited));
 
         private Task<bool> OnUpdateCommited() {
             return Gateway.UpdateAsync(Model, Zal.Session.Token);
@@ -85,7 +85,7 @@ namespace ZalDomain.ActiveRecords
 
         private async Task MembersLazyLoad(bool reload = false) {
             if (reload || (garants == null && members == null)) {
-                var respond = await Gateway.GetUsersOnAction(Id);
+                var respond = await Gateway.GetUsersOnActionAsync(Id);
                 garants = respond.Where(x => x.IsGarant).Select(x => new User(x.Member)).ToList();
                 members = respond.Where(x => !x.IsGarant).Select(x => new User(x.Member)).ToList();
             }
@@ -151,7 +151,7 @@ namespace ZalDomain.ActiveRecords
                 Id_Action = Id,
                 IsGarant = asGarant,
             };
-            return await Gateway.Join(requestModel);
+            return await Gateway.JoinAsync(requestModel);
         }
 
         public Task<bool> UnJoin() {
@@ -165,7 +165,7 @@ namespace ZalDomain.ActiveRecords
                 Id_User = user.Id,
                 Id_Action = Id,
             };
-            return await Gateway.UnJoin(requestModel);
+            return await Gateway.UnJoinAsync(requestModel);
         }
 
         private void UpdateLocalMember(User user, bool asGarant) {

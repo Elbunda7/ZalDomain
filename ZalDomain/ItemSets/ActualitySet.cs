@@ -62,7 +62,7 @@ namespace ZalDomain.ItemSets
 
         private async void CheckForChanges() {
             Data.Clear();
-            Data.AddAll(await Article.GetAllFor(Zal.Session.UserRank));
+            Data.AddAll(await Article.GetAllFor((int)Zal.Session.UserRank));
             /*string changes = Article.CheckForChanges(Zal.Me, LastCheck);
             if (changes.Equals(CONST.CHANGES.MAJOR)) {
                 Data.Clear();

@@ -93,7 +93,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public static async Task<bool> Delete(Article actuality) {
-            UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.RANK.VEDOUCI);
+            UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.Rank.Vedouci);
             return await Gateway.DeleteAsync(actuality.model.Id);
         }
 

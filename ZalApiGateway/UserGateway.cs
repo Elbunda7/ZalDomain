@@ -82,7 +82,7 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
-        public bool Update(UserModel user) {
+        public Task<bool> UpdateAsync(UserModel user, string token) {
             throw new NotImplementedException();
         }
 

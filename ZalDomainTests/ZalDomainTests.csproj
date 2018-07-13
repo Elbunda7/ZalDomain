@@ -64,10 +64,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ZalApiGateway\ZalApiGateway.csproj">
-      <Project>{95622F63-2224-4910-BBAB-2C0A0413A488}</Project>
-      <Name>ZalApiGateway</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ZalDomain\ZalDomain.csproj">
       <Project>{066CE032-C845-4890-B85A-0BB5FE57AAEE}</Project>
       <Name>ZalDomain</Name>

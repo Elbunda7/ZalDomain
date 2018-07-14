@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ZalDomain.ActiveRecords;
 using ZalDomain.consts;
-using ZalDomain.tools;
+using ZalDomain.tools.ARSets;
 
 namespace ZalDomain.ItemSets
 {

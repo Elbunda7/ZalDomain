@@ -7,9 +7,14 @@ using System.Threading.Tasks;
 namespace ZalApiGateway.Models.ApiCommunicationModels
 {
     public class ActionRequestModel
-    {//spojit dědičností s ChangesRespondModel
-
+    {
         public int Rank { get; set; }
         public int Year { get; set; }
+    }
+
+    public class ActionChangesRequestModel : ActionRequestModel, IChangesRequestModel
+    {
+        public int Count { get; set; }
+        public DateTime LastCheck { get; set; }
     }
 }

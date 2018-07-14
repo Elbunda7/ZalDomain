@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 
-namespace ZalDomain.tools
+namespace ZalDomain.tools.ARComparers
 {
     public class ActualityComparer : Comparer<Article>
     {

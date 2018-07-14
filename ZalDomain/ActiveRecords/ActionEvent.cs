@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using ZalApiGateway.Models.ApiCommunicationModels;
 using Newtonsoft.Json.Linq;
 using ZalDomain.Models;
+using ZalDomain.tools.ARComparers;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -31,8 +32,8 @@ namespace ZalDomain.ActiveRecords
         public DateTime DateFrom => Model.Date_start;
         public DateTime DateTo => Model.Date_end;
         public int MembersCount => Model.Members.Length;
-        public bool DoIParticipate => Model.Members.Contains(Zal.Session.CurrentUser.Id);//jak aktualizovat?
-        public bool IsOfficial => Model.IsOfficial;//přejmenovat nebo přidat IsPublished
+        public bool DoIParticipate => Model.Members.Contains(Zal.Session.CurrentUser.Id);//todo jak aktualizovat?
+        public bool IsOfficial => Model.IsOfficial;//todo přejmenovat nebo přidat IsPublished
         public bool HasInfo => Model.Id_Info.HasValue;
         public bool HasReport => Model.Id_Report.HasValue;
         public int Days {
@@ -188,7 +189,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         internal static async Task<ChangedActiveRecords<ActionEvent>> GetChangedAsync(int userRank, DateTime lastCheck, int currentYear, int count) {
-            var requestModel = new ChangesRequestModel {
+            var requestModel = new ActionChangesRequestModel {
                 Rank = userRank,
                 LastCheck = lastCheck,
                 Year = currentYear,
@@ -212,8 +213,11 @@ namespace ZalDomain.ActiveRecords
                 Rank = userRank,
                 Year = year
             };
-            var rawRespondModel = await Gateway.GetPastByYearAsync(requestModel, Zal.Session.Token);
-            return new AllActiveRecords<ActionEvent>(rawRespondModel);
+            var respond = await Gateway.GetPastByYearAsync(requestModel, Zal.Session.Token);
+            return new AllActiveRecords<ActionEvent>() {
+                Timestamp = respond.Timestamp,
+                ActiveRecords = respond.GetItems().Select(model => new ActionEvent(model)),
+            };
         }
 
         public async static Task<ActionEvent> Get(int id) {

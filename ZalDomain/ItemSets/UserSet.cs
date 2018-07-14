@@ -1,35 +1,48 @@
-﻿using ZalDomain.ActiveRecords;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ZalDomain.ActiveRecords;
 using ZalDomain.consts;
 using ZalDomain.tools;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ZalDomain.tools.ARSets;
+using static ZalDomain.consts.ZAL;
 
 namespace ZalDomain.ItemSets
 {
     public class UserSet
     {
-        private Collection<User> Data;
-        private DateTime LastCheck;
+        public UserObservableSortedSet Users { get; set; }
 
         public UserSet() {
-            Data = new Collection<User>();
-            LastCheck = ZAL.DATE_OF_ORIGIN;
+            Users = new UserObservableSortedSet();
         }
 
-        public async Task<User> LoginAsync(string email, string password) {
-            return await User.LoginAsync(email, password);
+        public async Task ReSynchronize(Group groups = Group.AllClub, Rank ranks = Rank.All, UserRole roles = UserRole.All) {
+            Users.LastSynchronization = DATE_OF_ORIGIN;
+            await SynchronizeUsers(groups, ranks, roles);
         }
 
-        public async void Synchronize() {
-            if (AnyChanges()) {
-                Data = await User.GetAllMembers() as Collection<User>;
-                LastCheck = DateTime.Now;
+        public async Task SynchronizeUsers(Group groups = Group.AllClub, Rank ranks = Rank.All, UserRole roles = UserRole.All) {//todo kontrola korektnosti při změně filtru
+            if (Users.LastSynchronization == DATE_OF_ORIGIN || true) {//todo LoadChanges
+                await LoadUsers(groups, ranks, roles);
+            }
+            else {
+                await LoadUserChanges(groups, ranks, roles);
             }
         }
+
+        private async Task LoadUsers(Group groups, Rank ranks, UserRole roles) {
+            var respond = await User.GetAll(groups, ranks, roles);
+            Users.AddOrUpdateAll(respond.ActiveRecords);
+            Users.LastSynchronization = respond.Timestamp;
+        }
+
+        private async Task LoadUserChanges(Group groups, Rank ranks, UserRole roles) {
+            throw new NotImplementedException();
+        }
+
+        
 
         //internal Collection<User> GetByEmailList(List<string> list) {
         //    Collection<User> users = new Collection<User>();
@@ -39,24 +52,14 @@ namespace ZalDomain.ItemSets
         //    return users;
         //}
 
-        internal void ReSynchronize() {
-            LastCheck = ZAL.DATE_OF_ORIGIN;
-            Synchronize();
-        }
-
         private bool AnyChanges() {
-            return User.CheckForChanges(Data.Count, LastCheck);
+            throw new NotImplementedException();
+            //return User.CheckForChanges(Users.Count, LastCheck);
         }
 
-        public async Task<User> RegisterNewUserAsync(string name, string surname, string phone, string email, string password) {
-            User user = await User.RegisterNewAsync(email, name, surname, phone, password);
-            Data.Add(user);//null?
-            return user;
-        }
-
-        public void AddNewEmptyUser(string name, string surname, int group) {
+        public async Task AddNewEmptyUser(string name, string surname, int group) {
             UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.Rank.Vedouci);
-            Data.Add(User.AddNewEmptyUser(name, surname, group));
+            Users.Add(await User.AddNewEmptyUser(name, surname, group));
         }
 
         //public User GetByEmail(string email) {
@@ -73,64 +76,19 @@ namespace ZalDomain.ItemSets
         //    return User.Empty();
         //}
 
-        public Collection<User> GetAll() {
-            Synchronize();
-            return Data;
-        }
-
-        public bool Contains(string email) {
-            return false;
-            return User.Contains(email);
-        }
-
-        /*public Collection<User> GetBy(int key, int value) {
-            Synchronize();
-            Collection<User> tmp = new Collection<User>();
-            foreach (User u in Users) {
-                if (u.Has(key, value)) {
-                    tmp.Add(u);
-                }
-            }
-            return tmp;
-        }
-
-        public Collection<User> GetBy(int key, String value) {
-            Synchronize();
-            Collection<User> tmp = new Collection<User>();
-            foreach (User u in Users) {
-                if (u.Has(key, value)) {
-                    tmp.Add(u);
-                }
-            }
-            return tmp;
-        }
-
-        public Collection<User> GetByGroup(int group) {
-            Synchronize();
-            Collection<User> tmp = new Collection<User>();
-            foreach (User u in Users) {
-                if (u.Has(CONST.USER.DRUZINA, group)) {
-                    tmp.Add(u);
-                }
-            }
-            return tmp;
-        }*/
-
-        //public Collection<User> GetNonMembers(int)
-
         internal async Task<User> Get(int id) {
             //return User.Select(email);
 
-            User a = Data.Single(user => user.Id == id);
+            User a = Users.Single(user => user.Id == id);
             if (a == null) {
                 a = await User.GetAsync(id);
-                Data.Add(a);
+                Users.Add(a);
             }
             return a;
         }
 
         internal async Task<IEnumerable<User>> Get(List<int> ids) {
-            IEnumerable<User> users = Data.Where(user => ids.Any(id => id == user.Id));
+            IEnumerable<User> users = Users.Where(user => ids.Any(id => id == user.Id));
             var notLoadedIds = ids.Where(id => users.All(user => user.Id != id));
             users.Union(await User.GetAsync(notLoadedIds));
             return users;

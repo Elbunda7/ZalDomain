@@ -29,5 +29,7 @@ namespace ZalApiGateway
         public Task LogoutAsync(LogoutRequestModel model) {
             return SendRequestFor<bool>(API.METHOD.LOGOUT, model);
         }
+
+        //todo password change
     }
 }

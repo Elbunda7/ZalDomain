@@ -11,10 +11,5 @@ namespace ZalDomain.Models
     {
         public DateTime Timestamp { get; set; }
         public IEnumerable<T> ActiveRecords { get; set; }
-
-        public AllActiveRecords(AllRespondModel<ActionModel> rawModel) {
-            Timestamp = rawModel.Timestamp;
-            ActiveRecords = rawModel.GetItems().Select(x => new ActionEvent(x)) as IEnumerable<T>;
-        }
     }
 }

@@ -7,7 +7,7 @@ using System.Linq;
 using ZalDomain.ActiveRecords;
 using ZalDomain.consts;
 
-namespace ZalDomain.tools
+namespace ZalDomain.tools.ARSets
 {
     public class ObservableSortedSet<T> : ICollection<T>, INotifyCollectionChanged, INotifyPropertyChanged where T : IActiveRecord {
         public event NotifyCollectionChangedEventHandler CollectionChanged;

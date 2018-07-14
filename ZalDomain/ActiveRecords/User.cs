@@ -33,7 +33,7 @@ namespace ZalDomain.ActiveRecords
         public string GroupAsString => ZAL.GROUP_NAME_SINGULAR[Model.Id_Group];
         public DateTime? DateOfBirth => Model.BirthDate;
         //public string Role { get { return model.Role; } }
-        //public int Points { get { return model.Body; } }
+        //public int Points { get { return model.Body; } }//todo
 
         //public bool PaidForMembership { get { return model.Zaplatil_prispevek; } }
         //public Collection<Badge> Budges { get { return BudgesLazyLoad(); } private set { budgets = value; } }
@@ -49,13 +49,13 @@ namespace ZalDomain.ActiveRecords
         }
 
 
-        internal static User AddNewEmptyUser(string name, string surname, int group) {
+        internal static async Task<User> AddNewEmptyUser(string name, string surname, int group) {
             UserModel model = new UserModel {
                 Name = name,
                 Surname = surname,
                 Id_Group = group
             }; 
-            if (Gateway.InsertEmptyMember(model)) {
+            if (await Gateway.AddAsync(model, Zal.Session.Token)) {
                 return new User(model);
             }
             return null;
@@ -73,38 +73,24 @@ namespace ZalDomain.ActiveRecords
 
         public User(UserModel model) {
             this.Model = model;
-        }
-
-        [Obsolete]
-        public static async Task<User> LoginAsync(string email, string password) {
-            User user = new User(await Gateway.Login(email, password));
-            return user;
+            var a = ZAL.Rank.Clen | ZAL.Rank.Kadet;
         }
 
         //public static User Empty() {
         //    return new User("", "", "", "");
         //}
 
-
-        /*public bool Has(int key, int value) {
-            switch (key) {
-                case CONST.USER.DRUZINA: return model.Id_druzina == value;
-                default: return false;
-            }
-        }
-
-        public bool Has(int key, String value) {
-            switch (key) {
-                case CONST.USER.EMAIL: return value.Equals(model.Email);
-                case CONST.USER.JMENO: return value.Equals(model.ShortName);
-                default: return false;
-            }
-        }*/
-
-        public static async Task<IEnumerable<User>> GetAllMembers() {
-            IEnumerable<UserModel> rawModels = await Gateway.GetAllMembersAsync();
-            IEnumerable<User> users = rawModels.Select(model => new User(model));
-            return users;
+        public static async Task<AllActiveRecords<User>> GetAll(ZAL.Group groups, ZAL.Rank ranks, ZAL.UserRole roles) {
+            var requestModel = new UserRequestModel() {
+                Groups = (int)groups,
+                Ranks = (int)ranks,
+                Roles = (int)roles,//todo not ready jet
+            };
+            var respond = await Gateway.GetAllAsync(requestModel);
+            return new AllActiveRecords<User>() {
+                Timestamp = respond.Timestamp,
+                ActiveRecords = respond.GetItems().Select(model => new User(model)),
+            };
         }
 
         public static bool CheckForChanges(int userCount, DateTime lastCheck) {
@@ -113,25 +99,6 @@ namespace ZalDomain.ActiveRecords
 
         public static async Task<User> GetAsync(int id) {
             return new User(await Gateway.GetAsync(id));
-        }
-
-        public static bool Contains(string email) {
-            return Gateway.Contains(email);
-        }
-
-         [Obsolete]
-        public static async Task<User> RegisterNewAsync(string email, string name, string surname, string phone, string password) {
-            var requestModel = new RegistrationRequestModel {
-                Name = name,
-                Surname = surname, 
-                Phone = phone,
-                Email = email,
-                Password = password
-            };
-            if (await Gateway.RegisterAsync(requestModel)) {
-                return new User(new UserModel(requestModel));
-            }
-            return null;
         }
 
         internal static async Task<IEnumerable<User>> GetAsync(IEnumerable<int> ids) {
@@ -327,10 +294,6 @@ namespace ZalDomain.ActiveRecords
                 return true;
             }
             return false;
-        }
-
-        public static bool Exists(string email) {
-            return Gateway.Contains(email);
         }
 
         public override string ToString() {

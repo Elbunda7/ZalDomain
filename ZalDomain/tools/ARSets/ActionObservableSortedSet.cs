@@ -1,15 +1,8 @@
-﻿using ZalDomain.ActiveRecords;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
-using ZalDomain.consts;
+﻿using System.Collections.Generic;
+using ZalDomain.ActiveRecords;
+using ZalDomain.tools.ARComparers;
 
-namespace ZalDomain.tools
+namespace ZalDomain.tools.ARSets
 {
     public class ActionObservableSortedSet : ObservableSortedSet<ActionEvent>
     {

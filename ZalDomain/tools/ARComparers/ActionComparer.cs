@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 
-namespace ZalDomain.tools
+namespace ZalDomain.tools.ARComparers
 {
     public class ActionComparer : Comparer<ActionEvent>
     {

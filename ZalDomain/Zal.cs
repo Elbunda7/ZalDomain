@@ -34,22 +34,6 @@ namespace ZalDomain
         public static ActionSet Actions { get; private set; } = new ActionSet();
 
         [Obsolete]
-        public static async Task<bool> LoginAsync(string email, string password) {
-            bool isLogged = false;
-            if (IsConnected) {
-                if (Users.Contains(email)) {
-                    User user = await Users.LoginAsync(email, password);
-                    if (user != null) {
-                        Session.CurrentUser = user;
-                        isLogged = true;
-                        ReSynchronizeAsync();
-                    }
-                }
-            }
-            return isLogged;
-        }
-
-        [Obsolete]
         public static bool LoginAsGuest() {
             if (IsConnected) {
                 //Me = User.Empty();
@@ -59,20 +43,6 @@ namespace ZalDomain
             return false;
         }
 
-        [Obsolete]
-        public static async Task<bool> RegisterAsync(string name, string surname, string phone, string email, string password) {
-            bool isRegistered = false;
-            if (IsConnected) {
-                if (!Users.Contains(email)) {
-                    User user = await Users.RegisterNewUserAsync(name, surname, phone, email, password);
-                    if (user != null) {
-                        Session.CurrentUser = user;
-                        isRegistered = true;
-                    }
-                }
-            }
-            return isRegistered;
-        }
         [Obsolete]
         public static void Logout() {
             //Me = User.Empty();

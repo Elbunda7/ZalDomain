@@ -60,7 +60,9 @@
     <Compile Include="Models\IUpdatableModel.cs" />
     <Compile Include="Models\LoginErrorModel.cs" />
     <Compile Include="Models\UserUpdateModel.cs" />
-    <Compile Include="tools\ActiveRecordEqualityComparer.cs" />
+    <Compile Include="tools\ARComparers\ActiveRecordEqualityComparer.cs" />
+    <Compile Include="tools\ARComparers\UserComparer.cs" />
+    <Compile Include="tools\ARSets\UserObservableSortedSet.cs" />
     <Compile Include="tools\UnitOfWork.cs" />
     <Compile Include="tools\UserPermisionException.cs" />
     <Compile Include="tools\Validator.cs" />
@@ -69,13 +71,13 @@
     <Compile Include="ItemSets\ActualitySet.cs" />
     <Compile Include="ItemSets\BadgeSet.cs" />
     <Compile Include="ItemSets\DocumentSet.cs" />
-    <Compile Include="tools\ObservableSortedSet.cs" />
+    <Compile Include="tools\ARSets\ObservableSortedSet.cs" />
     <Compile Include="ItemSets\UserSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="tools\ActionComparer.cs" />
-    <Compile Include="tools\ActionObservableSortedSet.cs" />
-    <Compile Include="tools\ActualityComparer.cs" />
-    <Compile Include="tools\ActualityObservableSortedSet.cs" />
+    <Compile Include="tools\ARComparers\ActionComparer.cs" />
+    <Compile Include="tools\ARSets\ActionObservableSortedSet.cs" />
+    <Compile Include="tools\ARComparers\ActualityComparer.cs" />
+    <Compile Include="tools\ARSets\ActualityObservableSortedSet.cs" />
     <Compile Include="tools\UserPermision.cs" />
     <Compile Include="tools\Security.cs" />
   </ItemGroup>

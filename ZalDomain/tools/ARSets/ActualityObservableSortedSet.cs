@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ZalDomain.tools.ARComparers;
 
-namespace ZalDomain.tools
+namespace ZalDomain.tools.ARSets
 {
     class ActualityObservableSortedSet:ObservableSortedSet<Article>
     {

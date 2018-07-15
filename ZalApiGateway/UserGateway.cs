@@ -29,9 +29,8 @@ namespace ZalApiGateway
         }
 
         public async Task<bool> AddAsync(UserModel model, string token) {//nastaví správně id u modelu?
-            int respond = await SendRequestFor<int>(API.METHOD.ADD, model, token);
-            model.Id = respond;
-            return respond != -1;
+            model.Id = await SendRequestFor<int>(API.METHOD.ADD, model, token);
+            return model.Id != -1;
         }
 
         public Task<bool> DeleteAsync(int id, string token) {
@@ -61,17 +60,6 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
-        /*public Collection<Uzivatel> getAllFrom(int id_druziny) {
-            SqlCommand command = db.CreateCommand(SQL_SELECT + " WHERE Druzina_id_druzina = " + id_druziny);
-            SqlDataReader reader = db.Select(command);
-            return ReadOneFrom(reader);
-        }*/
-
-        /*public int Delete(int id) {
-            SqlCommand command = db.CreateCommand(SQL_DELETE_ID);
-            command.Parameters.Add(SetParam("@id_uzivatel", id);
-            return db.ExecuteNonQuery(command);
-        }*/
 
         /*public Collection<Uzivatel> getParticipatingAt(Akce akce) {
             SqlCommand command = db.CreateCommand(SQL_SELECT_USERS_AT_ACTION);

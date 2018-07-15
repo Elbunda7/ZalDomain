@@ -74,7 +74,6 @@ namespace ZalDomain.ItemSets
 
         public async Task AddNewUser(string name, string surname, int group, string nickname = null, string phone = null, string email = null, DateTime? birthDate = null) {
             //UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.Rank.Vedouci);
-            Users.Add(null);
             Users.Add(await User.AddNewUser(name, surname, group, nickname, phone, email, birthDate));
         }
 

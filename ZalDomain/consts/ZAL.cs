@@ -78,10 +78,5 @@ namespace ZalDomain.consts
         {
             Garant, Member, Any
         }
-
-        public enum FilterMode
-        {
-            And, Or
-        }
     }
 }

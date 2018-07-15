@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZalDomain.ActiveRecords;
 using ZalDomain.consts;
+using ZalDomain.Models;
 
 namespace ZalDomain.Tests
 {
@@ -36,8 +37,13 @@ namespace ZalDomain.Tests
         public async Task ActualityTest() {
             //await Zal.Actualities.SynchronizeAsync();
             //Assert.IsTrue(await Zal.Actualities.AddNewArticle("title", "test", 0));
-
-            var a = (int)ZAL.Rank.Clen | (int)ZAL.Rank.Kadet | (int)ZAL.UserRole.Admin;
+            await Zal.Users.AddNewUser("name", "surname", (int)ZAL.Group.Bobri);
+           /* await Zal.Users.SynchronizeUsers();
+            var a = Zal.Users.Users;
+            var filter = UserFilterModel.Default;
+            filter.Groups &= ~ZAL.Group.Bobri;
+            await Zal.Users.SynchronizeUsers(filter);
+            var b = Zal.Users.Users;*/
         }
 
         [TestMethod()]

@@ -14,6 +14,10 @@ namespace ZalApiGateway.Models.ApiCommunicationModels
         public int[] Deleted { get; set; }
         public IEnumerable<T> Changed { get; set; }
 
+        public ChangesRespondModel() {
+            Changed = new List<T>();
+        }
+
         public int[] GetDeleted() {
             return Deleted ?? new int[0];
         }

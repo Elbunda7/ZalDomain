@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ZalDomain.ActiveRecords;
 using ZalDomain.consts;
+using ZalDomain.Models;
 using ZalDomain.tools;
 using ZalDomain.tools.ARSets;
 using static ZalDomain.consts.ZAL;
@@ -13,33 +14,52 @@ namespace ZalDomain.ItemSets
     public class UserSet
     {
         public UserObservableSortedSet Users { get; set; }
+        private UserFilterModel filterInMemory;
 
         public UserSet() {
             Users = new UserObservableSortedSet();
+            filterInMemory = new UserFilterModel();
         }
 
-        public async Task ReSynchronize(Group groups = Group.AllClub, Rank ranks = Rank.All, UserRole roles = UserRole.All) {
+        public async Task ReSynchronize(UserFilterModel filter = null) {
+            filterInMemory.Clear();
             Users.LastSynchronization = DATE_OF_ORIGIN;
-            await SynchronizeUsers(groups, ranks, roles);
+            await SynchronizeUsers(filter);
         }
 
-        public async Task SynchronizeUsers(Group groups = Group.AllClub, Rank ranks = Rank.All, UserRole roles = UserRole.All) {//todo kontrola korektnosti při změně filtru
-            if (Users.LastSynchronization == DATE_OF_ORIGIN || true) {//todo LoadChanges
-                await LoadUsers(groups, ranks, roles);
+        public async Task SynchronizeUsers(UserFilterModel filter = null) {//todo kontrola korektnosti při změně filtru
+            filter = filter ?? UserFilterModel.Default;
+            if (Users.LastSynchronization == DATE_OF_ORIGIN) {
+                await LoadUsers(filter, isAndMode: true);
             }
             else {
-                await LoadUserChanges(groups, ranks, roles);
+                await LoadUserChanges(filterInMemory);
+                if (filterInMemory.WillBeExtendedWith(filter)) {
+                    UserFilterModel extendingFilter = filterInMemory.GetOnlyExtendigFilterFrom(filter);//todo filtermode
+                    await LoadUsers(extendingFilter, isAndMode: false);
+                }
             }
+            filterInMemory.CombineWith(filter);
         }
 
-        private async Task LoadUsers(Group groups, Rank ranks, UserRole roles) {
-            var respond = await User.GetAll(groups, ranks, roles);
+        private async Task LoadUsers(UserFilterModel filter, bool isAndMode) {
+            var respond = await User.GetAll(filter, isAndMode);
             Users.AddOrUpdateAll(respond.ActiveRecords);
             Users.LastSynchronization = respond.Timestamp;
         }
 
-        private async Task LoadUserChanges(Group groups, Rank ranks, UserRole roles) {
-            throw new NotImplementedException();
+        private async Task LoadUserChanges(UserFilterModel filter) {
+            var respond = await User.GetChanged(filter, Users.LastSynchronization, Users.Where(x=>x.Meets(filter)).Count());
+            if (respond.IsHardChanged) {
+                Users.Clear();
+                Users.AddAll(respond.Changed);
+                Users.LastSynchronization = respond.Timestamp;
+            }
+            else if (respond.IsChanged) {
+                Users.RemoveByIds(respond.Deleted);
+                Users.AddOrUpdateAll(respond.Changed);
+                Users.LastSynchronization = respond.Timestamp;
+            }
         }
 
         
@@ -52,14 +72,10 @@ namespace ZalDomain.ItemSets
         //    return users;
         //}
 
-        private bool AnyChanges() {
-            throw new NotImplementedException();
-            //return User.CheckForChanges(Users.Count, LastCheck);
-        }
-
-        public async Task AddNewEmptyUser(string name, string surname, int group) {
-            UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.Rank.Vedouci);
-            Users.Add(await User.AddNewEmptyUser(name, surname, group));
+        public async Task AddNewUser(string name, string surname, int group, string nickname = null, string phone = null, string email = null, DateTime? birthDate = null) {
+            //UserPermision.HasRank(Zal.Session.CurrentUser, ZAL.Rank.Vedouci);
+            Users.Add(null);
+            Users.Add(await User.AddNewUser(name, surname, group, nickname, phone, email, birthDate));
         }
 
         //public User GetByEmail(string email) {

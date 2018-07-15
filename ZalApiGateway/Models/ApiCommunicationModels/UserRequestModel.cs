@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ZalApiGateway.Consts;
 
 namespace ZalApiGateway.Models.ApiCommunicationModels
 {
@@ -11,9 +8,10 @@ namespace ZalApiGateway.Models.ApiCommunicationModels
         public int Groups { get; set; }
         public int Ranks { get; set; }
         public int Roles { get; set; }
+        public string Mode { get; set; }
     }
 
-    public class UserChangesRequesModel : UserRequestModel, IChangesRequestModel
+    public class UserChangesRequestModel : UserRequestModel, IChangesRequestModel
     {
         public int Count { get; set; }
         public DateTime LastCheck { get; set; }

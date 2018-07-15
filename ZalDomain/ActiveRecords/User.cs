@@ -12,6 +12,7 @@ using ZalDomain.consts;
 using Newtonsoft.Json;
 using ZalDomain.tools;
 using ZalDomain.Models;
+using ZalApiGateway.Consts;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -42,27 +43,46 @@ namespace ZalDomain.ActiveRecords
         private static UserGateway Gateway => gateway ?? (gateway = new UserGateway());
 
         private UnitOfWork<UserUpdateModel> unitOfWork;
+
         public UnitOfWork<UserUpdateModel> UnitOfWork => unitOfWork ?? (unitOfWork = new UnitOfWork<UserUpdateModel>(Model, OnUpdateCommited));
 
         private Task<bool> OnUpdateCommited() {
             return Gateway.UpdateAsync(Model, Zal.Session.Token);
         }
 
+        internal static async Task<ChangedActiveRecords<User, UserModel>> GetChanged(UserFilterModel filter, DateTime lastCheck, int count) {
+            var requestModel = new UserChangesRequestModel {
+                Groups = (int)filter.Groups,
+                Ranks = (int)filter.Ranks,
+                Roles = (int)filter.Roles,
+                Mode = Const.FilterMode.AND,
+                LastCheck = lastCheck,
+                Count = count
+            };
+            var respond = await Gateway.GetAllChangedAsync(requestModel, Zal.Session.Token);
+            var items = respond.Changed.Select(x => new User(x));
+            return new ChangedActiveRecords<User, UserModel>(respond, items);
+        }
 
-        internal static async Task<User> AddNewEmptyUser(string name, string surname, int group) {
+        internal bool Meets(UserFilterModel filter) {
+            return filter.CanContains(Group, Rank, (ZAL.UserRole)7);//todo role
+        }
+
+        internal static async Task<User> AddNewUser(string name, string surname, int group, string nickname = null, string phone = null, string email = null, DateTime? birthDate = null) {
             UserModel model = new UserModel {
+                NickName = nickname ?? $"{name} {surname[0]}.",
                 Name = name,
                 Surname = surname,
-                Id_Group = group
+                Id_Group = group,
+                BirthDate = birthDate,
+                Email = email,
+                Phone = phone,
             }; 
             if (await Gateway.AddAsync(model, Zal.Session.Token)) {
                 return new User(model);
             }
             return null;
         }
-
-        private bool IsChanged { get; set; }
-
 
         private async Task<Collection<Badge>> BudgesLazyLoad() {
             if (budges == null) {
@@ -73,28 +93,24 @@ namespace ZalDomain.ActiveRecords
 
         public User(UserModel model) {
             this.Model = model;
-            var a = ZAL.Rank.Clen | ZAL.Rank.Kadet;
         }
 
         //public static User Empty() {
         //    return new User("", "", "", "");
         //}
 
-        public static async Task<AllActiveRecords<User>> GetAll(ZAL.Group groups, ZAL.Rank ranks, ZAL.UserRole roles) {
+        public static async Task<AllActiveRecords<User>> GetAll(UserFilterModel filter, bool isAndMode) {
             var requestModel = new UserRequestModel() {
-                Groups = (int)groups,
-                Ranks = (int)ranks,
-                Roles = (int)roles,//todo not ready jet
+                Groups = (int)filter.Groups,
+                Ranks = (int)filter.Ranks,
+                Roles = (int)filter.Roles,//todo not ready jet
+                Mode = isAndMode ? Const.FilterMode.AND : Const.FilterMode.OR,
             };
             var respond = await Gateway.GetAllAsync(requestModel);
             return new AllActiveRecords<User>() {
                 Timestamp = respond.Timestamp,
                 ActiveRecords = respond.GetItems().Select(model => new User(model)),
             };
-        }
-
-        public static bool CheckForChanges(int userCount, DateTime lastCheck) {
-            return Gateway.CheckForChanges(userCount, lastCheck);
         }
 
         public static async Task<User> GetAsync(int id) {
@@ -120,91 +136,10 @@ namespace ZalDomain.ActiveRecords
             //}
         }
 
-        /*public static bool Has(int key, int value) {
-            switch (key) {
-                case DRUZINA: return Id_druzina == value;
-                default: return false;
-            }
-        }
-
-        internal bool Has(int key, String value) {
-            switch (key) {
-                case EMAIL: return value.Equals(Email);
-                case JMENO: return value.Equals(Jmeno);
-                case PRIJMENI: return value.Equals(Prijmeni);
-                case PREZDIVKA: return value.Equals(Prezdivka);
-                case ROLE: return value.Equals(Role);
-                default: return false;
-            }
-        }*/
-
-        /*public void ConfirmChanges() {
-            if (IsChanged) {
-                Gateway.Update(new UzivatelTable(model, model));
-                IsChanged = false;
-            }
-        }
-
-        public void Update(int key, int value) {
-            switch (key) {
-                case CONST.USER.DRUZINA: ChangeGroup(value); break;
-                case CONST.USER.HODNOST: ChangeRank(value); break;
-                case CONST.USER.BODY: ChangePoints(value); break;
-            }
-        }
-
-        public void Update(int key, String value) {
-            switch (key) {
-                case CONST.USER.EMAIL: ChangeEmail(value); break;
-                case CONST.USER.JMENO: ChangeName(value); break;
-                case CONST.USER.PRIJMENI: ChangeSurname(value); break;
-                case CONST.USER.PREZDIVKA: ChangeNick(value); break;
-                case CONST.USER.ROLE: ChangeRole(value); break;
-                case CONST.USER.KONTAKT: ChangePhone(value); break;
-            }
-        }
-
-        public void Update(int key, bool value) {
-            switch (key) {
-                case CONST.USER.ZAPLATIL_PRISPEVEK: ChangeIsPaid(value); break;
-            }
-        }
-
-        private void ChangeIsPaid(bool value) {
+        /*rivate void ChangeIsPaid(bool value) {
             if (model.Zaplatil_prispevek != value) {
                 model.Zaplatil_prispevek = value;
                 Gateway.Update(model.Email, value);
-            }
-        }
-
-        private void ChangeName(string value) {
-            if (model.Jmeno != value) {
-                model.Jmeno = value;
-                SetShortName();
-                IsChanged = true;
-            }
-        }
-
-        private void ChangeSurname(string value) {
-            if (model.Prijmeni != value) {
-                model.Prijmeni = value;
-                SetShortName();
-                IsChanged = true;
-            }
-        }
-
-        private void ChangeNick(string value) {
-            if (model.Prezdivka != value) {
-                model.Prezdivka = value;
-                SetShortName();
-                IsChanged = true;
-            }
-        }
-
-        private void ChangePhone(string value) {
-            if (model.Kontakt != value) {
-                model.Kontakt = value;
-                IsChanged = true;
             }
         }
 

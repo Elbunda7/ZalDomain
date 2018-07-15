@@ -59,6 +59,7 @@
     <Compile Include="ActiveRecords\Session.cs" />
     <Compile Include="Models\IUpdatableModel.cs" />
     <Compile Include="Models\LoginErrorModel.cs" />
+    <Compile Include="Models\UserFilterModel.cs" />
     <Compile Include="Models\UserUpdateModel.cs" />
     <Compile Include="tools\ARComparers\ActiveRecordEqualityComparer.cs" />
     <Compile Include="tools\ARComparers\UserComparer.cs" />

@@ -10,7 +10,7 @@ namespace ZalDomain.consts
     {
         public static DateTime DATE_OF_ORIGIN = new DateTime(1997, 2, 1);
 
-        public readonly static string[] GROUP_NAME_PLURAL = { "Neoddíloví", "Zbloudilí jedinci", "Lišky", "Bobři", "Ještěrky", "Svišti", "Veverky", "Trosky" };        
+        public readonly static string[] GROUP_NAME_PLURAL = { "Neoddíloví", "Zbloudilí jedinci", "Lišky", "Bobři", "Ještěrky", "Svišti", "Veverky", "Trosky" };   //todo out of range exception     
         public readonly static string[] GROUP_NAME_SINGULAR = { "Neoddílový", "Nestálý člen", "Liška", "Bobr", "Ještěrka", "Svišť", "Veverka", "Troska" };
         public readonly static string[] RANK_NAME = { "Liška", "Nováček", "Člen", "Kadet", "Podrádce", "Rádce", "Vedoucí", "Vedoucí", "Hlavní vedoucí" };
 
@@ -77,6 +77,11 @@ namespace ZalDomain.consts
         public enum ActionUserRole
         {
             Garant, Member, Any
+        }
+
+        public enum FilterMode
+        {
+            And, Or
         }
     }
 }

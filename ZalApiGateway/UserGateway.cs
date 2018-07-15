@@ -23,6 +23,11 @@ namespace ZalApiGateway
             return SendRequestFor<AllRespondModel<UserModel>>(API.METHOD.GET_ALL, model);
         }
 
+        public async Task<ChangesRespondModel<UserModel>> GetAllChangedAsync(UserChangesRequestModel model, string token) {//todo token?
+            var respond = await SendRequestForNullable<ChangesRespondModel<UserModel>>(API.METHOD.GET_CHANGED, model);
+            return respond ?? new ChangesRespondModel<UserModel>();
+        }
+
         public async Task<bool> AddAsync(UserModel model, string token) {//nastaví správně id u modelu?
             int respond = await SendRequestFor<int>(API.METHOD.ADD, model, token);
             model.Id = respond;
@@ -31,10 +36,6 @@ namespace ZalApiGateway
 
         public Task<bool> DeleteAsync(int id, string token) {
             return SendRequestFor<bool>(API.METHOD.DELETE, id, token);
-        }
-
-        public bool CheckForChanges(int numOfUsers, DateTime lastCheck) {
-            throw new NotImplementedException();
         }
 
         [Obsolete]

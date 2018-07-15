@@ -59,6 +59,7 @@
     <Compile Include="ArticleGateway.cs" />
     <Compile Include="ApiTools\ApiClient.cs" />
     <Compile Include="ApiTools\JsonFormator.cs" />
+    <Compile Include="Consts\Const.cs" />
     <Compile Include="DocumentGateway.cs" />
     <Compile Include="Gateway.cs" />
     <Compile Include="Models\ActionModel.cs" />

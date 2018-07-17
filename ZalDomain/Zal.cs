@@ -73,16 +73,16 @@ namespace ZalDomain
         public static async Task StartSynchronizingAsync() {
             //Documents.Synchronize();
             //Badgets.Synchronize();
-            //Users.Synchronize();
+            await Users.SynchronizeUsers();
             //Actualities.Synchronize();
             await Actions.SynchronizeAllCurrentlyActive();
         }
 
         private static async Task ReSynchronizeAsync() {
-            Documents.ReSynchronize();
-            Badges.ReSynchronize();
-            Users.ReSynchronize();
-            Actualities.ReSynchronize();
+            //Documents.ReSynchronize();
+            //Badges.ReSynchronize();
+            await Users.ReSynchronize();
+            //Actualities.ReSynchronize();
             await Actions.ReSynchronizeAsync();
         }
 

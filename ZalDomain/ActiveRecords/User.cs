@@ -24,7 +24,7 @@ namespace ZalDomain.ActiveRecords
 
         public int Id => Model.Id;
         public string Email => Model.Email;
-        public string Nick => Model.NickName;
+        public string NickName => Model.NickName;
         public string Name => Model.Name;
         public string Surname => Model.Surname;
         public string Phone => Model.Phone;
@@ -33,6 +33,7 @@ namespace ZalDomain.ActiveRecords
         public string RankAsString => ZAL.RANK_NAME[Model.Id_Rank];
         public string GroupAsString => ZAL.GROUP_NAME_SINGULAR[Model.Id_Group];
         public DateTime? DateOfBirth => Model.BirthDate;
+        public int Age => Model.BirthDate.HasValue ? DateTime.Now.Year - Model.BirthDate.Value.Year : -1;
         //public string Role { get { return model.Role; } }
         //public int Points { get { return model.Body; } }//todo
 
@@ -64,7 +65,7 @@ namespace ZalDomain.ActiveRecords
             return new ChangedActiveRecords<User, UserModel>(respond, items);
         }
 
-        internal bool Meets(UserFilterModel filter) {
+        public bool Meets(UserFilterModel filter) {
             return filter.CanContains(Group, Rank, (ZAL.UserRole)7);//todo role
         }
 
@@ -95,9 +96,7 @@ namespace ZalDomain.ActiveRecords
             this.Model = model;
         }
 
-        //public static User Empty() {
-        //    return new User("", "", "", "");
-        //}
+        public static User Empty => new User(new UserModel());
 
         public static async Task<AllActiveRecords<User>> GetAll(UserFilterModel filter, bool isAndMode) {
             var requestModel = new UserRequestModel() {
@@ -232,7 +231,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public override string ToString() {
-            return Nick;
+            return NickName;
         }
 
         [Obsolete]

@@ -15,7 +15,7 @@ namespace ZalDomain.tools.ARComparers
                 comparison = Comparer<int>.Default.Compare((int)x.Rank, (int)y.Rank);
             }
             if (comparison == 0) {
-                comparison = Comparer<string>.Default.Compare(x.Nick, y.Nick);
+                comparison = Comparer<string>.Default.Compare(x.NickName, y.NickName);
             }
             if (comparison == 0) {
                 comparison = Comparer<int>.Default.Compare(x.Id, y.Id);

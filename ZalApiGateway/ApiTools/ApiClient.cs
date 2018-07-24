@@ -8,7 +8,7 @@ namespace ZalApiGateway.ApiTools
 {
     internal class ApiClient
     {
-        private const string TokenExpired = "421";
+        private const string TokenExpiredCode = "421";
 
         static Uri BaseUri = new Uri("http://zalesak.hlucin.com");
         static Uri ResourceUri = new Uri("http://zalesak.hlucin.com/api/index.php");
@@ -20,7 +20,7 @@ namespace ZalApiGateway.ApiTools
                 request.AddParameter("x", str);
                 str = await SendAsync(client, request);
             }
-            return String.IsNullOrEmpty(str) ? str : str.Decrypt();
+            return String.IsNullOrEmpty(str) ? str : str.Decrypt().Unzip();
         }
 
         private static async Task<string> SendAsync(RestClient client, RestRequest request) {
@@ -29,7 +29,7 @@ namespace ZalApiGateway.ApiTools
                 response = await client.Execute<string>(request);
             }
             catch (Exception e) {
-                if (e.Message.Contains(TokenExpired)) {
+                if (e.Message.Contains(TokenExpiredCode)) {
                     throw new HttpRequestException("Token expired (response code: 421)");
                 }
                 throw e;

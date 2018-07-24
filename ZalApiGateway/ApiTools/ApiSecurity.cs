@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ZalApiGateway.ApiTools
 {
@@ -25,36 +23,57 @@ namespace ZalApiGateway.ApiTools
         }
 
         public static string Encrypt(this string text) {
+            return Encoding.UTF8.GetBytes(text).Encrypt();
+        }
+
+        public static string Encrypt(this byte[] bytes) {
             MemoryStream memoryStream = new MemoryStream();
             ICryptoTransform aesEncryptor = Encryptor.CreateEncryptor();
             CryptoStream cryptoStream = new CryptoStream(memoryStream, aesEncryptor, CryptoStreamMode.Write);
-            byte[] textBytes = Encoding.UTF8.GetBytes(text);
-            cryptoStream.Write(textBytes, 0, textBytes.Length);
+            cryptoStream.Write(bytes, 0, bytes.Length);
             cryptoStream.FlushFinalBlock();
             byte[] encryptedBytes = memoryStream.ToArray();
             memoryStream.Close();
             cryptoStream.Close();
-            string encryptedText = Convert.ToBase64String(encryptedBytes, 0, encryptedBytes.Length);
-            return encryptedText;
+            return Convert.ToBase64String(encryptedBytes, 0, encryptedBytes.Length);
         }
 
-        public static string Decrypt(this string encryptedText) {
+        public static byte[] Decrypt(this string encryptedText) {
             MemoryStream memoryStream = new MemoryStream();
             ICryptoTransform aesDecryptor = Encryptor.CreateDecryptor();
             CryptoStream cryptoStream = new CryptoStream(memoryStream, aesDecryptor, CryptoStreamMode.Write);
             string text = String.Empty;
-            byte[] cipherBytes = Convert.FromBase64String(encryptedText);
+            byte[] bytes = Convert.FromBase64String(encryptedText);
             try {
-                cryptoStream.Write(cipherBytes, 0, cipherBytes.Length);
+                cryptoStream.Write(bytes, 0, bytes.Length);
                 cryptoStream.FlushFinalBlock();
-                byte[] plainBytes = memoryStream.ToArray();
-                text = Encoding.UTF8.GetString(plainBytes, 0, plainBytes.Length);
+                bytes = memoryStream.ToArray();
             }
             finally {
                 memoryStream.Close();
                 cryptoStream.Close();
             }
-            return text;
+            return bytes;
+        }
+
+        public static byte[] Zip(this string str) {
+            var bytes = Encoding.UTF8.GetBytes(str);
+            using (var result = new MemoryStream()) {
+                using (var compressionStream = new GZipStream(result, CompressionMode.Compress)) {
+                    compressionStream.Write(bytes, 0, bytes.Length);
+                }
+                return result.ToArray();
+            }
+        }
+
+        public static string Unzip(this byte[] bytes) {
+            using (var compressed = new MemoryStream(bytes))
+            using (var unzipped = new MemoryStream()) {
+                using (var gZip = new GZipStream(compressed, CompressionMode.Decompress)) {
+                    gZip.CopyTo(unzipped);
+                }
+                return Encoding.UTF8.GetString(unzipped.ToArray());
+            }
         }
     }
 }

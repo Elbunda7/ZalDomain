@@ -82,6 +82,7 @@ namespace ZalDomain.Tests
             //var a= await Zal.Session.TryLoginWithTokenAsync();
             //await Zal.StartSynchronizingAsync();
             await Zal.Actions.SynchronizeAllCurrentlyActive();
+            bool a = Zal.Actions.UpcomingActionEvents.First().DoIParticipate;
             //await Zal.Actions.SynchronizeAllCurrentlyActive();
             //var a = Zal.GetDataJson();
             //Zal.LoadDataFrom(a);

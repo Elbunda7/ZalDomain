@@ -15,10 +15,19 @@ namespace ZalApiGateway.Models
         public string EventType { get; set; }
         public int FromRank { get; set; }
         public bool IsOfficial { get; set; }
-        public int[] Members { get; set; }
         public int? Id_Gallery { get; set; }
         public int? Id_Info { get; set; }
         public int? Id_Report { get; set; }
+
+        private int[] members;
+        public int[] Members {
+            get {
+                return members ?? (members = new int[0]);
+            }
+            set {
+                members = value;
+            }
+        }
 
         public IModel Copy() {
             return new ActionModel {

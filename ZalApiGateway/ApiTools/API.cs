@@ -37,6 +37,7 @@ namespace ZalApiGateway.ApiTools
             public const string GET_TOKEN = "GetToken";
             public const string LOGOUT = "Logout";
             public const string GET_USERS_ON_ACTION = "GetUsersOnAction";
+            public const string ADD_BADGE_TO = "AddBadgeTo";
         }
     }
 }

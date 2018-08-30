@@ -37,9 +37,8 @@ namespace ZalApiGateway
             return SendRequestFor<bool>(API.METHOD.DELETE, id, token);
         }
 
-        [Obsolete]
-        public async Task<bool> InsertBadget(string userEmail, int idOdborka) {
-            throw new NotImplementedException();
+        public Task<bool> AddBadgeAsync(User_BadgeModel model) {
+            return SendRequestFor<bool>(API.METHOD.ADD_BADGE_TO, model);
         }
 
         //todo bodíky

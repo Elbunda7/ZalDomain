@@ -75,6 +75,7 @@
     <Compile Include="Models\ApiCommunicationModels\TokenRequestModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\TokenRespondModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\UserRequestModel.cs" />
+    <Compile Include="Models\ApiCommunicationModels\User_BadgeModel.cs" />
     <Compile Include="Models\ArticleModel.cs" />
     <Compile Include="Models\BadgeModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\IChangesRequestModel.cs" />

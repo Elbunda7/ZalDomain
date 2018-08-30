@@ -20,7 +20,7 @@ namespace ZalDomain.ActiveRecords
 
         private UserModel Model;
 
-        private Collection<Badge> budges;
+        private List<Badge> budges = new List<Badge>();
 
         public int Id => Model.Id;
         public string Email => Model.Email;
@@ -85,9 +85,9 @@ namespace ZalDomain.ActiveRecords
             return null;
         }
 
-        private async Task<Collection<Badge>> BudgesLazyLoad() {
+        private async Task<IEnumerable<Badge>> BudgesLazyLoad() {
             if (budges == null) {
-                budges = await Zal.Badges.GetAcquired(this) as Collection<Badge>;
+                budges = await Zal.Badges.GetAcquired(this) as List<Badge>;
             }
             return budges;
         }
@@ -120,6 +120,16 @@ namespace ZalDomain.ActiveRecords
             IEnumerable<UserModel> rawModels = await Gateway.GetAsync(ids);
             IEnumerable<User> users = rawModels.Select(model => new User(model));
             return users;
+        }
+
+        public async Task<bool> AddBadge(Badge badge) {
+            var model = new User_BadgeModel {
+                Id_User = Id,
+                Id_Badge = badge.Id,
+            };
+            bool wasAdded = await Gateway.AddBadgeAsync(model);
+            if (wasAdded) budges.Add(badge);
+            return wasAdded;
         }
 
         public void BecomeMember(DateTime dateOfBirthDay, int group, string prezdivka = null) {
@@ -221,14 +231,6 @@ namespace ZalDomain.ActiveRecords
         public bool ChangePassword(string userEmail, string oldPass, string newPass) {
             return Gateway.UpdatePassword(userEmail, oldPass, newPass);
         }*/
-
-        public async Task<bool> AddBudget(Badge budget) {
-            if (await Gateway.InsertBadget(Email, budget.Id)) {
-                budges.Add(budget);
-                return true;
-            }
-            return false;
-        }
 
         public override string ToString() {
             return NickName;

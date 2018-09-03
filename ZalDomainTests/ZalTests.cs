@@ -22,8 +22,8 @@ namespace ZalDomain.Tests
             Assert.IsTrue(await Zal.Actions.AddNewActionAsync("test", "test", new DateTime(9000, 1,1), new DateTime(9000, 1, 3), 0, true));
             var actions = await Zal.Actions.GetPassedActionEventsByYear(9000);
             actions = await Zal.Actions.GetPassedActionEventsByYear(9000);
-            actions = await Zal.Actions.GetPassedActionEventsByYear(9000);
-            await Zal.Actions.ReSynchronizeAsync();
+            actions = Zal.Actions.UpcomingActionEvents;
+            //await Zal.Actions.ReSynchronizeAsync();
             //Assert.AreEqual(1, actions.Count);
             var act = actions.First();
             act.UnitOfWork.ToUpdate.EventType = "typ";
@@ -60,6 +60,11 @@ namespace ZalDomain.Tests
         [TestMethod()]
         public async Task SessionTest() {
             var a = await Zal.Session.LoginAsync("pepa3@email.cz", "password", false);
+
+            var bo = await Zal.Badges.Add("Uzlař", "vázej", "obrázek");
+            var s = Zal.Badges.Badges.First();
+            s.UnitOfWork.ToUpdate.Image = "img";
+            Assert.IsTrue(await s.UnitOfWork.CommitAsync());
             await Zal.Badges.Synchronize();
             var b = Zal.Badges.Badges.First();
             await Zal.Badges.Synchronize();

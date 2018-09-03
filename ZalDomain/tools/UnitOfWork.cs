@@ -5,7 +5,7 @@ using ZalDomain.Models;
 
 namespace ZalDomain.tools
 {
-    public class UnitOfWork<T> where T : IUpdatableModel
+    public class UnitOfWork<T> where T : IUpdatableModel, new()
     {
         private IModel currentModel;
         private Func<Task<bool>> onUpdateCommited;
@@ -14,7 +14,7 @@ namespace ZalDomain.tools
 
         internal UnitOfWork(IModel model, Func<Task<bool>> callback) {
             currentModel = model;
-            ToUpdate = default(T);
+            ToUpdate = new T();
             ToUpdate.CopyFrom(model);
             onUpdateCommited = callback;
         }

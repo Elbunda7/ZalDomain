@@ -25,9 +25,8 @@ namespace ZalApiGateway
         }
 
         public async Task<bool> AddAsync(ActionModel model, string token) {
-            int respond = await SendRequestFor<int>(API.METHOD.ADD, model, token);
-            model.Id = respond;
-            return respond != -1;
+            model.Id = await SendRequestFor<int>(API.METHOD.ADD, model, token);
+            return model.Id != -1;
         }
 
         public Task<bool> JoinAsync(ActionUserJoinModel model) {

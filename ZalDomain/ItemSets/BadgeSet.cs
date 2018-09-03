@@ -16,7 +16,7 @@ namespace ZalDomain.ItemSets
         private DateTime lastCheck;
 
         public BadgeSet() {
-            Badges = new Collection<Badge>();
+            Badges = new List<Badge>();
             lastCheck = ZAL.DATE_OF_ORIGIN;
         }
 
@@ -31,6 +31,15 @@ namespace ZalDomain.ItemSets
         internal Task ReSynchronize() {
             lastCheck = ZAL.DATE_OF_ORIGIN;
             return Synchronize();
+        }
+
+        public async Task<bool> Add(string name, string text, string image) {
+            Badge badge = await Badge.Add(name, text, image);
+            bool isAdded = badge != null;
+            if (isAdded) {
+                (Badges as List<Badge>).Add(badge);
+            }
+            return isAdded;
         }
 
         //internal Collection<Badge> GetAcquired() {

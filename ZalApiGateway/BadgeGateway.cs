@@ -14,8 +14,8 @@ namespace ZalApiGateway
     {
         public BadgeGateway() : base(API.ENDPOINT.BADGES) { }
 
-        public async Task<BadgeModel> GetAsync(int id) {
-            throw new NotImplementedException();
+        public Task<BadgeModel> GetAsync(int id) {
+            return SendRequestFor<BadgeModel>(API.METHOD.GET, id);
         }
 
         public async Task<BaseChangesRespondModel<BadgeModel>> IfNeededGetAllAsync(BadgeRequestModel model) {
@@ -27,12 +27,13 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
-        public async Task<bool> GiveBadgeToUser(int idOdborka, string userEmail) {
-            throw new NotImplementedException();
+        public Task<bool> UpdateAsync(BadgeModel model, string userToken) {
+            return SendRequestFor<bool>(API.METHOD.UPDATE, model, userToken);
         }
 
-        public async Task<bool> RemoveBadgeToUser(int idOdborka, string userEmail) {
-            throw new NotImplementedException();
+        public async Task<bool> AddAsync(BadgeModel model, string userToken) {
+            model.Id = await SendRequestFor<int>(API.METHOD.ADD, model, userToken);
+            return model.Id != -1;
         }
 
     }

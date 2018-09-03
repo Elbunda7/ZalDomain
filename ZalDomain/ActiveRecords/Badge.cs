@@ -10,6 +10,7 @@ using ZalApiGateway.Models;
 using ZalApiGateway.Models.ApiCommunicationModels;
 using ZalDomain.consts;
 using ZalDomain.Models;
+using ZalDomain.tools;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -24,6 +25,13 @@ namespace ZalDomain.ActiveRecords
 
         private static BadgeGateway gateway;
         private static BadgeGateway Gateway => gateway ?? (gateway = new BadgeGateway());
+
+        private UnitOfWork<BadgeUpdateModel> unitOfWork;
+        public UnitOfWork<BadgeUpdateModel> UnitOfWork => unitOfWork ?? (unitOfWork = new UnitOfWork<BadgeUpdateModel>(model, OnUpdateCommited));
+
+        private Task<bool> OnUpdateCommited() {
+            return Gateway.UpdateAsync(model, Zal.Session.Token);
+        }
 
         internal static async Task<BaseChangedActiveRecords<Badge>> IfNeededGetAllAsync(ZAL.Rank userRank, DateTime lastCheck) {
             var requestModel = new BadgeRequestModel {
@@ -49,6 +57,18 @@ namespace ZalDomain.ActiveRecords
             IEnumerable<BadgeModel> rawModels = await Gateway.GetBadgesOwnedByUserAsync(uzivatel.Email, false);
             IEnumerable<Badge> badges = rawModels.Select(model => new Badge(model));
             return badges;
+        }
+
+        internal static async Task<Badge> Add(string name, string text, string image) {
+            var badgeModel = new BadgeModel {
+                Name = name,
+                Text = text,
+                Image = image
+            };
+            if(await Gateway.AddAsync(badgeModel, Zal.Session.Token)) {
+                return new Badge(badgeModel);
+            }
+            return null;
         }
 
         public override string ToString() {

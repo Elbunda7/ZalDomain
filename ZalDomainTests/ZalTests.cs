@@ -60,8 +60,10 @@ namespace ZalDomain.Tests
         [TestMethod()]
         public async Task SessionTest() {
             var a = await Zal.Session.LoginAsync("pepa3@email.cz", "password", false);
-            var b = await Badge.GetAllAsync();
-            await Zal.Session.CurrentUser.AddBadge(b.First());
+            await Zal.Badges.Synchronize();
+            var b = Zal.Badges.Badges.First();
+            await Zal.Badges.Synchronize();
+            var c = Zal.Badges.Badges.First();
             await Zal.Session.Logout();
             /*bool isRegistered = await Zal.Session.RegisterAsync("Pepa", "Zdepa", "999456236", "pepa3@email.cz", "password");
             if (!isRegistered) {

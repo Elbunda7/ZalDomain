@@ -6,21 +6,28 @@ using ZalDomain.ActiveRecords;
 
 namespace ZalDomain.Models
 {
-    public class ChangedActiveRecords<T, M> where T : IActiveRecord where M : IModel
+    public class BaseChangedActiveRecords<AR> where AR : IActiveRecord
     {
         public bool IsChanged { get; set; }
+        public DateTime Timestamp { get; set; }
+        public IEnumerable<AR> Changed { get; set; }
+
+        public BaseChangedActiveRecords(BaseChangesRespondFlags rawModel, IEnumerable<AR> activeRecords) {
+            IsChanged = rawModel.IsChanged;
+            Timestamp = rawModel.Timestamp;
+            Changed = activeRecords;
+        }
+    }
+
+    public class ChangedActiveRecords<AR> : BaseChangedActiveRecords<AR> where AR : IActiveRecord 
+    {
         public bool IsHardChanged { get; set; }
         public bool HasAnyChanges => IsChanged || IsHardChanged;
-        public DateTime Timestamp { get; set; }
         public int[] Deleted { get; set; }
-        public IEnumerable<T> Changed { get; set; }
 
-        public ChangedActiveRecords(ChangesRespondModel<M> rawModel, IEnumerable<T> activeRecords) {
-            IsChanged = rawModel.IsChanged;
+        public ChangedActiveRecords(FullChangesRespondFlags rawModel, IEnumerable<AR> activeRecords) : base(rawModel, activeRecords) {
             IsHardChanged = rawModel.IsHardChanged;
-            Timestamp = rawModel.Timestamp;
-            Deleted = rawModel.GetDeleted();
-            Changed = activeRecords;
+            Deleted = rawModel.Deleted;
         }
     }
 }

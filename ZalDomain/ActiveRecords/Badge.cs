@@ -7,6 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using ZalApiGateway;
 using ZalApiGateway.Models;
+using ZalApiGateway.Models.ApiCommunicationModels;
+using ZalDomain.consts;
+using ZalDomain.Models;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -22,10 +25,14 @@ namespace ZalDomain.ActiveRecords
         private static BadgeGateway gateway;
         private static BadgeGateway Gateway => gateway ?? (gateway = new BadgeGateway());
 
-        public static async Task<IEnumerable<Badge>> GetAllAsync() {
-            IEnumerable<BadgeModel> rawModels = await Gateway.GetAllAsync();
-            IEnumerable<Badge> badges = rawModels.Select(model => new Badge(model));
-            return badges;
+        internal static async Task<BaseChangedActiveRecords<Badge>> IfNeededGetAllAsync(ZAL.Rank userRank, DateTime lastCheck) {
+            var requestModel = new BadgeRequestModel {
+                LastCheck = lastCheck,
+                Rank = (int)userRank,
+            };
+            var rawRespond = await Gateway.IfNeededGetAllAsync(requestModel);
+            var badges = rawRespond.Changed.Select(model => new Badge(model));
+            return new BaseChangedActiveRecords<Badge>(rawRespond, badges);
         }
 
         private Badge(BadgeModel model) {

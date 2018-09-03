@@ -6,24 +6,50 @@ using System.Threading.Tasks;
 
 namespace ZalApiGateway.Models.ApiCommunicationModels
 {
-    public class ChangesRespondModel<T> where T : IModel
+    public class BaseChangesRespondFlags
     {
         public bool IsChanged { get; set; }
-        public bool IsHardChanged { get; set; }
         public DateTime Timestamp { get; set; }
-        public int[] Deleted { get; set; }
-        public IEnumerable<T> Changed { get; set; }
+    }
 
-        public ChangesRespondModel() {
-            Changed = new List<T>();
+    public class FullChangesRespondFlags : BaseChangesRespondFlags
+    {
+        public bool IsHardChanged { get; set; }
+
+        private int[] deleted;
+        public int[] Deleted {
+            get {
+                return deleted ?? (deleted = new int[0]);
+            }
+            set {
+                deleted = value;
+            }
         }
+    }
 
-        public int[] GetDeleted() {
-            return Deleted ?? new int[0];
+    public class BaseChangesRespondModel<M> : BaseChangesRespondFlags where M : IModel
+    {
+        private IEnumerable<M> changed;
+        public IEnumerable<M> Changed {
+            get {
+                return changed ?? (changed = new List<M>());
+            }
+            set {
+                changed = value;
+            }
         }
+    }
 
-        public IEnumerable<T> GetChanged() {
-            return Changed ?? new List<T>();
+    public class FullChangesRespondModel<M> : FullChangesRespondFlags where M : IModel
+    {
+        private IEnumerable<M> changed;
+        public IEnumerable<M> Changed {
+            get {
+                return changed ?? (changed = new List<M>());
+            }
+            set {
+                changed = value;
+            }
         }
     }
 }

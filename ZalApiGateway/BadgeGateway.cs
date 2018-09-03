@@ -6,6 +6,7 @@ using ZalApiGateway.Models;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalApiGateway
 {
@@ -17,8 +18,9 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<BadgeModel>> GetAllAsync() {
-            return SendRequestFor<IEnumerable<BadgeModel>>(API.METHOD.GET_ALL);
+        public async Task<BaseChangesRespondModel<BadgeModel>> IfNeededGetAllAsync(BadgeRequestModel model) {
+            var respond = await SendRequestForNullable<BaseChangesRespondModel<BadgeModel>>(API.METHOD.GET_ALL, model);
+            return respond ?? new BaseChangesRespondModel<BadgeModel>();
         }
 
         public async Task<Collection<BadgeModel>> GetBadgesOwnedByUserAsync(string userEmail, bool haveThem) {

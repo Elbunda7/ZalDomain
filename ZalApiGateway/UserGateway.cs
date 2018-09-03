@@ -23,9 +23,9 @@ namespace ZalApiGateway
             return SendRequestFor<AllRespondModel<UserModel>>(API.METHOD.GET_ALL, model);
         }
 
-        public async Task<ChangesRespondModel<UserModel>> GetAllChangedAsync(UserChangesRequestModel model, string token) {//todo token?
-            var respond = await SendRequestForNullable<ChangesRespondModel<UserModel>>(API.METHOD.GET_CHANGED, model);
-            return respond ?? new ChangesRespondModel<UserModel>();
+        public async Task<FullChangesRespondModel<UserModel>> GetAllChangedAsync(UserChangesRequestModel model, string token) {//todo token?
+            var respond = await SendRequestForNullable<FullChangesRespondModel<UserModel>>(API.METHOD.GET_CHANGED, model);
+            return respond ?? new FullChangesRespondModel<UserModel>();
         }
 
         public async Task<bool> AddAsync(UserModel model, string token) {//nastaví správně id u modelu?

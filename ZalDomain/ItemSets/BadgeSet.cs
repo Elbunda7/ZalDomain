@@ -10,26 +10,27 @@ using System.Xml.Linq;
 
 namespace ZalDomain.ItemSets
 {
-    public class BadgeSet {
-        public Collection<Badge> Badges { get; private set; }
-
-        private DateTime LastCheck;
+    public class BadgeSet
+    {
+        public IEnumerable<Badge> Badges { get; private set; }
+        private DateTime lastCheck;
 
         public BadgeSet() {
             Badges = new Collection<Badge>();
-            LastCheck = ZAL.DATE_OF_ORIGIN;
+            lastCheck = ZAL.DATE_OF_ORIGIN;
         }
 
-        internal async void Synchronize() {
-            if (LastCheck == ZAL.DATE_OF_ORIGIN) {
-                Badges = (await Badge.GetAllAsync()) as Collection<Badge>;
-                LastCheck = DateTime.Now;
+        public async Task Synchronize() {
+            var respond = await Badge.IfNeededGetAllAsync(Zal.Session.UserRank, lastCheck);
+            if (respond.IsChanged) {
+                lastCheck = respond.Timestamp;
+                Badges = respond.Changed;
             }
-        } 
+        }
 
-        internal void ReSynchronize() {
-            LastCheck = ZAL.DATE_OF_ORIGIN;
-            Synchronize();
+        internal Task ReSynchronize() {
+            lastCheck = ZAL.DATE_OF_ORIGIN;
+            return Synchronize();
         }
 
         //internal Collection<Badge> GetAcquired() {

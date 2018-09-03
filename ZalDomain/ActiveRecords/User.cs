@@ -20,7 +20,7 @@ namespace ZalDomain.ActiveRecords
 
         private UserModel Model;
 
-        private List<Badge> budges = new List<Badge>();
+        private List<Badge> badges = new List<Badge>();
 
         public int Id => Model.Id;
         public string Email => Model.Email;
@@ -51,7 +51,7 @@ namespace ZalDomain.ActiveRecords
             return Gateway.UpdateAsync(Model, Zal.Session.Token);
         }
 
-        internal static async Task<ChangedActiveRecords<User, UserModel>> GetChanged(UserFilterModel filter, DateTime lastCheck, int count) {
+        internal static async Task<ChangedActiveRecords<User>> GetChanged(UserFilterModel filter, DateTime lastCheck, int count) {
             var requestModel = new UserChangesRequestModel {
                 Groups = (int)filter.Groups,
                 Ranks = (int)filter.Ranks,
@@ -62,7 +62,7 @@ namespace ZalDomain.ActiveRecords
             };
             var respond = await Gateway.GetAllChangedAsync(requestModel, Zal.Session.Token);
             var items = respond.Changed.Select(x => new User(x));
-            return new ChangedActiveRecords<User, UserModel>(respond, items);
+            return new ChangedActiveRecords<User>(respond, items);
         }
 
         public bool Meets(UserFilterModel filter) {
@@ -86,10 +86,10 @@ namespace ZalDomain.ActiveRecords
         }
 
         private async Task<IEnumerable<Badge>> BudgesLazyLoad() {
-            if (budges == null) {
-                budges = await Zal.Badges.GetAcquired(this) as List<Badge>;
+            if (badges == null) {
+                badges = await Zal.Badges.GetAcquired(this) as List<Badge>;
             }
-            return budges;
+            return badges;
         }
 
         public User(UserModel model) {
@@ -128,7 +128,7 @@ namespace ZalDomain.ActiveRecords
                 Id_Badge = badge.Id,
             };
             bool wasAdded = await Gateway.AddBadgeAsync(model);
-            if (wasAdded) budges.Add(badge);
+            if (wasAdded) badges.Add(badge);
             return wasAdded;
         }
 

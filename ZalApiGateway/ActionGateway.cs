@@ -54,9 +54,9 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
-        public async Task<ChangesRespondModel<ActionModel>> GetAllChangedAsync(ActionChangesRequestModel model, string token) {
-            var respond = await SendRequestForNullable<ChangesRespondModel<ActionModel>>(API.METHOD.GET_CHANGED, model, token);
-            return respond ?? new ChangesRespondModel<ActionModel>();
+        public async Task<FullChangesRespondModel<ActionModel>> GetAllChangedAsync(ActionChangesRequestModel model, string token) {
+            var respond = await SendRequestForNullable<FullChangesRespondModel<ActionModel>>(API.METHOD.GET_CHANGED, model, token);
+            return respond ?? new FullChangesRespondModel<ActionModel>();
         }
     }
 }

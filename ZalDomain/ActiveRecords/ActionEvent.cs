@@ -188,7 +188,7 @@ namespace ZalDomain.ActiveRecords
             }
         }
 
-        internal static async Task<ChangedActiveRecords<ActionEvent, ActionModel>> GetChangedAsync(int userRank, DateTime lastCheck, int currentYear, int count) {
+        internal static async Task<ChangedActiveRecords<ActionEvent>> GetChangedAsync(int userRank, DateTime lastCheck, int currentYear, int count) {
             var requestModel = new ActionChangesRequestModel {
                 Rank = userRank,
                 LastCheck = lastCheck,
@@ -196,8 +196,8 @@ namespace ZalDomain.ActiveRecords
                 Count = count
             };
             var rawChanges = await Gateway.GetAllChangedAsync(requestModel, Zal.Session.Token);
-            var items = rawChanges.GetChanged().Select(x => new ActionEvent(x));
-            return new ChangedActiveRecords<ActionEvent, ActionModel>(rawChanges, items);
+            var items = rawChanges.Changed.Select(x => new ActionEvent(x));
+            return new ChangedActiveRecords<ActionEvent>(rawChanges, items);
         }
 
         public override string ToString() {

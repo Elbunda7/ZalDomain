@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZalApiGateway.Models
 {
-    public class BadgeModel
+    public class BadgeModel : IModel
     {
         public int Id { get; set; }
         public string Name { get; set; }

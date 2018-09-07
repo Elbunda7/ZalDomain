@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZalApiGateway.ApiTools;
 using ZalApiGateway.Models;
+using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalApiGateway
 {
@@ -26,12 +27,13 @@ namespace ZalApiGateway
             return SendRequestFor<bool>(API.METHOD.DELETE, id);
         }
 
-        public async Task<string> CheckForChanges(string userEmail, DateTime lastCheck) {
-            throw new NotImplementedException();
+        public Task<IEnumerable<ArticleModel>> LoadNextAsync() {
+            return SendRequestFor<IEnumerable<ArticleModel>>(API.METHOD.LOAD_NEXT);
         }
 
-        public async Task<List<int>> GetChanged(string userEmail, DateTime lastCheck) {
-            throw new NotImplementedException();
+        public async Task<ArticlesChangesRespondModel> LoadIfChangedTopTenAsync(ArticleTopTenRequestModel model, string token) {
+            var respond = await SendRequestForNullable<ArticlesChangesRespondModel>(API.METHOD.LOAD_TOP_TEN, model, token);
+            return respond ?? new ArticlesChangesRespondModel();
         }
 
         public ArticleModel SelectGeneral(int id) {
@@ -42,13 +44,12 @@ namespace ZalApiGateway
             throw new NotImplementedException();
         }
 
-        public async Task<bool> Update(ArticleModel model) {
-            throw new NotImplementedException();
+        public Task<bool> UpdateAsync(ArticleModel model, string token) {
+            return SendRequestFor<bool>(API.METHOD.UPDATE, model, token);
         }
 
         public async Task<ArticleModel> GetAsync(int id) {
             throw new NotImplementedException();
         }
-
     }
 }

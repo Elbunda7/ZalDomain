@@ -38,6 +38,8 @@ namespace ZalApiGateway.ApiTools
             public const string LOGOUT = "Logout";
             public const string GET_USERS_ON_ACTION = "GetUsersOnAction";
             public const string ADD_BADGE_TO = "AddBadgeTo";
+            public const string LOAD_TOP_TEN = "LoadTopTen";
+            public const string LOAD_NEXT = "LoadNext";
         }
     }
 }

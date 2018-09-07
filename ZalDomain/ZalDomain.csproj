@@ -47,6 +47,7 @@
     <Compile Include="ActiveRecords\ActionEvent.cs" />
     <Compile Include="Models\ActionUpdateModel.cs" />
     <Compile Include="Models\AllActiveRecords.cs" />
+    <Compile Include="Models\ArticleUpdateModel.cs" />
     <Compile Include="Models\BadgeUpdateModel.cs" />
     <Compile Include="Models\ChangedActiveRecords.cs" />
     <Compile Include="ActiveRecords\Document.cs" />

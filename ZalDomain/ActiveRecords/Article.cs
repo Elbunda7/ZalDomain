@@ -9,46 +9,43 @@ using ZalDomain.consts;
 using ZalApiGateway.Models;
 using ZalApiGateway;
 using System.Threading.Tasks;
+using ZalDomain.Models;
+using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalDomain.ActiveRecords
 {
     public class Article : IActiveRecord, ISimpleItem {
 
         private ArticleModel model;
-        //private string type;
+        private User author;
+
+        public int Id => model.Id;
+        public string Title => model.Title;
+        public string Text => model.Text;
+        public int Id_Author => model.Id_Author;
+        public DateTime Date_Creation => model.Date;
+        public int Id_Gallery => model.Id_Gallery;
+        //public string ShortText { get { return model.ShortText; } }
+        //public string Type { get { return GetItemType(); } }        //zrušit 3x null-ids, zařídit typ+id
+        /*public int RankLeast { get { return Data.Od_hodnosti; } }
+        public int? ForGroup { get { return Data.Pro_druzinu; } }*/
 
         private static ArticleGateway gateway;
         private static ArticleGateway Gateway => gateway ?? (gateway = new ArticleGateway());
 
-        public int Id => model.Id;
-        internal DateTime DateOfCreation { get { return model.Date_Creation; } }
+        private UnitOfWork<ArticleUpdateModel> unitOfWork;
+        public UnitOfWork<ArticleUpdateModel> UnitOfWork => unitOfWork ?? (unitOfWork = new UnitOfWork<ArticleUpdateModel>(model, OnUpdateCommited));
 
-        public string Title => model.Title;
-        public string Text => model.Text;
-        //public string ShortText { get { return model.ShortText; } }
-        //public string Type { get { return GetItemType(); } }        //zrušit 3x null-ids, zařídit typ+id
+        private Task<bool> OnUpdateCommited() {
+            return Gateway.UpdateAsync(model, Zal.Session.Token);
+        }
 
-
-        /*public User Author { get { return AuthorLazyLoad(); } private set { author = value; } }
-        public int RankLeast { get { return Data.Od_hodnosti; } }
-        public int? ForGroup { get { return Data.Pro_druzinu; } }*/
-
-        //private User AuthorLazyLoad() {
-        //    if (author == null) {
-        //        author = Zal.Users.GetByEmail(Data.AuthorEmail);
-        //    }
-        //    return author;
-        //}
-
-
-
-        //public Article(User author, string title, string text) {
-        //    model = new ArticleModel {
-        //        Id_Author = author.Id, 
-        //        Title = title,
-        //        Text = text
-        //    };
-        //}
+        private async Task<User> AuthorLazyLoad() {
+            if (author == null) {
+                author = await Zal.Users.Get(Id_Author);
+            }
+            return author;
+        }
 
         public static async Task<Article> AddAsync(User author, string title, string text) {
             ArticleModel model = new ArticleModel {
@@ -66,12 +63,17 @@ namespace ZalDomain.ActiveRecords
             this.model = model;
         }
 
-        public void Synchronize() {
-            //ItemLazyLoad();
+        public static async Task<string> CheckForChanges(User user, DateTime lastCheck) {
+            throw new NotImplementedException();
         }
 
-        public static async Task<string> CheckForChanges(User user, DateTime lastCheck) {
-            return await Gateway.CheckForChanges(user.Email, lastCheck);
+        public static async Task<bool> LoadTopTen(int[] ids, DateTime timestamp) {
+            var requestModel = new ArticleTopTenRequestModel {
+                Ids = new int[] { 6, 24, 22, 20, 18, 16, 14, 1, 10, 3 },
+                Timestamp = new DateTime(2018, 10, 8),
+            };
+            var a = await Gateway.LoadIfChangedTopTenAsync(requestModel, "str");
+            return true;
         }
 
         public static async Task<Collection<Article>> GetAllFor(int userRank) {
@@ -85,7 +87,7 @@ namespace ZalDomain.ActiveRecords
         }
 
         public static async Task<List<int>> GetChanged(User user, DateTime lastCheck) {
-            return await Gateway.GetChanged(user.Email, lastCheck);
+            throw new NotImplementedException();
         }
 
         public static async Task<Article> GetAsync(int id) {

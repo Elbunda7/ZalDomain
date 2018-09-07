@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace ZalApiGateway.Models
 {
-    public class ArticleModel
+    public class ArticleModel : IModel
     {
         public int Id { get; set; }
         public string Title { get; set; }
         public string Text { get; set; }
         public int Id_Author { get; set; }
-        public DateTime Date_Creation { get; set; }
+        public DateTime Date { get; set; }
         public int Id_Gallery { get; set; }
         //public int? Pro_druzinu { get; set; }
     }

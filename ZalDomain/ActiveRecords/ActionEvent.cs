@@ -13,6 +13,7 @@ using ZalApiGateway.Models.ApiCommunicationModels;
 using Newtonsoft.Json.Linq;
 using ZalDomain.Models;
 using ZalDomain.tools.ARComparers;
+using static ZalDomain.consts.ZAL;
 
 namespace ZalDomain.ActiveRecords
 {
@@ -117,12 +118,12 @@ namespace ZalDomain.ActiveRecords
         }
 
         public async Task<bool> AddNewInfoAsync(User author, string title, string text) {
-            info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);//new article + action.Id_foreign = najednou
-            if (info != null) {
+            info = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank, ArticleType.Info, Id);
+            bool wasAdded = info != null;
+            if (wasAdded) {
                 Model.Id_Info = info.Id;
-                return await Gateway.UpdateAsync(Model, Zal.Session.Token);
             }
-            return false;
+            return wasAdded;
         }
 
         public async Task<bool> AddNewReportAsync(string title, string text) {
@@ -130,13 +131,13 @@ namespace ZalDomain.ActiveRecords
             return await AddNewReportAsync(Zal.Session.CurrentUser, title, text);
         }
 
-        public async Task<bool> AddNewReportAsync(User author, string title, string text) {//vytvořit jediný dotaz?
-            report = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank);
-            if (report != null) {
+        public async Task<bool> AddNewReportAsync(User author, string title, string text) {
+            report = await Zal.Actualities.CreateNewArticle(author, title, text, FromRank, ArticleType.Record, Id);
+            bool wasAdded = report != null;
+            if (wasAdded) {
                 Model.Id_Report = report.Id;
-                return await Gateway.UpdateAsync(Model, Zal.Session.Token);
             }
-            return false;
+            return wasAdded;
         }
 
         public Task<bool> Join(bool asGarant = false) {

@@ -11,7 +11,7 @@ namespace ZalDomain.Models
     {
         public string Title { get; set; }
         public string Text { get; set; }
-        public int Id_Gallery { get; set; }
+        public int? Id_Gallery { get; set; }
 
         public void CopyInto(IModel apiModel) {
             ArticleModel model = apiModel as ArticleModel;

@@ -25,7 +25,7 @@ namespace ZalDomain.ActiveRecords
         public ZAL.ArticleType Type => (ZAL.ArticleType)model.Type;
         public int Id_Author => model.Id_Author;
         public DateTime Date => model.Date;
-        public int Id_Gallery => model.Id_Gallery;
+        public int? Id_Gallery => model.Id_Gallery;
         //public string ShortText { get { return model.ShortText; } }
         //public string Type { get { return GetItemType(); } }        //zrušit 3x null-ids, zařídit typ+id
         /*public int RankLeast { get { return Data.Od_hodnosti; } }
@@ -48,13 +48,23 @@ namespace ZalDomain.ActiveRecords
             return author;
         }
 
-        public static async Task<Article> AddAsync(User author, string title, string text) {
+        public static async Task<Article> AddAsync(User author, string title, string text, ZAL.ArticleType type, int? bindToAction = null) {
             ArticleModel model = new ArticleModel {
                 Id_Author = author.Id,
                 Title = title,
-                Text = text
+                Text = text,
+                Type = (int)type,
+                Date = DateTime.Now,
             };
-            if (await Gateway.AddAsync(model)) {
+            bool respond;
+            if (bindToAction.HasValue) {
+                (model as ExtendedArticleModel).Id_Action = bindToAction.Value;
+                respond = await Gateway.AddAsync(model as ExtendedArticleModel);
+            }
+            else {
+                respond = await Gateway.AddAsync(model);
+            }
+            if (respond) {
                 return new Article(model);
             }
             return null;
@@ -76,6 +86,11 @@ namespace ZalDomain.ActiveRecords
             var rawRespondModel = await Gateway.LoadIfChangedTopTenAsync(requestModel, "str");
             var changedItems = rawRespondModel.Changed.Select(x => new Article(x));
             return new ArticleChangedModel(rawRespondModel, changedItems);
+        }
+
+        public static async Task<IEnumerable<Article>> LoadNext(int lastNonInfoId) {
+            var respondModel = await Gateway.LoadNextAsync(lastNonInfoId);
+            return respondModel.Select(x => new Article(x));
         }
 
         public static async Task<Collection<Article>> GetAllFor(int userRank) {

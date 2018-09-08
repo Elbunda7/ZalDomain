@@ -7,6 +7,7 @@ using ZalDomain.ActiveRecords;
 using ZalDomain.consts;
 using ZalDomain.Models;
 using ZalDomain.tools.ARSets;
+using static ZalDomain.consts.ZAL;
 
 namespace ZalDomain.ItemSets
 {
@@ -20,13 +21,13 @@ namespace ZalDomain.ItemSets
             topTenIds = new int[0];
         }
 
-        internal async Task<Article> CreateNewArticle(string title, string text, int fromRank, int? forGroup = null) {
+        internal async Task<Article> CreateNewArticle(string title, string text, int fromRank, ArticleType type, int? bindToAction = null, int? forGroup = null) {
             //token uživatele
-            return await CreateNewArticle(Zal.Session.CurrentUser, title, text, fromRank, forGroup);
+            return await CreateNewArticle(Zal.Session.CurrentUser, title, text, fromRank, type, forGroup, bindToAction);
         }
 
-        internal async Task<Article> CreateNewArticle(User author, string title, string text, int fromRank, int? forGroup = null) {
-            Article article = await Article.AddAsync(author, title, text);//, fromRank, forGroup));
+        internal async Task<Article> CreateNewArticle(User author, string title, string text, int fromRank, ArticleType type, int? bindToAction = null, int? forGroup = null) {
+            Article article = await Article.AddAsync(author, title, text, type);//, fromRank, forGroup));
             if (article != null) {
                 Data.Add(article);
                 return article;
@@ -35,7 +36,7 @@ namespace ZalDomain.ItemSets
         }
 
         public async Task<bool> AddNewArticle(string title, string text, int fromRank, int? forGroup = null) {
-            Article article = await CreateNewArticle(Zal.Session.CurrentUser, title, text, fromRank, forGroup);
+            Article article = await CreateNewArticle(Zal.Session.CurrentUser, title, text, fromRank, ArticleType.Article, forGroup);
             return article != null;
         }
 
@@ -65,27 +66,9 @@ namespace ZalDomain.ItemSets
             await Synchronize();
         }
 
-        [Obsolete]
-        private async void CheckForChanges() {
-            Data.Clear();
-            Data.AddAll(await Article.GetAllFor((int)Zal.Session.UserRank));
-            /*string changes = Article.CheckForChanges(Zal.Me, LastCheck);
-            if (changes.Equals(CONST.CHANGES.MAJOR)) {
-                Data.Clear();
-                Data.AddAll(Article.GetAllFor(Zal.Me));
-            }
-            else if (changes.Equals(CONST.CHANGES.MINOR)) {
-                List<int> changedItems = Article.GetChanged(Zal.Me, LastCheck);
-                foreach (int id in changedItems) {
-                    if (id < 0) {
-                        Data.RemoveById(-id);
-                    }
-                    else {
-                        Data.RemoveById(id);
-                        Data.Add(Article.Get(id));
-                    }
-                }
-            }*/
+        public async Task LoadNext() {
+            int lastNonInfoId = Data.Last(x => x.Type != ArticleType.Info).Id;
+            Data.AddAll(await Article.LoadNext(lastNonInfoId));
         }
 
         public async Task<Article> GetArticleAsync(int id) {

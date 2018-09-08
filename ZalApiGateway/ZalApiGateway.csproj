@@ -71,6 +71,7 @@
     <Compile Include="Models\ApiCommunicationModels\ArticlesChangesRespondModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\ArticleTopTenRequestModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\BadgeRequestModel.cs" />
+    <Compile Include="Models\ApiCommunicationModels\ExtendedArticleModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\LoginRequestModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\LoginRespondModel.cs" />
     <Compile Include="Models\ApiCommunicationModels\LogoutRequestModel.cs" />

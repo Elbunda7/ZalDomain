@@ -37,11 +37,13 @@ namespace ZalDomain.Tests
         public async Task ActualityTest() {
             await Zal.Actualities.Synchronize();
             var a = Zal.Actualities.Data;
+            await Zal.Actualities.LoadNext();
             //var a = await Article.LoadTopTen(new int[0], DateTime.Now);
             //var b = await Article.LoadTopTen(new int[] { 6, 24, 22, 20, 18, 16, 14, 1, 10, 3 }, DateTime.Now);
             //var c = await Article.LoadTopTen(new int[] { 6, 24, 22, 20, 18, 16, 14, 1, 10, 3 }, DateTime.Now);
             //await Zal.Actualities.SynchronizeAsync();
-            //Assert.IsTrue(await Zal.Actualities.AddNewArticle("title", "test", 0));
+            await Zal.Session.LoginAsync("pepa3@email.cz", "password", true);
+            Assert.IsTrue(await Zal.Actualities.AddNewArticle("Article", "Lorem ipsum", 0));
             //await Zal.Users.AddNewUser("name", "surname", (int)ZAL.Group.Bobri);
             /* await Zal.Users.SynchronizeUsers();
              var a = Zal.Users.Users;

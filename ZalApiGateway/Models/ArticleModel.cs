@@ -14,7 +14,7 @@ namespace ZalApiGateway.Models
         public int Type { get; set; }
         public int Id_Author { get; set; }
         public DateTime Date { get; set; }
-        public int Id_Gallery { get; set; }
+        public int? Id_Gallery { get; set; }
         //public int? Pro_druzinu { get; set; }
     }
 }

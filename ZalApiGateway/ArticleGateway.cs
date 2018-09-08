@@ -23,12 +23,17 @@ namespace ZalApiGateway
             return model.Id != -1;
         }
 
+        public async Task<bool> AddAsync(ExtendedArticleModel model) {
+            model.Id = await SendRequestFor<int>(API.METHOD.ADD, model);
+            return model.Id != -1;
+        }
+
         public Task<bool> DeleteAsync(int id) {
             return SendRequestFor<bool>(API.METHOD.DELETE, id);
         }
 
-        public Task<IEnumerable<ArticleModel>> LoadNextAsync() {
-            return SendRequestFor<IEnumerable<ArticleModel>>(API.METHOD.LOAD_NEXT);
+        public Task<IEnumerable<ArticleModel>> LoadNextAsync(int model) {
+            return SendRequestFor<IEnumerable<ArticleModel>>(API.METHOD.LOAD_NEXT, model);
         }
 
         public async Task<ArticlesChangesRespondModel> LoadIfChangedTopTenAsync(ArticleTopTenRequestModel model, string token) {

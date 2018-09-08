@@ -56,17 +56,18 @@ namespace ZalDomain.consts
             All = 255,
         }
 
+        public enum ArticleType
+        {
+            Article = 1,
+            Info = 2,
+            Record = 3,
+            Link = 4,
+        }
+
         public abstract class MEMBERSHIP
         {
             public static string NECLEN = "nečlen";
             public static string CLEN = "člen";
-        }
-
-        public abstract class ACTUALITY_TYPE
-        {
-            public const string INFO = "info";
-            public const string RECORD = "zapis";
-            public const string ARTICLE = "clanek";
         }
 
         public abstract class YEAR

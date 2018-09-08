@@ -8,31 +8,10 @@ using ZalDomain.tools.ARComparers;
 
 namespace ZalDomain.tools.ARSets
 {
-    class ActualityObservableSortedSet:ObservableSortedSet<Article>
+    public class ActualityObservableSortedSet:ObservableSortedSet<Article>
     {
-        public ActualityObservableSortedSet():base(new ActualityComparer()) {
+        public ActualityObservableSortedSet() : base(new ActualityComparer()) { }        
 
-        }
-
-        public bool RemoveById(int id) {
-            foreach(Article a in this) {
-                if (a.Id == id) {
-                    Remove(a);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        [Obsolete]
-        public bool ContainsById(Article item) {
-            foreach (Article a in this) {
-                if (a.Id == item.Id) {
-                    return true;
-                }
-            }
-            return false;
-        }
-       
+        public ActualityObservableSortedSet(IEnumerable<Article> enumerable) : base(enumerable, new ActualityComparer()) { }
     }
 }

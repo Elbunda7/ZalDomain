@@ -22,8 +22,9 @@ namespace ZalDomain.ActiveRecords
         public int Id => model.Id;
         public string Title => model.Title;
         public string Text => model.Text;
+        public ZAL.ArticleType Type => (ZAL.ArticleType)model.Type;
         public int Id_Author => model.Id_Author;
-        public DateTime Date_Creation => model.Date;
+        public DateTime Date => model.Date;
         public int Id_Gallery => model.Id_Gallery;
         //public string ShortText { get { return model.ShortText; } }
         //public string Type { get { return GetItemType(); } }        //zrušit 3x null-ids, zařídit typ+id
@@ -67,13 +68,14 @@ namespace ZalDomain.ActiveRecords
             throw new NotImplementedException();
         }
 
-        public static async Task<bool> LoadTopTen(int[] ids, DateTime timestamp) {
+        public static async Task<ArticleChangedModel> LoadTopTen(int[] ids, DateTime timestamp) {
             var requestModel = new ArticleTopTenRequestModel {
-                Ids = new int[] { 6, 24, 22, 20, 18, 16, 14, 1, 10, 3 },
-                Timestamp = new DateTime(2018, 10, 8),
+                Ids = ids,
+                Timestamp = timestamp,
             };
-            var a = await Gateway.LoadIfChangedTopTenAsync(requestModel, "str");
-            return true;
+            var rawRespondModel = await Gateway.LoadIfChangedTopTenAsync(requestModel, "str");
+            var changedItems = rawRespondModel.Changed.Select(x => new Article(x));
+            return new ArticleChangedModel(rawRespondModel, changedItems);
         }
 
         public static async Task<Collection<Article>> GetAllFor(int userRank) {

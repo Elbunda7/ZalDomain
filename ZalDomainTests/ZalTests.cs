@@ -35,16 +35,20 @@ namespace ZalDomain.Tests
 
         [TestMethod()]
         public async Task ActualityTest() {
-            var a = await Article.LoadTopTen(null, DateTime.Now);
+            await Zal.Actualities.Synchronize();
+            var a = Zal.Actualities.Data;
+            //var a = await Article.LoadTopTen(new int[0], DateTime.Now);
+            //var b = await Article.LoadTopTen(new int[] { 6, 24, 22, 20, 18, 16, 14, 1, 10, 3 }, DateTime.Now);
+            //var c = await Article.LoadTopTen(new int[] { 6, 24, 22, 20, 18, 16, 14, 1, 10, 3 }, DateTime.Now);
             //await Zal.Actualities.SynchronizeAsync();
             //Assert.IsTrue(await Zal.Actualities.AddNewArticle("title", "test", 0));
             //await Zal.Users.AddNewUser("name", "surname", (int)ZAL.Group.Bobri);
-           /* await Zal.Users.SynchronizeUsers();
-            var a = Zal.Users.Users;
-            var filter = UserFilterModel.Default;
-            filter.Groups &= ~ZAL.Group.Bobri;
-            await Zal.Users.SynchronizeUsers(filter);
-            var b = Zal.Users.Users;*/
+            /* await Zal.Users.SynchronizeUsers();
+             var a = Zal.Users.Users;
+             var filter = UserFilterModel.Default;
+             filter.Groups &= ~ZAL.Group.Bobri;
+             await Zal.Users.SynchronizeUsers(filter);
+             var b = Zal.Users.Users;*/
         }
 
         [TestMethod()]

@@ -5,17 +5,19 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using ZalDomain.ActiveRecords;
 using ZalDomain.consts;
+using ZalDomain.Models;
 using ZalDomain.tools.ARSets;
 
 namespace ZalDomain.ItemSets
 {
-    public class ActualitySet {
-        private ActualityObservableSortedSet Data { get; set; }
-        private DateTime LastCheck;
+    public class ActualitySet
+    {
+        public ActualityObservableSortedSet Data { get; set; }
+        private int[] topTenIds;
 
         public ActualitySet() {
             Data = new ActualityObservableSortedSet();
-            LastCheck = ZAL.DATE_OF_ORIGIN;
+            topTenIds = new int[0];
         }
 
         internal async Task<Article> CreateNewArticle(string title, string text, int fromRank, int? forGroup = null) {
@@ -47,17 +49,23 @@ namespace ZalDomain.ItemSets
             }
         }
 
-        public async Task SynchronizeAsync() {
-            DateTime tmp = DateTime.Now;
-            CheckForChanges();
-            LastCheck = tmp;
+        public async Task Synchronize() {
+            ArticleChangedModel respond = await Article.LoadTopTen(topTenIds, Data.LastSynchronization);
+            if (respond.IsChanged) {
+                var idsToDelete = topTenIds.Except(respond.Ids);
+                Data.RemoveByIds(idsToDelete.ToArray());
+                Data.AddOrUpdateAll(respond.Changed);
+                Data.LastSynchronization = respond.Timestamp;
+            }
         }
 
-        internal void ReSynchronize() {
-            LastCheck = ZAL.DATE_OF_ORIGIN;
-            SynchronizeAsync();
+        internal async Task ReSynchronize() {
+            topTenIds = new int[0];
+            Data.Clear();
+            await Synchronize();
         }
 
+        [Obsolete]
         private async void CheckForChanges() {
             Data.Clear();
             Data.AddAll(await Article.GetAllFor((int)Zal.Session.UserRank));
@@ -90,14 +98,14 @@ namespace ZalDomain.ItemSets
                 Data.Add(a);
             }
             return a;
-        }    
+        }
 
         //public IActualityItem Get(Article a) {
         //    return a.ItemLazyLoad();
         //}
 
         public IEnumerable<Article> GetAll() {
-            SynchronizeAsync();
+            Synchronize();
             return Data;
         }
 
@@ -113,7 +121,7 @@ namespace ZalDomain.ItemSets
             IEnumerable<XElement> data = element.Elements("Actuality");
             foreach (XElement el in data) {
                 Article actuality = Article.LoadFromXml(el);
-                if (!Data.Contains(actuality)){ //contains vs containsById
+                if (!Data.Contains(actuality)) { //contains vs containsById
                     Data.Add(Article.LoadFromXml(el));
                 }
             }

@@ -74,7 +74,7 @@ namespace ZalDomain
             //Documents.Synchronize();
             //Badgets.Synchronize();
             await Users.SynchronizeUsers();
-            //Actualities.Synchronize();
+            await Actualities.Synchronize();
             await Actions.SynchronizeAllCurrentlyActive();
         }
 

@@ -1,11 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ZalApiGateway.ApiTools;
 using ZalApiGateway.Models;
@@ -13,7 +7,7 @@ using ZalApiGateway.Models.ApiCommunicationModels;
 
 namespace ZalApiGateway
 {
-    public class ArticleGateway:Gateway
+    public class ArticleGateway : Gateway
     {
         public ArticleGateway() : base(API.ENDPOINT.ARTICLES){ }
 
@@ -39,14 +33,6 @@ namespace ZalApiGateway
         public async Task<ArticlesChangesRespondModel> LoadIfChangedTopTenAsync(ArticleTopTenRequestModel model, string token) {
             var respond = await SendRequestForNullable<ArticlesChangesRespondModel>(API.METHOD.LOAD_TOP_TEN, model, token);
             return respond ?? new ArticlesChangesRespondModel();
-        }
-
-        public ArticleModel SelectGeneral(int id) {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Collection<ArticleModel>> SelectAllGeneralFor(string uzivatelEmail) {
-            throw new NotImplementedException();
         }
 
         public Task<bool> UpdateAsync(ArticleModel model, string token) {
